@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Box Payment — Theater Theme</title>
+    
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #060608;
+            background-image: 
+                radial-gradient(circle at 50% -10%, rgba(150, 0, 16, 0.25) 0%, transparent 70%),
+                linear-gradient(180deg, #060608 0%, #0d0e12 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #f3f4f6;
+        }
+
+        .payment-container {
+            width: 400px;
+            background: #111216;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 4px solid #960010;
+        }
+
+        /* Theater Spotlight Accent Ribbon */
+        .payment-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10%;
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #e60018, transparent);
+            box-shadow: 0 0 10px #e60018;
+        }
+
+        h2 {
+            text-align: left;
+            margin-bottom: 25px;
+            margin-top: 0;
+            font-size: 22px;
+            letter-spacing: 0.5px;
+            color: #fff;
+            font-weight: 800;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #a2a5ab;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #22242c;
+            background: #060608;
+            color: #fff;
+            border-radius: 8px;
+            box-sizing: border-box;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        input:focus {
+            border-color: #e60018;
+            box-shadow: 0 0 0 3px rgba(150, 0, 16, 0.35);
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .row .form-group {
+            flex: 1;
+        }
+
+        .card-logos {
+            position: absolute;
+            top: 30px;
+            right: 25px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .card-logos img {
+            width: 36px;
+            height: 22px;
+            object-fit: contain;
+            filter: grayscale(15%) brightness(95%);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            margin-top: 10px;
+        }
+
+        .checkbox-container input {
+            width: 16px;
+            height: 16px;
+            accent-color: #e60018;
+            cursor: pointer;
+        }
+
+        .checkbox-container label {
+            margin-bottom: 0;
+            font-weight: 500;
+            text-transform: none;
+            font-size: 13px;
+            color: #93969b;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            background: linear-gradient(135deg, #960010 0%, #5e000b 100%);
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(150, 0, 16, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #e60018 0%, #960010 100%);
+            box-shadow: 0 6px 20px rgba(230, 0, 24, 0.55);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .invalid {
+            border: 2px solid #e60018 !important;
+            color: #e60018;
+        }
+
+        #error {
+            color: #e60018;
+            font-size: 12px;
+            display: block;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div class="payment-container">
+    <h2>| Payment Details</h2>
+    <h3 style="color:#00f5d4; margin-bottom:20px;">
+        Amount Payable : ₹{{ amount }}
+    </h3>
+    
+    <div class="card-logos">
+        <img src="C:\Users\dasug\Downloads\visa.png" alt="Visa" onerror="this.style.display='none'"> 
+        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard">
+        <img src="C:\Users\dasug\Downloads\Rupay.png" alt="RuPay" onerror="this.style.display='none'">
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="table_number" id="table_number">
+        <input type="hidden" name="restaurant_name" id="restaurant_name">
+        <div class="form-group">
+            <label>Card Holder Name</label>
+            <input type="text" name="card_holder" placeholder="Enter Card Holder Name" required>
+        </div>
+
+        <div class="form-group">
+            <label>Card Number</label>
+            <input type="text" id="cardNumber" name="card_number" maxlength="19" placeholder="1234 5678 9012 3456" required>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label>Expiry Date (MM/YY)</label>
+                <input type="text" id="expiry" name="expiry_date" placeholder="MM/YY" maxlength="5" required>
+                <span id="error"></span>
+            </div>
+
+            <div class="form-group">
+                <label>CVV</label>
+                <input type="password" name="cvv" id="cvv" maxlength="3" placeholder="***" required>
+            </div>
+        </div>
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="savecard">
+            <label for="savecard">Save card details for future purchases</label>
+        </div>
+        <p>PAYMENT PAGE OPENED SUCCESSFULLY</p>
+        <button type="submit">Pay Now</button>
+    </form>
+</div>
+
+<script>
+// Realtime input styling constraints
+document.getElementById('cardNumber').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    value = value.replace(/(.{4})/g, '$1 ').trim();
+    e.target.value = value;
+});
+
+document.querySelector('[name="card_holder"]').addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, '');
+});
+
+document.getElementById('cvv').addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0,3);
+});
+
+// Automatic date delimiter injection
+const expiryInput = document.getElementById("expiry");
+expiryInput.addEventListener("input", function () {
+    let value = this.value.replace(/\D/g, ""); 
+    if (value.length >= 2) {
+        value = value.substring(0, 2) + "/" + value.substring(2, 4);
+    }
+    this.value = value;
+});
+
+// Date logic validation engine
+function validateExpiry() {
+    let expiry = document.getElementById("expiry").value;
+    let error = document.getElementById("error");
+    let parts = expiry.split("/");
+
+    if (expiry === "") { error.textContent = ""; return; }
+    if (parts.length !== 2 || parts[0].length < 2 || parts[1].length < 2) {
+        error.textContent = "Format must be MM/YY";
+        return;
+    }
+
+    let month = parseInt(parts[0], 10);
+    let year = parseInt("20" + parts[1], 10);
+
+    let today = new Date();
+    let currentMonth = today.getMonth() + 1;
+    let currentYear = today.getFullYear();
+
+    if (month < 1 || month > 12 || year < currentYear || (year === currentYear && month < currentMonth)) {
+        error.textContent = "Card has expired";
+        document.getElementById("expiry").classList.add("invalid");
+    } else {
+        error.textContent = "";
+        document.getElementById("expiry").classList.remove("invalid");
+    }
+}
+expiryInput.addEventListener("blur", validateExpiry);
+</script>
+
+</body>
+<script>
+document.getElementById("table_number").value =
+    sessionStorage.getItem("table_number");
+
+document.getElementById("restaurant_name").value =
+    sessionStorage.getItem("restaurant_name");
+</script>
+</html>
