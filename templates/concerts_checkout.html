@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<title>The Concert Hall — Seat Selection</title>
+<style>
+
+:root {
+  --bg:#0c0c12;
+  --surface:#14141e;
+  --card-bg: #1a1a24;
+  --border:rgba(255,255,255,0.07);
+  --text:#eeeef5;
+  --accent:#c8102e;
+  --success:#00c882;
+}
+
+/* Updated Modal Styling */
+.checkout-modal { 
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+  display: none; z-index: 1000; justify-content: center; align-items: center; 
+}
+
+.modal-content { 
+  background: #14141e; 
+  padding: 40px; 
+  border-radius: 16px; 
+  width: 420px; 
+  text-align: left; 
+  border: 1px solid rgba(255,255,255,0.1); 
+  position: relative;
+  
+  /* Deep, soft theatrical shadow with a red ambient glow */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 
+              0 0 30px rgba(200, 16, 46, 0.4), 
+              0 0 0 1px rgba(255,255,255,0.1);
+}
+
+.modal-content h2 {
+  color: #fff;
+  margin-bottom: 25px;
+  font-size: 24px;
+  border-left: 4px solid var(--accent);
+  padding-left: 15px;
+}
+
+/* Input field styling to match premium dark UI */
+.checkout-input { 
+  width: 100%; padding: 12px; margin: 10px 0; 
+  background: #0c0c12; border: 1px solid #333; 
+  border-radius: 8px; color: #fff; transition: border 0.3s;
+}
+.checkout-input:focus { outline: none; border-color: var(--accent); }
+
+.pay-btn { 
+  background: var(--accent); color: #fff; border: none; 
+  padding: 16px; width: 100%; cursor: pointer; border-radius: 8px; 
+  font-weight: 700; margin-top: 20px; text-transform: uppercase;
+  transition: transform 0.2s, background 0.2s;
+}
+.pay-btn:hover { background: #e01535; transform: translateY(-2px); }
+
+/* Keep your existing body/header/seat styles here, 
+   but ensure the body uses the updated :root variables */
+:root {
+  --bg:#0c0c12;--surface:#14141e;--border:rgba(255,255,255,0.07);
+  --text:#eeeef5;--muted:#6a6a90;
+  --accent:#c8102e;
+  --orch-bg:#1a1a1a;--grand-bg:#1a1a1a;--sec-bg:#1a1a1a;
+  --taken:#c0392b;--ring:#00c882;
+  --special:#1565c0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200}
+.hall-badge{background:var(--accent);color:#fff;font-size:11px;font-weight:700;letter-spacing:.07em;padding:5px 12px;border-radius:4px}
+header h1{font-size:17px;font-weight:600;letter-spacing:.01em}
+
+.cart-bar{position:fixed;bottom:0;left:0;right:0;background:#110d0d;border-top:2px solid #2a1010;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;padding:14px 36px;z-index:300;gap:20px}
+.cart-left{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+.cart-heading{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#888}
+.cart-chips{display:flex;align-items:center;flex-wrap:wrap;gap:0;margin-top:4px;min-height:18px;overflow:hidden;max-height:36px}
+.no-sel-txt{font-size:13px;color:#555;font-style:italic}
+.seat-tag{font-size:12px;color:#00c882;cursor:pointer;white-space:nowrap;transition:color .15s}
+.seat-tag:hover{color:#e83050;text-decoration:line-through}
+.pipe{font-size:12px;color:#333;padding:0 5px;user-select:none}
+.cart-right{display:flex;align-items:center;gap:28px;flex-shrink:0}
+.price-block{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.total-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#888}
+.total-val{font-size:22px;font-weight:700;color:#00c882;line-height:1.1}
+.book-btn{padding:12px 28px;background:linear-gradient(135deg,#2a2a3a 0%,#1e1e2e 100%);color:#bbb;border:1px solid #333;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:border-color .2s,color .2s,transform .1s}
+.book-btn:hover{border-color:#00c882;color:#00c882}
+.book-btn:disabled{opacity:.35;cursor:default}
+
+.legend-bar{display:flex;align-items:center;justify-content:center;gap:24px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+.ldot{width:12px;height:11px;border-radius:2px;flex-shrink:0}
+.ldot.taken{background:#c0392b}
+.ldot.selected{background:#00c882;outline:2px solid #00c882;outline-offset:1px}
+.ldot.special{background:#1565c0}
+.leg-price{color:var(--text);font-weight:600;margin-left:2px}
+
+main{flex:1;overflow-y:auto;padding:32px 16px 100px}
+.venue{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.stage-top{text-align:center}
+.stage-label{display:inline-block;padding:11px 80px;background:rgba(200,16,46,.07);border:1px solid rgba(200,16,46,.25);border-bottom:none;border-radius:10px 10px 0 0;font-size:12px;font-weight:700;letter-spacing:.22em;color:var(--accent);text-transform:uppercase}
+.stage-line{height:1px;background:rgba(200,16,46,.2);margin:0 24px}
+.sec-wrap{display:flex;flex-direction:column;gap:4px}
+.sec-lbl{text-align:center;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+.sec-frame{border:1px solid var(--border);border-radius:9px;padding:10px 8px 12px;background:var(--surface)}
+.exits{display:flex;justify-content:space-between;margin-bottom:5px;padding:0 2px}
+.exit{font-size:8px;color:var(--muted);text-transform:uppercase;border:1px solid var(--border);padding:2px 5px;border-radius:3px}
+.orch-layout, .tier-layout{display:flex;gap:0;align-items:flex-start;margin:0 -3px}
+.orch-layout>*, .tier-layout>*{margin:0 -3px}
+.orch-side, .tier-side{display:flex;flex-direction:column;gap:2px}
+.orch-center, .tier-mid{flex:1;display:flex;flex-direction:column;gap:2px;align-items:center}
+.srow{display:flex;align-items:center;gap:2px}
+.rlbl{font-size:8px;color:#404055;width:11px;text-align:right;flex-shrink:0;margin-right:1px}
+.aisle{width:8px;flex-shrink:0}
+.seat{width:12px;height:10px;border-radius:2px;cursor:pointer;flex-shrink:0;border:1px solid rgba(255,255,255,0.18)}
+.seat:hover:not(.taken){transform:scale(1.55);z-index:5;position:relative;box-shadow:0 0 6px #fff}
+.seat.taken{cursor:default;background:#c0392b !important;opacity:.85}
+.seat.selected{background:#00c882 !important;outline:2px solid #00ff99;outline-offset:1px;z-index:4;position:relative}
+.seat.special{background:#1565c0 !important}
+.toast{position:fixed;top:72px;left:50%;transform:translateX(-50%);background:#1c1c2e;border:1px solid #5a9e5a;border-radius:8px;padding:11px 24px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap}
+.toast.show{opacity:1}
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Seat Selection</h1>
+  <div class="hall-badge">The Concert Hall</div>
+</header>
+
+<div class="legend-bar">
+  <div class="leg"><div class="ldot" style="background:var(--orch-bg)"></div>Orchestra <span class="leg-price">₹7,499</span></div>
+  <div class="leg"><div class="ldot" style="background:var(--grand-bg)"></div>Grand Tier <span class="leg-price">₹5,499</span></div>
+  <div class="leg"><div class="ldot" style="background:var(--sec-bg)"></div>Second Tier <span class="leg-price">₹3,499</span></div>
+  <div class="leg"><div class="ldot special"></div>Special <span class="leg-price">+₹499</span></div>
+  <div class="leg"><div class="ldot taken"></div>Booked</div>
+  <div class="leg"><div class="ldot selected"></div>Selected</div>
+</div>
+
+
+<main>
+<div class="venue">
+  <div class="stage-top"><div class="stage-label">Stage</div><div class="stage-line"></div></div>
+  <div class="sec-wrap"><div class="sec-frame" id="f-orch"></div><div class="sec-lbl">Orchestra</div></div>
+  <div class="sec-wrap"><div class="sec-frame" id="f-grand"></div><div class="sec-lbl">Grand Tier</div></div>
+  <div class="sec-wrap"><div class="sec-frame" id="f-second"></div><div class="sec-lbl">Second Tier</div></div>
+</div>
+</main>
+
+<div class="cart-bar" id="cart-bar">
+  <div class="cart-left">
+    <div class="cart-heading">Current Selection Summary</div>
+    <div class="cart-chips" id="cart-chips"><span class="no-sel-txt">No Seats Chosen</span></div>
+  </div>
+  <div class="cart-right">
+    <div class="price-block">
+      <div class="total-label">Total Price</div>
+      <div class="total-val" id="total-val">₹0</div>
+    </div>
+    <button class="book-btn" id="bookbtn" onclick="doBook()" disabled>Proceed to Checkout</button>
+  </div>
+</div>
+<div class="checkout-modal" id="checkout-modal">
+    <div class="modal-content">
+        <h2 id="modal-event-title">The Grand Concert</h2>
+        <form id="checkout-form" style="text-align: left; margin: 15px 0;">
+            <div id="tier-breakdown" style="margin-bottom: 15px; font-size: 14px; color: #aaa;"></div>
+            
+            <p><strong>Seats:</strong> <span id="modal-seats" style="color: #00c882;"></span></p>
+            <p style="margin-top:10px; font-size: 18px;"><strong>Total Amount:</strong> <span id="modal-total" style="color: #00c882; font-weight: bold;"></span></p>
+            
+            <input type="text" id="c-name" class="checkout-input" placeholder="Full Name" required>
+            <input type="tel" id="c-phone" class="checkout-input" placeholder="Phone (10 digits)" required>
+            <input type="email" id="c-email" class="checkout-input" placeholder="Gmail Address" required>
+
+            <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                <p style="margin-bottom: 8px;"><strong>Select Payment Method:</strong></p>
+                <label style="display: block; margin-bottom: 5px; cursor: pointer;">
+                    <input type="radio" name="payMethod" value="card" checked> Credit/Debit Card
+                </label>
+                <label style="display: block; cursor: pointer;">
+                    <input type="radio" name="payMethod" value="razorpay"> Razorpay
+                </label>
+            </div>
+        </form>
+        
+        <button class="pay-btn" onclick="validateAndPay()">Complete Payment</button>
+        <button onclick="closeModal()" style="background:none; border:none; color: #666; margin-top: 15px; width: 100%; cursor: pointer;">Cancel</button>
+    </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SEL = {};
+const C = {
+  orch:  {price: 7499, name: 'Orchestra'},
+  grand: {price: 5499, name: 'Grand Tier'},
+  sec:   {price: 3499, name: 'Second Tier'},
+};
+const SPECIAL_PREMIUM = 499;
+
+function pickRandom(pool, n) {
+  const arr = [...pool];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, n);
+}
+
+function makeSeat(id, label, c, bookedSpecial, blueSpecial) {
+  const el = document.createElement('div');
+  const price = blueSpecial ? c.price + SPECIAL_PREMIUM : c.price;
+  if (bookedSpecial) {
+    el.className = 'seat taken';
+    el.title = label + ' — Booked';
+  } else if (blueSpecial) {
+    el.className = 'seat special';
+    el.title = label + ' — Special — ₹' + price.toLocaleString('en-IN');
+    el.onclick = () => toggle(id, label, c, el, true, price);
+  } else {
+    const randomTaken = Math.random() < 0.27;
+    if (randomTaken) {
+      el.className = 'seat taken';
+      el.title = label + ' — Booked';
+    } else {
+      el.className = 'seat';
+      el.title = label + ' — ₹' + price.toLocaleString('en-IN');
+      el.onclick = () => toggle(id, label, c, el, false, price);
+    }
+  }
+  return el;
+}
+
+function toggle(id, label, c, el, isSpecial, price) {
+  if (SEL[id]) {
+    delete SEL[id];
+    el.classList.remove('selected');
+  } else {
+    SEL[id] = {label, c, el, isSpecial, price};
+    el.classList.add('selected');
+  }
+  refresh();
+}
+
+function desel(id) {
+  const s = SEL[id]; if (!s) return;
+  s.el.classList.remove('selected');
+  delete SEL[id]; refresh();
+}
+
+function refresh() {
+  const keys = Object.keys(SEL), n = keys.length;
+  const chips = document.getElementById('cart-chips');
+  const btn = document.getElementById('bookbtn');
+  chips.innerHTML = '';
+  if (n === 0) {
+    chips.innerHTML = '<span class="no-sel-txt">No Seats Chosen</span>';
+    document.getElementById('total-val').textContent = '₹0';
+    btn.disabled = true;
+    return;
+  }
+  btn.disabled = false;
+  let tot = 0;
+  keys.forEach(id => tot += SEL[id].price);
+  document.getElementById('total-val').textContent = '₹' + tot.toLocaleString('en-IN');
+  keys.forEach((id, idx) => {
+    const s = SEL[id];
+    const tag = document.createElement('span');
+    tag.className = 'seat-tag';
+    tag.textContent = s.label.split(' · ').join('.') + (s.isSpecial ? '★' : '');
+    tag.onclick = () => desel(id);
+    chips.appendChild(tag);
+    if (idx < keys.length - 1) {
+      const p = document.createElement('span'); p.className = 'pipe'; p.textContent = '|';
+      chips.appendChild(p);
+    }
+  });
+}
+
+function doBook() {
+    const total = document.getElementById('total-val').textContent;
+    const selectedSeats = Object.values(SEL);
+    
+    // Group selected seats by Tier name
+    const breakdown = selectedSeats.reduce((acc, s) => {
+        acc[s.c.name] = (acc[s.c.name] || 0) + 1;
+        return acc;
+    }, {});
+
+    // Generate tier text
+    let tierText = '';
+    for (const [tier, count] of Object.entries(breakdown)) {
+        tierText += `<div>${tier}: ${count} Ticket(s)</div>`;
+    }
+
+    document.getElementById('tier-breakdown').innerHTML = `<strong>Booking For:</strong><br>${tierText}`;
+    document.getElementById('modal-total').textContent = total;
+    document.getElementById('modal-seats').textContent = selectedSeats.map(s => s.label.split(' · ').join('.')).join(', ');
+    document.getElementById('checkout-modal').style.display = 'flex';
+}
+
+// 1. Triggered by "Complete Payment" button
+function validateAndPay() {
+    const form = document.getElementById('checkout-form');
+    
+    // Check if the form is valid (Name, Phone, Email constraints)
+    if (form.checkValidity()) {
+        openRazorpay();
+    } else {
+        // Trigger browser's native validation bubbles
+        form.reportValidity();
+    }
+}
+
+function openRazorpay() {
+    const form = document.getElementById('checkout-form');
+    
+    // 1. Validate Form First
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    const method = document.querySelector('input[name="payMethod"]:checked').value;
+    const totalString = document.getElementById('total-val').textContent;
+    const amount = parseInt(totalString.replace(/[₹,]/g, '')) * 100;
+
+    // 2. Conditional Logic
+    if (method === 'razorpay') {
+        // This launches the actual Razorpay API Modal
+        var options = {
+            "key": "YOUR_RAZORPAY_KEY_ID", // REPLACE WITH YOUR ACTUAL KEY
+            "amount": amount, 
+            "currency": "INR",
+            "name": "The Concert Hall",
+            "description": "Seat Booking Payment",
+            "handler": function (response){
+                // This block runs after successful payment
+                alert("Payment Successful! ID: " + response.razorpay_payment_id);
+                closeModal();
+                location.reload(); 
+            },
+            "prefill": {
+                "name": document.getElementById('c-name').value,
+                "email": document.getElementById('c-email').value,
+                "contact": document.getElementById('c-phone').value
+            },
+            "theme": { "color": "#c8102e" }
+        };
+        
+        // This is the API trigger
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+        
+    } else {
+        // Redirection to your custom payment page for Credit/Debit card
+        window.location.href = `payment.html?total=${amount/100}`;
+    }
+}
+function makeRow(prefix, rowLetter, count, c, aisleAt, bookedSet, blueSet) {
+  const wrap = document.createElement('div'); wrap.className = 'srow';
+  const rl = document.createElement('div'); rl.className = 'rlbl'; rl.textContent = rowLetter;
+  wrap.appendChild(rl);
+  for (let i = 0; i < count; i++) {
+    if (aisleAt && i === aisleAt) { const a = document.createElement('div'); a.className = 'aisle'; wrap.appendChild(a); }
+    const id = prefix + '-' + rowLetter + '-' + i;
+    wrap.appendChild(makeSeat(id, prefix + ' · Row ' + rowLetter + ' · Seat ' + (i + 1), c, bookedSet?.has(id), blueSet?.has(id)));
+  }
+  return wrap;
+}
+
+function addExits(el, top) {
+  const d = document.createElement('div'); d.className = 'exits';
+  if (!top) d.style.marginTop = '7px';
+  d.innerHTML = '<span class="exit">Exit</span><span class="exit">Exit</span>';
+  el.appendChild(d);
+}
+// This function ensures the checkout modal is hidden when "Cancel" is clicked
+function closeModal() {
+    // 1. Hide the modal
+    document.getElementById('checkout-modal').style.display = 'none';
+    
+    // 2. Optional: Reset the form fields if you want them empty when the user re-opens
+    document.getElementById('checkout-form').reset();
+}
+/* INITIALIZE ALL SECTIONS */
+(function() {
+  const sections = [
+    { id: 'f-orch', rows: 'ABCDEFGHIJKLMNOPQR'.split(''), cw: [28,28,28,28,26,26,26,24,24,24,22,22,22,20,20,18,16,14], prefix: ['OL', 'OC', 'OR'], config: C.orch },
+    { id: 'f-grand', rows: 'ABCDEFGHIJ'.split(''), cw: [23], prefix: ['GL', 'GC', 'GR'], config: C.grand },
+    { id: 'f-second', rows: 'ABCDEFGHIJ'.split(''), cw: [23], prefix: ['SL', 'SC', 'SR'], config: C.sec }
+  ];
+
+  sections.forEach(sec => {
+    const el = document.getElementById(sec.id);
+    addExits(el, true);
+    const lay = document.createElement('div'); lay.className = (sec.id === 'f-orch' ? 'orch-layout' : 'tier-layout');
+    
+    // Generate all IDs for this section to assign specials/booked randomly
+    const allIds = [];
+    sec.rows.forEach((r, i) => {
+      const rowCount = (sec.id === 'f-orch' ? sec.cw[i] : (i === 0 ? 9 : 23)); // Simplified logic
+      // Note: Re-using simple logic for random distribution across IDs
+      for(let j=0; j<(sec.id === 'f-orch' ? sec.cw[i] : 9); j++) allIds.push(sec.prefix[0] + '-' + r + '-' + j);
+      for(let j=0; j<(sec.id === 'f-orch' ? sec.cw[i] : 23); j++) allIds.push(sec.prefix[1] + '-' + r + '-' + j);
+      for(let j=0; j<(sec.id === 'f-orch' ? sec.cw[i] : 9); j++) allIds.push(sec.prefix[2] + '-' + r + '-' + j);
+    });
+
+    const booked = new Set(pickRandom(allIds, Math.floor(allIds.length * 0.2)));
+    const blue = new Set(pickRandom(allIds.filter(id => !booked.has(id)), Math.floor(allIds.length * 0.1)));
+
+    const ls = document.createElement('div'); ls.className = (sec.id === 'f-orch' ? 'orch-side' : 'tier-side');
+    sec.rows.forEach(r => ls.appendChild(makeRow(sec.prefix[0], r, 9, sec.config, null, booked, blue)));
+    lay.appendChild(ls);
+
+    const mid = document.createElement('div'); mid.className = (sec.id === 'f-orch' ? 'orch-center' : 'tier-mid');
+    sec.rows.forEach((r, i) => mid.appendChild(makeRow(sec.prefix[1], r, 23, sec.config, 11, booked, blue)));
+    lay.appendChild(mid);
+
+    const rs = document.createElement('div'); rs.className = (sec.id === 'f-orch' ? 'orch-side' : 'tier-side');
+    sec.rows.forEach(r => rs.appendChild(makeRow(sec.prefix[2], r, 9, sec.config, null, booked, blue)));
+    lay.appendChild(rs);
+
+    el.appendChild(lay); addExits(el, false);
+  });
+})();
+
+</script>
+</body>
+</html>

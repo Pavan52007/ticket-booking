@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenith Events | Premium High-Density Admin Console</title>
+    <!-- Typography & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --bg-color: #05030b;
+            --sidebar-bg: rgba(10, 8, 22, 0.85);
+            --card-bg: rgba(18, 14, 35, 0.5);
+            --border-color: rgba(255, 255, 255, 0.06);
+            
+            /* Neon Gradient Palette */
+            --accent-primary: #7f00ff;   /* Vibrant Violet */
+            --accent-secondary: #ff007f; /* Cyber Pink */
+            --accent-blue: #00f2fe;      /* Electric Cyan */
+            --accent-green: #39ff14;     /* Neon Green */
+            
+            --text-main: #f1edfa;
+            --text-muted: rgba(241, 237, 250, 0.5);
+            --glow-primary: 0 0 12px rgba(127, 0, 255, 0.4);
+            --glow-secondary: 0 0 12px rgba(255, 0, 127, 0.4);
+            --transition-speed: 0.2s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 15%, rgba(127, 0, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 85%, rgba(0, 242, 254, 0.06) 0%, transparent 405%);
+            background-attachment: fixed;
+        }
+
+        /* Layout Framework */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .sidebar-brand {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-brand i {
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 6px var(--accent-blue));
+        }
+
+        .sidebar-brand h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding: 10px 10px 20px 10px;
+        }
+
+        .sidebar-menu::-webkit-scrollbar {
+            width: 3px;
+        }
+        .sidebar-menu::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .menu-item {
+            margin-bottom: 2px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            transition: all var(--transition-speed) ease;
+            gap: 10px;
+            border-left: 2px solid transparent;
+        }
+
+        .menu-link i {
+            font-size: 0.95rem;
+            width: 20px;
+            text-align: center;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .menu-link:hover, .menu-link.active {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.04);
+            border-left-color: var(--accent-secondary);
+            text-shadow: 0 0 6px rgba(255, 0, 127, 0.3);
+        }
+
+        .menu-link:hover i, .menu-link.active i {
+            color: var(--accent-secondary);
+            filter: drop-shadow(0 0 4px var(--accent-secondary));
+        }
+
+        /* Workspace Wrapper */
+        .workspace {
+            margin-left: 250px;
+            flex-grow: 1;
+            padding: 20px 30px;
+            transition: all 0.3s ease;
+            width: calc(100% - 250px);
+        }
+
+        /* Sleek High-Density Top Bar Header */
+        .top-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .top-left-identity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .breadcrumb-trail {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .breadcrumb-trail span {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        .status-node {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            color: var(--accent-green);
+            background: rgba(57, 255, 20, 0.08);
+            padding: 3px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(57, 255, 20, 0.15);
+            font-weight: 600;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-green);
+            animation: pulse-ring 1.5s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+
+        .top-navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .search-container {
+            position: relative;
+            width: 240px;
+        }
+
+        .search-container input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px 6px 32px;
+            border-radius: 20px;
+            color: var(--text-main);
+            outline: none;
+            font-size: 0.78rem;
+            transition: all 0.2s;
+        }
+
+        .search-container input:focus {
+            border-color: var(--accent-blue);
+            background: rgba(255,255,255,0.06);
+            box-shadow: 0 0 8px rgba(0, 242, 254, 0.2);
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        /* Action Controls & Notifications Trigger */
+        .icon-trigger {
+            position: relative;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .icon-trigger:hover {
+            color: var(--text-main);
+        }
+
+        .badge-dot {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 7px;
+            height: 7px;
+            background: var(--accent-secondary);
+            border-radius: 50%;
+            box-shadow: var(--glow-secondary);
+        }
+
+        /* User Profile Trigger */
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .profile-trigger img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1.5px solid var(--accent-primary);
+            box-shadow: var(--glow-primary);
+            object-fit: cover;
+        }
+
+        .profile-info h4 {
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        /* Compact Glassmorphic Panels */
+        .glass-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        /* Hide sections by default */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .view-section.active-view {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dynamic System High-Density Stats Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            padding: 12px 16px;
+        }
+
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+        }
+
+        .metric-card.color-blue::after { background: linear-gradient(90deg, var(--accent-blue), var(--accent-primary)); }
+        .metric-card.color-pink::after { background: linear-gradient(90deg, var(--accent-secondary), var(--accent-blue)); }
+
+        .metric-info h3 {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #fff, #dddbf1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .metric-icon {
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0.7;
+        }
+
+        /* High Density Chart Setup */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1100px) {
+            .charts-row { grid-template-columns: 1fr; }
+        }
+
+        /* Highly Compact Chart Container Sizes */
+        .chart-box {
+            position: relative;
+            height: 180px; /* Reduced to make chart presentation sleek & low profile */
+            padding: 12px;
+        }
+
+        .chart-box h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chart-box canvas {
+            max-height: 130px; /* Force small rendering height */
+            width: 100% !important;
+        }
+
+        /* Professional Tables */
+        .table-panel {
+            margin-bottom: 20px;
+        }
+
+        .table-header-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .table-header-area h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* High density input sizes */
+        .table-search {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
+            border-radius: 6px;
+            color: var(--text-main);
+            outline: none;
+            font-size: 0.78rem;
+            transition: all 0.2s;
+        }
+
+        .table-search:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .primary-btn {
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            color: #fff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.78rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: var(--glow-primary);
+            transition: all 0.2s ease;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.5);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 6px;
+        }
+
+        .zenith-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.78rem;
+        }
+
+        .zenith-table th {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 10px 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+            border-bottom: 1px solid var(--border-color);
+            text-transform: uppercase;
+            font-size: 0.68rem;
+            letter-spacing: 0.5px;
+        }
+
+        .zenith-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .zenith-table tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
+            cursor: pointer;
+        }
+
+        /* Interactive details row click helper */
+        .clickable-row {
+            position: relative;
+        }
+
+        /* Status Pills */
+        .status-pill {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-pill.success { background: rgba(57, 255, 20, 0.1); color: var(--accent-green); border: 1px solid rgba(57, 255, 20, 0.15); }
+        .status-pill.pending { background: rgba(255, 170, 0, 0.1); color: #ffa000; border: 1px solid rgba(255, 170, 0, 0.15); }
+        .status-pill.danger { background: rgba(255, 0, 127, 0.1); color: var(--accent-secondary); border: 1px solid rgba(255, 0, 127, 0.15); }
+        .status-pill.blue { background: rgba(0, 242, 254, 0.1); color: var(--accent-blue); border: 1px solid rgba(0, 242, 254, 0.15); }
+
+        /* Action Buttons */
+        .action-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            font-size: 0.72rem;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        /* Modals & Dialog System */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 1, 7, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-container {
+            width: 100%;
+            max-width: 580px;
+            transform: scale(0.95);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1);
+        }
+
+        /* Interactive Event Details Modal layout */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .insights-header-banner {
+            grid-column: span 2;
+            height: 140px;
+            border-radius: 8px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+
+        .insights-banner-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(180deg, transparent, rgba(5, 3, 11, 0.95));
+            display: flex;
+            align-items: flex-end;
+            padding: 10px 15px;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            height: 8px;
+            overflow: hidden;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-secondary));
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.1, 0.8, 0.1, 1);
+        }
+
+        /* Compact settings forms */
+        .zenith-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-full-width { grid-column: span 2; }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: var(--text-main);
+            outline: none;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--accent-primary);
+        }
+
+        /* Live Notification Toast Deck */
+        .toast-box-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .live-toast {
+            background: rgba(10, 8, 22, 0.95);
+            border-left: 3px solid var(--accent-blue);
+            backdrop-filter: blur(8px);
+            padding: 10px 18px;
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.78rem;
+            transform: translateX(120%);
+            animation: showToast 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+        }
+
+        @keyframes showToast { to { transform: translateX(0); } }
+
+        /* Generic Pagination */
+        .pagination-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        /* Custom Dropdown Notifications */
+        .notif-dropdown {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            width: 280px;
+            background: rgba(10, 8, 22, 0.95);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .notif-dropdown.active { display: flex; }
+
+        .notif-item {
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .notif-item:hover { background: rgba(255,255,255,0.02); }
+
+        .notif-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            padding: 4px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--accent-blue);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .workspace { margin-left: 0; width: 100%; padding: 15px; }
+            .top-navbar { margin-top: 40px; }
+        }
+
+        .menu-toggle-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: var(--accent-primary);
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 900px) { .menu-toggle-btn { display: block; } }
+    </style>
+</head>
+<body>
+
+    <button class="menu-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+
+    <div class="app-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="appSidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-bahai"></i>
+                <h2>ZENITH</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="menu-item"><a href="#" class="menu-link active" data-target="dashboard"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-target="events" onclick="setEventsFilter('all')"><i class="fa-solid fa-calendar-days"></i><span>Events</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-target="events" onclick="setEventsFilter('live')"><i class="fa-solid fa-tower-broadcast"></i><span>Live Events</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-target="events" onclick="setEventsFilter('upcoming')"><i class="fa-solid fa-hourglass-half"></i><span>Upcoming Events</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-target="bookings"><i class="fa-solid fa-ticket"></i><span>Bookings</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-target="users"><i class="fa-solid fa-users"></i><span>Users</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-target="payments"><i class="fa-solid fa-credit-card"></i><span>Payments</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-target="reviews"><i class="fa-solid fa-star"></i><span>Reviews</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-target="notifications"><i class="fa-solid fa-bell"></i><span>Notifications</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-target="reports"><i class="fa-solid fa-file-invoice-dollar"></i><span>Reports</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-target="settings"><i class="fa-solid fa-sliders"></i><span>Settings</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" data-target="profile"><i class="fa-solid fa-user-gear"></i><span>Profile</span></a></li>
+                <li class="menu-item"><a href="#" class="menu-link" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a></li>
+            </ul>
+        </aside>
+
+        <!-- Dynamic View Workspace -->
+        <main class="workspace">
+            
+            <!-- Highly Detailed Top Bar -->
+            <header class="top-navbar">
+                <div class="top-left-identity">
+                    <div class="breadcrumb-trail">Zenith / System Control / <span id="navBreadcrumb">Overview</span></div>
+                    <div class="status-node">
+                        <div class="pulse-dot"></div>
+                        <span>SERVER LIVE</span>
+                    </div>
+                </div>
+                
+                <div class="top-navbar-actions">
+                    <div class="search-container">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" placeholder="Global search commands...">
+                    </div>
+                    
+                    <div class="icon-trigger" onclick="toggleNotificationDropdown(event)">
+                        <i class="fa-regular fa-bell"></i>
+                        <div class="badge-dot"></div>
+                        <!-- Notification Dropdown -->
+                        <div class="notif-dropdown" id="notifDropdown">
+                            <div class="notif-header">
+                                <span>Recent Alerts</span>
+                                <i class="fa-solid fa-microchip"></i>
+                            </div>
+                            <div class="notif-item"><b>New Booking</b> by Jax Mercer ($360.00) <br><small>12 minutes ago</small></div>
+                            <div class="notif-item"><b>Event Published</b> Virtual Reality Hackers Expo <br><small>1 hour ago</small></div>
+                            <div class="notif-item"><b>SMTP Service</b> Configured and listening on port 587. <br><small>2 hours ago</small></div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-trigger" onclick="switchView('profile')">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256&h=256" alt="Profile" id="navAvatar">
+                        <div class="profile-info">
+                            <h4 id="navUsername">Seraphina Moon</h4>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 1. DASHBOARD VIEW -->
+            <section id="dashboard" class="view-section active-view">
+                <!-- Aggregate Metric Display Cards -->
+                <div class="metrics-grid">
+                    <div class="glass-panel metric-card">
+                        <div class="metric-info">
+                            <h3>Total Events</h3>
+                            <div class="metric-value" id="val-total-events">142</div>
+                        </div>
+                        <i class="fa-solid fa-calendar-check metric-icon"></i>
+                    </div>
+                    <div class="glass-panel metric-card color-blue">
+                        <div class="metric-info">
+                            <h3>Live Events</h3>
+                            <div class="metric-value" id="val-live-events">14</div>
+                        </div>
+                        <i class="fa-solid fa-tower-broadcast metric-icon"></i>
+                    </div>
+                    <div class="glass-panel metric-card color-pink">
+                        <div class="metric-info">
+                            <h3>Upcoming Events</h3>
+                            <div class="metric-value" id="val-upcoming-events">38</div>
+                        </div>
+                        <i class="fa-solid fa-hourglass-half metric-icon"></i>
+                    </div>
+                    <div class="glass-panel metric-card">
+                        <div class="metric-info">
+                            <h3>Total Users</h3>
+                            <div class="metric-value" id="val-total-users">8,421</div>
+                        </div>
+                        <i class="fa-solid fa-users metric-icon"></i>
+                    </div>
+                    <div class="glass-panel metric-card color-blue">
+                        <div class="metric-info">
+                            <h3>Tickets Sold</h3>
+                            <div class="metric-value" id="val-tickets-sold">12,410</div>
+                        </div>
+                        <i class="fa-solid fa-ticket metric-icon"></i>
+                    </div>
+                    <div class="glass-panel metric-card color-pink">
+                        <div class="metric-info">
+                            <h3>Revenue</h3>
+                            <div class="metric-value" id="val-revenue">$241.8k</div>
+                        </div>
+                        <i class="fa-solid fa-dollar-sign metric-icon"></i>
+                    </div>
+                    <div class="glass-panel metric-card">
+                        <div class="metric-info">
+                            <h3>Total Bookings</h3>
+                            <div class="metric-value" id="val-bookings">9,143</div>
+                        </div>
+                        <i class="fa-solid fa-receipt metric-icon"></i>
+                    </div>
+                    <div class="glass-panel metric-card color-blue">
+                        <div class="metric-info">
+                            <h3>Visitors</h3>
+                            <div class="metric-value" id="val-visitors">104.2k</div>
+                        </div>
+                        <i class="fa-solid fa-eye metric-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Graphs -->
+                <div class="charts-row">
+                    <div class="glass-panel chart-box">
+                        <h3><i class="fa-solid fa-chart-line"></i> Operations & Revenue Performance</h3>
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                    <div class="glass-panel chart-box">
+                        <h3><i class="fa-solid fa-chart-pie"></i> Category Distribution</h3>
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Dashboard Summary Data List -->
+                <div class="glass-panel table-panel">
+                    <div class="table-header-area">
+                        <h3>Recent Transacted Bookings</h3>
+                        <button class="primary-btn" onclick="switchView('bookings')">View All Bookings <i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="zenith-table" id="dashBookingsTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref ID</th>
+                                    <th>Customer</th>
+                                    <th>Event</th>
+                                    <th>Total Price</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Built via JS dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. EVENTS LIST & CONFIGURATION -->
+            <section id="events" class="view-section">
+                <div class="glass-panel table-panel">
+                    <div class="table-header-area">
+                        <h3 id="eventsViewHeading">All Events</h3>
+                        <div class="controls-row">
+                            <input type="text" placeholder="Search events..." class="table-search" id="eventSearchInput" onkeyup="filterEventsTable()">
+                            <button class="primary-btn" onclick="openEventModal()"><i class="fa-solid fa-plus"></i> Add Event</button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="zenith-table" id="eventsTableMain">
+                            <thead>
+                                <tr>
+                                    <th>Banner</th>
+                                    <th>Event Title</th>
+                                    <th>Category</th>
+                                    <th>Venue</th>
+                                    <th>Price</th>
+                                    <th>Tickets Available</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eventsTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. BOOKINGS -->
+            <section id="bookings" class="view-section">
+                <div class="glass-panel table-panel">
+                    <div class="table-header-area">
+                        <h3>Booking Register</h3>
+                        <div class="controls-row">
+                            <input type="text" placeholder="Search references..." class="table-search" id="bookingSearchInput" onkeyup="filterBookingsTable()">
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="zenith-table" id="bookingsTableMain">
+                            <thead>
+                                <tr>
+                                    <th>Booking Ref</th>
+                                    <th>Customer</th>
+                                    <th>Selected Event</th>
+                                    <th>Qty</th>
+                                    <th>Gross Amount</th>
+                                    <th>Date Booked</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookingsTableBody">
+                                <!-- Script loaded entries -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. USERS -->
+            <section id="users" class="view-section">
+                <div class="glass-panel table-panel">
+                    <div class="table-header-area">
+                        <h3>Registered Users Directory</h3>
+                        <div class="controls-row">
+                            <input type="text" placeholder="Search usernames..." class="table-search" id="usersSearchInput" onkeyup="filterUsersTable()">
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="zenith-table" id="usersTableMain">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email ID</th>
+                                    <th>Mobile Number</th>
+                                    <th>Role Status</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. PAYMENTS -->
+            <section id="payments" class="view-section">
+                <div class="glass-panel table-panel">
+                    <div class="table-header-area">
+                        <h3>Financial Transactions Log</h3>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="zenith-table" id="paymentsTableMain">
+                            <thead>
+                                <tr>
+                                    <th>Transaction ID</th>
+                                    <th>Booking Reference</th>
+                                    <th>Method Used</th>
+                                    <th>Paid Amount</th>
+                                    <th>Timestamp</th>
+                                    <th>Payment Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentsTableBody">
+                                <!-- Dynamic transactions -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. REVIEWS -->
+            <section id="reviews" class="view-section">
+                <div class="glass-panel table-panel">
+                    <div class="table-header-area">
+                        <h3>Client Review Assessments</h3>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="zenith-table">
+                            <thead>
+                                <tr>
+                                    <th>Evaluator</th>
+                                    <th>Assigned Event</th>
+                                    <th>Rating Profile</th>
+                                    <th>Comments</th>
+                                    <th>Approve</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reviewsTableBody">
+                                <!-- Script elements -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. NOTIFICATIONS -->
+            <section id="notifications" class="view-section">
+                <div class="settings-grid">
+                    <div class="glass-panel">
+                        <h3 style="font-family: 'Orbitron', sans-serif; margin-bottom: 20px;"><i class="fa-solid fa-bullhorn" style="color:var(--accent-secondary)"></i> Broadcasters</h3>
+                        <div class="zenith-form">
+                            <div class="form-group form-full-width">
+                                <label>Target Users Audience</label>
+                                <select id="announceAudience">
+                                    <option>All System Users</option>
+                                    <option>Active Ticket Holders Only</option>
+                                    <option>General Staff Members</option>
+                                </select>
+                            </div>
+                            <div class="form-group form-full-width">
+                                <label>Message Title</label>
+                                <input type="text" placeholder="Title for announcement..." id="announceTitle">
+                            </div>
+                            <div class="form-group form-full-width">
+                                <label>Notification Content</label>
+                                <textarea rows="4" placeholder="Write message body here..." id="announceBody"></textarea>
+                            </div>
+                            <div class="form-full-width">
+                                <button class="primary-btn" onclick="sendBroadcast()"><i class="fa-solid fa-paper-plane"></i> Deploy Broadcast</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-panel">
+                        <h3 style="font-family: 'Orbitron', sans-serif; margin-bottom: 20px;"><i class="fa-solid fa-envelope" style="color:var(--accent-blue)"></i> Instant Automated Emails</h3>
+                        <div class="zenith-form">
+                            <div class="form-group form-full-width">
+                                <label>Destination Address (Email)</label>
+                                <input type="email" placeholder="client@zenithevents.com" id="emailRecipient">
+                            </div>
+                            <div class="form-group form-full-width">
+                                <label>Email Header Topic</label>
+                                <input type="text" placeholder="Subject line description" id="emailSubject">
+                            </div>
+                            <div class="form-group form-full-width">
+                                <label>Email Text Body (HTML allowed)</label>
+                                <textarea rows="4" placeholder="Email message details..." id="emailBody"></textarea>
+                            </div>
+                            <div class="form-full-width">
+                                <button class="primary-btn" onclick="sendEmailSimulator()"><i class="fa-solid fa-envelope-open-text"></i> Transmit Email</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. REPORTS -->
+            <section id="reports" class="view-section">
+                <div class="glass-panel">
+                    <h3 style="font-family:'Orbitron', sans-serif; margin-bottom: 15px;">System Analytics Exporter</h3>
+                    <p style="color:var(--text-muted); margin-bottom: 30px; font-size: 0.85rem;">Generate physical reports of live database operations in CSV, Excel, or PDF structures on-the-fly directly inside the current viewport.</p>
+                    <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                        <button class="primary-btn" onclick="generateCSV()"><i class="fa-solid fa-file-csv"></i> Generate CSV Spreadsheet</button>
+                        <button class="primary-btn" onclick="generateExcel()" style="background: linear-gradient(90deg, #1d6f42, #107c41); box-shadow:none;"><i class="fa-solid fa-file-excel"></i> Generate Excel File</button>
+                        <button class="primary-btn" onclick="generatePDF()" style="background: linear-gradient(90deg, #e01b24, #b2141a); box-shadow:none;"><i class="fa-solid fa-file-pdf"></i> Generate PDF Document</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. SETTINGS -->
+            <section id="settings" class="view-section">
+                <div class="settings-grid">
+                    <div class="glass-panel">
+                        <h3 style="font-family: 'Orbitron', sans-serif; margin-bottom: 20px;">Platform Configurations</h3>
+                        <div class="zenith-form">
+                            <div class="form-group form-full-width">
+                                <label>Website Name Tag</label>
+                                <input type="text" id="siteNameInput" value="Zenith Events">
+                            </div>
+                            <div class="form-group">
+                                <label>Primary Accent Theme Color</label>
+                                <input type="color" id="primaryColorPick" value="#7f00ff" onchange="updateThemeColors()">
+                            </div>
+                            <div class="form-group">
+                                <label>Secondary Accent Color</label>
+                                <input type="color" id="secondaryColorPick" value="#ff007f" onchange="updateThemeColors()">
+                            </div>
+                            <div class="form-group form-full-width">
+                                <label>Update Platform Logo</label>
+                                <input type="file" onchange="uploadLogoSim(this)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-panel">
+                        <h3 style="font-family: 'Orbitron', sans-serif; margin-bottom: 20px;">SMTP Configuration</h3>
+                        <div class="zenith-form">
+                            <div class="form-group form-full-width">
+                                <label>SMTP Host Address</label>
+                                <input type="text" value="smtp.zenithevents.com">
+                            </div>
+                            <div class="form-group">
+                                <label>SMTP Routing Port</label>
+                                <input type="number" value="587">
+                            </div>
+                            <div class="form-group">
+                                <label>SMTP Security Method</label>
+                                <select>
+                                    <option>TLS Explicit Security</option>
+                                    <option>SSL Implicit Security</option>
+                                </select>
+                            </div>
+                            <div class="form-group form-full-width">
+                                <label>Username Identifier</label>
+                                <input type="text" value="noreply@zenithevents.com">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10. PROFILE -->
+            <section id="profile" class="view-section">
+                <div class="settings-grid">
+                    <div class="glass-panel" style="display:flex; flex-direction:column; align-items:center; text-align:center; justify-content:center;">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256&h=256" alt="Avatar Edit" id="profileCardAvatar" style="width:120px; height:120px; border-radius:50%; border:3px solid var(--accent-primary); box-shadow:var(--glow-primary); margin-bottom:20px; object-fit: cover;">
+                        <input type="file" id="avatarFileInput" style="display:none;" onchange="handleAvatarChange(this)">
+                        <button class="primary-btn" style="margin-bottom:15px;" onclick="document.getElementById('avatarFileInput').click()"><i class="fa-solid fa-camera"></i> Change Photo</button>
+                        <h2 id="profileCardUsername" style="margin-bottom: 5px;">Seraphina Moon</h2>
+                        <p style="color:var(--text-muted); font-size:0.85rem;">System Architect & Chief Administrator</p>
+                    </div>
+                    <div class="glass-panel">
+                        <h3 style="font-family:'Orbitron', sans-serif; margin-bottom: 20px;">Account Identity</h3>
+                        <div class="zenith-form">
+                            <div class="form-group form-full-width">
+                                <label>Edit Display Username</label>
+                                <input type="text" id="profileNameInput" value="Seraphina Moon" onkeyup="syncProfileName()">
+                            </div>
+                            <div class="form-group form-full-width">
+                                <label>Secure User Password</label>
+                                <input type="password" value="SuperSecretPasswordPlaceholder" id="passInput">
+                            </div>
+                            <div class="form-full-width">
+                                <button class="primary-btn" onclick="triggerToast('Your credentials were saved.')"><i class="fa-solid fa-lock"></i> Save Profile Details</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Add/Edit Event Dialog Modal Backdrop -->
+    <div class="modal-overlay" id="eventFormModal">
+        <div class="modal-container glass-panel">
+            <div class="modal-header">
+                <h3 id="eventModalTitle">Add New Event Panel</h3>
+                <button class="close-modal" onclick="closeEventModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="eventDataInputForm" onsubmit="saveEventData(event)" class="zenith-form">
+                <input type="hidden" id="modalEventId">
+                <div class="form-group form-full-width">
+                    <label>Unique Event Title</label>
+                    <input type="text" id="modalEventTitle" required placeholder="Cosmic Cyber Rhythms">
+                </div>
+                <div class="form-group">
+                    <label>Production Category</label>
+                    <select id="modalEventCategory">
+                        <option>Music Concerts</option>
+                        <option>Cyberpunk VR Expos</option>
+                        <option>Neon Art Installations</option>
+                        <option>E-Sports Arenas</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ticket Base Price ($)</label>
+                    <input type="number" step="0.01" id="modalEventPrice" required placeholder="75.00">
+                </div>
+                <div class="form-group form-full-width">
+                    <label>Event Location / Venue</label>
+                    <input type="text" id="modalEventVenue" required placeholder="Neo-Tokyo dome">
+                </div>
+                <div class="form-group">
+                    <label>Quantity of Available Tickets</label>
+                    <input type="number" id="modalEventTickets" required placeholder="1200">
+                </div>
+                <div class="form-group">
+                    <label>Production Status</label>
+                    <select id="modalEventStatus">
+                        <option value="published">Published</option>
+                        <option value="draft">Draft</option>
+                        <option value="live">Live</option>
+                        <option value="upcoming">Upcoming</option>
+                    </select>
+                </div>
+                <div class="form-group form-full-width">
+                    <label>Event Banner Photo</label>
+                    <div class="banner-upload">
+                        <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.5rem; color:var(--accent-blue);"></i>
+                        <p style="font-size:0.75rem; color:var(--text-muted)">Click to select or drop files here</p>
+                        <input type="file" id="modalEventImage" style="display:none;" onchange="triggerToast('Banner uploaded.')">
+                    </div>
+                </div>
+                <div class="form-full-width" style="display:flex; justify-content:flex-end; gap:12px; margin-top:15px;">
+                    <button type="button" class="primary-btn" style="background:transparent; border:1px solid var(--border-color); box-shadow:none; color:var(--text-main)" onclick="closeEventModal()">Cancel</button>
+                    <button type="submit" class="primary-btn">Save Production Details</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dynamic Event Insights Drawer Modal -->
+    <div class="modal-overlay" id="eventInsightsModal">
+        <div class="modal-container glass-panel" style="max-width: 680px;">
+            <div class="modal-header">
+                <h3 id="insightsTitle" style="font-family:'Orbitron';">Event Diagnostics</h3>
+                <button class="close-modal" onclick="closeInsightsModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="insights-grid">
+                <div class="insights-header-banner" id="insightsBanner">
+                    <div class="insights-banner-overlay">
+                        <h2 id="insightsHeadline" style="font-family:'Orbitron'; font-size:1.4rem;">Event Name</h2>
+                    </div>
+                </div>
+                
+                <div class="glass-panel" style="background:rgba(255,255,255,0.02)">
+                    <h4 style="font-size:0.72rem; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px;">Live Registration Progress</h4>
+                    <div style="font-family:'Orbitron'; font-size:1.2rem; font-weight:700;" id="insightsSalesText">140 / 500</div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="insightsProgressBar"></div>
+                    </div>
+                    <div style="font-size:0.68rem; color:var(--text-muted); margin-top:8px;">Tickets Remaining: <span id="insightsRemaining" style="color:#fff; font-weight:600;">360</span></div>
+                </div>
+                
+                <div class="glass-panel" style="background:rgba(255,255,255,0.02)">
+                    <h4 style="font-size:0.72rem; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px;">Estimated Dynamic Yield</h4>
+                    <div style="font-family:'Orbitron'; font-size:1.2rem; font-weight:700; color:var(--accent-green);" id="insightsRevenueText">$11,900.00</div>
+                    <div style="font-size:0.68rem; color:var(--text-muted); margin-top:8px;">Average Price Point: <span id="insightsPricePoint" style="color:#fff; font-weight:600;">$85.00</span></div>
+                </div>
+                
+                <div class="form-full-width">
+                    <h4 style="font-size:0.8rem; font-family:'Orbitron'; margin-bottom:10px; color:var(--accent-blue);">Metadata Properties</h4>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:0.78rem;">
+                        <div><span style="color:var(--text-muted);">Venue Location:</span> <strong id="insightsVenue">Main Hall A</strong></div>
+                        <div><span style="color:var(--text-muted);">Current Operational Tag:</span> <span class="status-pill success" id="insightsStatus">Status</span></div>
+                    </div>
+                </div>
+
+                <div class="form-full-width" style="margin-top:10px;">
+                    <h4 style="font-size:0.8rem; font-family:'Orbitron'; margin-bottom:10px;">Enrolled Attendants</h4>
+                    <div class="table-wrapper" style="max-height:140px; overflow-y:auto;">
+                        <table class="zenith-table" id="insightsAttendeesTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref Reference</th>
+                                    <th>Client User</th>
+                                    <th>Capacity Count</th>
+                                    <th>Gross Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loaded Dynamic Attendees -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:15px; border-top:1px solid var(--border-color); padding-top:12px;">
+                <button class="primary-btn" onclick="editEventFromInsights()">Edit Production</button>
+                <button class="primary-btn" style="background:transparent; border:1px solid var(--border-color); box-shadow:none; color:var(--text-main)" onclick="closeInsightsModal()">Close Overview</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Deck -->
+    <div class="toast-box-container" id="toastBox"></div>
+
+    <!-- UI Interaction Scripts -->
+    <script>
+        // System Mock Database Storage Arrays
+        let eventsDb = [
+            { id: 1, title: 'Synthesized Neon Echoes', category: 'Music Concerts', venue: 'Sub-Zero Sector 4', price: 85.00, tickets: 450, totalTickets: 500, status: 'live', image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=600&h=300' },
+            { id: 2, title: 'Virtual Reality Hackers Expo', category: 'Cyberpunk VR Expos', venue: 'Cyber-Dome Zero', price: 120.00, tickets: 950, totalTickets: 1000, status: 'upcoming', image: 'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?auto=format&fit=crop&q=80&w=600&h=300' },
+            { id: 3, title: 'Hyper-Light Laser Installations', category: 'Neon Art Installations', venue: 'Zenith Sky Gallery', price: 45.00, tickets: 210, totalTickets: 300, status: 'draft', image: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=600&h=300' },
+            { id: 4, title: 'Nexus Esports Grand Finals', category: 'E-Sports Arenas', venue: 'Neon Arena Sector-8', price: 95.00, tickets: 1100, totalTickets: 1200, status: 'live', image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=600&h=300' }
+        ];
+
+        let bookingsDb = [
+            { id: 'ZNT-4103', user: 'Kai Vandal', event: 'Synthesized Neon Echoes', qty: 2, amount: 170.00, date: '2025-10-12 18:42', status: 'approved' },
+            { id: 'ZNT-9821', user: 'Lyra Vance', event: 'Nexus Esports Grand Finals', qty: 1, amount: 95.00, date: '2025-10-12 19:10', status: 'pending' },
+            { id: 'ZNT-1209', user: 'Jax Mercer', event: 'Virtual Reality Hackers Expo', qty: 3, amount: 360.00, date: '2025-10-12 21:05', status: 'cancelled' },
+            { id: 'ZNT-6612', user: 'Aura Chase', event: 'Hyper-Light Laser Installations', qty: 4, amount: 180.00, date: '2025-10-12 22:30', status: 'approved' }
+        ];
+
+        let usersDb = [
+            { id: 1, name: 'Kai Vandal', email: 'kai@vandal.net', phone: '+1 415 672 1029', role: 'customer', status: 'active' },
+            { id: 2, name: 'Lyra Vance', email: 'lyra@vance.io', phone: '+1 650 998 4102', role: 'customer', status: 'active' },
+            { id: 3, name: 'Jax Mercer', email: 'jax@mercer.dev', phone: '+33 6 452 9982', role: 'staff', status: 'active' },
+            { id: 4, name: 'Aura Chase', email: 'aura@chase.com', phone: '+44 7911 123456', role: 'customer', status: 'blocked' }
+        ];
+
+        let reviewsDb = [
+            { id: 1, user: 'Kai Vandal', event: 'Synthesized Neon Echoes', rating: 5, comment: 'Hands down the best cyberpunk performance of this year! The visuals are unmatched.', approved: true },
+            { id: 2, user: 'Aura Chase', event: 'Virtual Reality Hackers Expo', rating: 4, comment: 'Mind-blowing tech demos, though entry queues were quite long.', approved: false }
+        ];
+
+        let paymentsDb = [
+            { id: 'TXN-994821034', booking: 'ZNT-4103', method: 'Stripe (Apple Pay)', amount: 170.00, time: '2025-10-12 18:43', status: 'success' },
+            { id: 'TXN-102948234', booking: 'ZNT-9821', method: 'PayPal Gateway', amount: 95.00, time: '2025-10-12 19:10', status: 'pending' },
+            { id: 'TXN-884719023', booking: 'ZNT-1209', method: 'Stripe (Visa)', amount: 360.00, time: '2025-10-12 21:05', status: 'failed' },
+            { id: 'TXN-442389104', booking: 'ZNT-6612', method: 'Coinbase (USDT)', amount: 180.00, time: '2025-10-12 22:31', status: 'success' }
+        ];
+
+        let currentActiveEventFilter = 'all'; // all, live, upcoming
+        let selectedInsightsEventId = null;
+
+        // Chart References
+        let performanceChartInstance = null;
+        let categoryChartInstance = null;
+
+        // Toggle Notifications Dropdown
+        function toggleNotificationDropdown(event) {
+            event.stopPropagation();
+            document.getElementById('notifDropdown').classList.toggle('active');
+        }
+
+        window.addEventListener('click', () => {
+            document.getElementById('notifDropdown').classList.remove('active');
+        });
+
+        // View Transition Engine
+        function switchView(targetId) {
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.remove('active-view');
+            });
+            document.querySelectorAll('.menu-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
+                targetSection.classList.add('active-view');
+            }
+
+            const associatedLink = document.querySelector(`.menu-link[data-target="${targetId}"]`);
+            if (associatedLink) {
+                associatedLink.classList.add('active');
+            }
+
+            // Sync Breadcrumbs and titles
+            const capitalizedTitle = targetId.charAt(0).toUpperCase() + targetId.slice(1);
+            document.getElementById('navBreadcrumb').innerText = capitalizedTitle;
+
+            if (targetId === 'dashboard') {
+                initPerformanceCharts();
+            }
+
+            document.getElementById('appSidebar').classList.remove('mobile-open');
+        }
+
+        function setEventsFilter(filterType) {
+            currentActiveEventFilter = filterType;
+            const heading = document.getElementById('eventsViewHeading');
+            if (filterType === 'all') heading.innerText = 'All Cataloged Events';
+            if (filterType === 'live') heading.innerText = 'Live Productions';
+            if (filterType === 'upcoming') heading.innerText = 'Upcoming Productions';
+            renderEventsTable();
+        }
+
+        // Initialize App & UI Listeners
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.menu-link[data-target]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = link.getAttribute('data-target');
+                    switchView(target);
+                });
+            });
+
+            document.getElementById('sidebarToggle').addEventListener('click', () => {
+                document.getElementById('appSidebar').classList.toggle('mobile-open');
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                triggerToast('Terminating cloud connection...', 'error');
+                setTimeout(() => { location.reload(); }, 1200);
+            });
+
+            initPerformanceCharts();
+            renderDashboardBookings();
+            renderEventsTable();
+            renderBookingsTable();
+            renderUsersTable();
+            renderPaymentsTable();
+            renderReviewsTable();
+        });
+
+        // Toast Notification System
+        function triggerToast(text, type = 'success') {
+            const container = document.getElementById('toastBox');
+            const toast = document.createElement('div');
+            toast.className = `live-toast ${type === 'error' ? 'error-toast' : ''}`;
+            
+            const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${text}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        // Dynamic Chart Definitions with Optimized Sizes and Visuals
+        function initPerformanceCharts() {
+            if (performanceChartInstance) performanceChartInstance.destroy();
+            if (categoryChartInstance) categoryChartInstance.destroy();
+
+            const ctx1 = document.getElementById('performanceChart').getContext('2d');
+            performanceChartInstance = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+                    datasets: [
+                        {
+                            label: 'Tickets',
+                            data: [3200, 4100, 5600, 7800, 9100, 12410],
+                            borderColor: '#00f2fe',
+                            borderWidth: 1.5,
+                            backgroundColor: 'rgba(0, 242, 254, 0.01)',
+                            fill: true,
+                            tension: 0.35,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Revenue ($k)',
+                            data: [65, 82, 110, 150, 185, 241.8],
+                            type: 'bar',
+                            backgroundColor: 'rgba(255, 0, 127, 0.35)',
+                            borderColor: '#ff007f',
+                            borderWidth: 1,
+                            yAxisID: 'y1',
+                            barThickness: 5, 
+                            maxBarThickness: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#f1edfa', font: { family: 'Poppins', size: 8 } }, margin: 2 }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#f1edfa', font: { size: 7 } } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#f1edfa', font: { size: 7 } }, position: 'left', min: 0, max: 15000 },
+                        y1: { grid: { drawOnChartArea: false }, ticks: { color: '#f1edfa', font: { size: 7 } }, position: 'right', min: 0, max: 400 } 
+                    }
+                }
+            });
+
+            const ctx2 = document.getElementById('categoryChart').getContext('2d');
+            categoryChartInstance = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Music', 'Expos', 'Neon Art', 'E-Sports'],
+                    datasets: [{
+                        data: [45, 25, 15, 15],
+                        backgroundColor: [ '#7f00ff', '#ff007f', '#00f2fe', '#39ff14' ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#f1edfa', font: { family: 'Poppins', size: 7 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render Bookings Dashboard Summary List
+        function renderDashboardBookings() {
+            const tbody = document.querySelector('#dashBookingsTable tbody');
+            tbody.innerHTML = '';
+            bookingsDb.slice(0, 3).forEach(b => {
+                let statusClass = b.status === 'approved' ? 'success' : (b.status === 'pending' ? 'pending' : 'danger');
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-family:'Orbitron', sans-serif; font-weight:700;">${b.id}</td>
+                        <td>${b.user}</td>
+                        <td>${b.event}</td>
+                        <td>$${b.amount.toFixed(2)}</td>
+                        <td><span class="status-pill ${statusClass}">${b.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- Event CRUD logic ---
+        function renderEventsTable() {
+            const tbody = document.getElementById('eventsTableBody');
+            tbody.innerHTML = '';
+            
+            let filteredEvents = eventsDb;
+            if (currentActiveEventFilter === 'live') {
+                filteredEvents = eventsDb.filter(e => e.status === 'live');
+            } else if (currentActiveEventFilter === 'upcoming') {
+                filteredEvents = eventsDb.filter(e => e.status === 'upcoming');
+            }
+
+            filteredEvents.forEach(e => {
+                let statusClass = e.status === 'live' ? 'success' : (e.status === 'upcoming' ? 'blue' : (e.status === 'published' ? 'success' : 'pending'));
+                tbody.innerHTML += `
+                    <tr class="clickable-row" onclick="openEventInsights(${e.id}, event)">
+                        <td><img src="${e.image}" style="width:55px; height:32px; border-radius:4px; object-fit:cover; border:1px solid var(--border-color);" alt="Banner"></td>
+                        <td style="font-weight:600; color:#fff;">${e.title}</td>
+                        <td>${e.category}</td>
+                        <td>${e.venue}</td>
+                        <td style="font-weight:700;">$${e.price.toFixed(2)}</td>
+                        <td>${e.tickets} / ${e.totalTickets}</td>
+                        <td><span class="status-pill ${statusClass}">${e.status}</span></td>
+                        <td>
+                            <div class="action-btns" onclick="event.stopPropagation()">
+                                <button class="action-btn" onclick="openEventModal(${e.id})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button class="action-btn" onclick="togglePublishStatus(${e.id})" title="Publish/Unpublish"><i class="fa-solid fa-cloud-arrow-up"></i></button>
+                                <button class="action-btn delete" onclick="deleteEvent(${e.id})" title="Delete"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('val-total-events').innerText = eventsDb.length;
+            document.getElementById('val-live-events').innerText = eventsDb.filter(ev => ev.status === 'live').length;
+            document.getElementById('val-upcoming-events').innerText = eventsDb.filter(ev => ev.status === 'upcoming').length;
+        }
+
+        // --- Event Insights (Deep Diagnostic Modal Panel) ---
+        function openEventInsights(eventId, eventObj) {
+            if(eventObj) eventObj.stopPropagation();
+            selectedInsightsEventId = eventId;
+            const item = eventsDb.find(e => e.id === eventId);
+            if (!item) return;
+
+            document.getElementById('insightsTitle').innerText = `${item.title} Diagnostic Data`;
+            document.getElementById('insightsHeadline').innerText = item.title;
+            document.getElementById('insightsBanner').style.backgroundImage = `url('${item.image}')`;
+            
+            const relevantBookings = bookingsDb.filter(b => b.event === item.title && b.status === 'approved');
+            const totalTicketsBought = relevantBookings.reduce((sum, b) => sum + b.qty, 0);
+            const totalYield = relevantBookings.reduce((sum, b) => sum + b.amount, 0);
+
+            document.getElementById('insightsSalesText').innerText = `${totalTicketsBought} / ${item.totalTickets}`;
+            document.getElementById('insightsRemaining').innerText = item.totalTickets - totalTicketsBought;
+            
+            const progressPct = Math.min((totalTicketsBought / item.totalTickets) * 100, 100);
+            document.getElementById('insightsProgressBar').style.width = `${progressPct}%`;
+            
+            document.getElementById('insightsRevenueText').innerText = `$${totalYield.toFixed(2)}`;
+            document.getElementById('insightsPricePoint').innerText = `$${item.price.toFixed(2)}`;
+            document.getElementById('insightsVenue').innerText = item.venue;
+            
+            const statusTag = document.getElementById('insightsStatus');
+            statusTag.innerText = item.status;
+            statusTag.className = `status-pill ${item.status === 'live' ? 'success' : (item.status === 'upcoming' ? 'blue' : 'pending')}`;
+
+            const attendeesTbody = document.querySelector('#insightsAttendeesTable tbody');
+            attendeesTbody.innerHTML = '';
+            
+            if (relevantBookings.length === 0) {
+                attendeesTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No records registered for this event yet.</td></tr>`;
+            } else {
+                relevantBookings.forEach(rb => {
+                    attendeesTbody.innerHTML += `
+                        <tr>
+                            <td style="font-family:'Orbitron'; font-size:0.7rem;">${rb.id}</td>
+                            <td>${rb.user}</td>
+                            <td>${rb.qty}</td>
+                            <td>$${rb.amount.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            document.getElementById('eventInsightsModal').classList.add('active');
+        }
+
+        // Close Insights Dialog
+        function closeInsightsModal() {
+            document.getElementById('eventInsightsModal').classList.remove('active');
+        }
+
+        function editEventFromInsights() {
+            closeInsightsModal();
+            openEventModal(selectedInsightsEventId);
+        }
+
+        function filterEventsTable() {
+            const input = document.getElementById('eventSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#eventsTableBody tr');
+            rows.forEach(row => {
+                const titleText = row.children[1].innerText.toLowerCase();
+                const venueText = row.children[3].innerText.toLowerCase();
+                if(titleText.includes(input) || venueText.includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function openEventModal(eventId = null) {
+            const modal = document.getElementById('eventFormModal');
+            modal.classList.add('active');
+            
+            if (eventId) {
+                document.getElementById('eventModalTitle').innerText = 'Edit Event Properties';
+                const e = eventsDb.find(item => item.id === eventId);
+                document.getElementById('modalEventId').value = e.id;
+                document.getElementById('modalEventTitle').value = e.title;
+                document.getElementById('modalEventCategory').value = e.category;
+                document.getElementById('modalEventPrice').value = e.price;
+                document.getElementById('modalEventVenue').value = e.venue;
+                document.getElementById('modalEventTickets').value = e.tickets;
+                document.getElementById('modalEventStatus').value = e.status;
+            } else {
+                document.getElementById('eventModalTitle').innerText = 'Create Production Profile';
+                document.getElementById('eventDataInputForm').reset();
+                document.getElementById('modalEventId').value = '';
+            }
+        }
+
+        function closeEventModal() {
+            document.getElementById('eventFormModal').classList.remove('active');
+        }
+
+        function saveEventData(e) {
+            e.preventDefault();
+            const id = document.getElementById('modalEventId').value;
+            const title = document.getElementById('modalEventTitle').value;
+            const category = document.getElementById('modalEventCategory').value;
+            const price = parseFloat(document.getElementById('modalEventPrice').value);
+            const venue = document.getElementById('modalEventVenue').value;
+            const tickets = parseInt(document.getElementById('modalEventTickets').value);
+            const status = document.getElementById('modalEventStatus').value;
+
+            if (id) {
+                let obj = eventsDb.find(item => item.id == id);
+                obj.title = title;
+                obj.category = category;
+                obj.price = price;
+                obj.venue = venue;
+                obj.tickets = tickets;
+                obj.status = status;
+                triggerToast('Event structural properties edited successfully.');
+            } else {
+                const newId = eventsDb.length ? Math.max(...eventsDb.map(item => item.id)) + 1 : 1;
+                eventsDb.push({
+                    id: newId,
+                    title: title,
+                    category: category,
+                    venue: venue,
+                    price: price,
+                    tickets: tickets,
+                    totalTickets: tickets,
+                    status: status,
+                    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=600&h=300'
+                });
+                triggerToast('New production added to catalog.');
+            }
+            closeEventModal();
+            renderEventsTable();
+        }
+
+        function deleteEvent(id) {
+            if(confirm('Are you absolutely sure you want to remove this event from registration rosters?')) {
+                eventsDb = eventsDb.filter(item => item.id !== id);
+                renderEventsTable();
+                triggerToast('Event deleted successfully.', 'error');
+            }
+        }
+
+        function togglePublishStatus(id) {
+            let item = eventsDb.find(e => e.id === id);
+            if (item) {
+                item.status = item.status === 'live' ? 'draft' : 'live';
+                renderEventsTable();
+                triggerToast(`Production state altered to: ${item.status}`);
+            }
+        }
+
+        // --- Bookings management ---
+        function renderBookingsTable() {
+            const tbody = document.getElementById('bookingsTableBody');
+            tbody.innerHTML = '';
+            bookingsDb.forEach(b => {
+                let statusClass = b.status === 'approved' ? 'success' : (b.status === 'pending' ? 'pending' : 'danger');
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-family:'Orbitron', sans-serif; font-weight:700;">${b.id}</td>
+                        <td>${b.user}</td>
+                        <td style="font-weight:500;">${b.event}</td>
+                        <td>${b.qty}</td>
+                        <td style="font-weight:700;">$${b.amount.toFixed(2)}</td>
+                        <td>${b.date}</td>
+                        <td><span class="status-pill ${statusClass}">${b.status}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn" onclick="updateBookingState('${b.id}', 'approved')" title="Approve"><i class="fa-solid fa-check" style="color:var(--accent-green)"></i></button>
+                                <button class="action-btn" onclick="updateBookingState('${b.id}', 'cancelled')" title="Cancel"><i class="fa-solid fa-xmark" style="color:var(--accent-secondary)"></i></button>
+                                <button class="action-btn" onclick="updateBookingState('${b.id}', 'refunded')" title="Refund"><i class="fa-solid fa-rotate-left"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            renderDashboardBookings();
+        }
+
+        function filterBookingsTable() {
+            const input = document.getElementById('bookingSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#bookingsTableBody tr');
+            rows.forEach(row => {
+                if(row.children[0].innerText.toLowerCase().includes(input) || row.children[1].innerText.toLowerCase().includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function updateBookingState(refId, newState) {
+            let booking = bookingsDb.find(b => b.id === refId);
+            if (booking) {
+                booking.status = newState;
+                renderBookingsTable();
+                triggerToast(`Booking reference ${refId} changed to ${newState}`);
+                
+                let payment = paymentsDb.find(p => p.booking === refId);
+                if (payment) {
+                    if (newState === 'approved') payment.status = 'success';
+                    if (newState === 'cancelled') payment.status = 'failed';
+                    if (newState === 'refunded') payment.status = 'refunded';
+                    renderPaymentsTable();
+                }
+            }
+        }
+
+        // --- User directory ---
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            usersDb.forEach(u => {
+                let stateClass = u.status === 'active' ? 'success' : 'danger';
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight:600;">${u.name}</td>
+                        <td>${u.email}</td>
+                        <td>${u.phone}</td>
+                        <td><span class="status-pill blue">${u.role}</span></td>
+                        <td><span class="status-pill ${stateClass}">${u.status}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn" onclick="toggleUserBlock(${u.id})" title="Toggle Block"><i class="fa-solid fa-ban"></i></button>
+                                <button class="action-btn delete" onclick="deleteUser(${u.id})" title="Delete"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Search profiles
+        function filterUsersTable() {
+            const input = document.getElementById('usersSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#usersTableBody tr');
+            rows.forEach(row => {
+                if(row.children[0].innerText.toLowerCase().includes(input) || row.children[1].innerText.toLowerCase().includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function toggleUserBlock(userId) {
+            let user = usersDb.find(u => u.id === userId);
+            if (user) {
+                user.status = user.status === 'active' ? 'blocked' : 'active';
+                renderUsersTable();
+                triggerToast(`User account status shifted to: ${user.status}`);
+            }
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Permanently wipe this client profile from active tables?')) {
+                usersDb = usersDb.filter(u => u.id !== userId);
+                renderUsersTable();
+                triggerToast('User removed successfully.', 'error');
+            }
+        }
+
+        // --- Payment management ---
+        function renderPaymentsTable() {
+            const tbody = document.getElementById('paymentsTableBody');
+            tbody.innerHTML = '';
+            paymentsDb.forEach(p => {
+                let st = 'success';
+                if(p.status === 'pending') st = 'pending';
+                if(p.status === 'failed' || p.status === 'refunded') st = 'danger';
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-family:'Orbitron'; font-size:0.72rem;">${p.id}</td>
+                        <td style="font-family:'Orbitron'">${p.booking}</td>
+                        <td>${p.method}</td>
+                        <td style="font-weight:700;">$${p.amount.toFixed(2)}</td>
+                        <td>${p.time}</td>
+                        <td><span class="status-pill ${st}">${p.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- Review Management ---
+        function renderReviewsTable() {
+            const tbody = document.getElementById('reviewsTableBody');
+            tbody.innerHTML = '';
+            reviewsDb.forEach(r => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${r.user}</td>
+                        <td>${r.event}</td>
+                        <td><span style="color:gold;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span></td>
+                        <td>"${r.comment}"</td>
+                        <td>
+                            <input type="checkbox" ${r.approved ? 'checked' : ''} onchange="toggleReviewApproval(${r.id}, this)">
+                        </td>
+                        <td>
+                            <button class="action-btn delete" onclick="deleteReview(${r.id})"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function toggleReviewApproval(id, chk) {
+            let item = reviewsDb.find(r => r.id === id);
+            if(item) {
+                item.approved = chk.checked;
+                triggerToast(chk.checked ? 'Review approved and published.' : 'Review pulled offline.');
+            }
+        }
+
+        function deleteReview(id) {
+            reviewsDb = reviewsDb.filter(r => r.id !== id);
+            renderReviewsTable();
+            triggerToast('Review deleted.', 'error');
+        }
+
+        // Broadcast announcements
+        function sendBroadcast() {
+            const t = document.getElementById('announceTitle').value;
+            const b = document.getElementById('announceBody').value;
+            if(t && b) {
+                triggerToast('Push alert sent to active client terminals.');
+                document.getElementById('announceTitle').value = '';
+                document.getElementById('announceBody').value = '';
+            } else {
+                triggerToast('Please complete broadcast form details first.', 'error');
+            }
+        }
+
+        function sendEmailSimulator() {
+            const r = document.getElementById('emailRecipient').value;
+            const s = document.getElementById('emailSubject').value;
+            if (r && s) {
+                triggerToast(`Email queue loaded. Transmitted successfully to ${r}`);
+                document.getElementById('emailRecipient').value = '';
+                document.getElementById('emailSubject').value = '';
+                document.getElementById('emailBody').value = '';
+            } else {
+                triggerToast('Form recipient and subject properties must be defined.', 'error');
+            }
+        }
+
+        // --- Settings / Theme Config ---
+        function updateThemeColors() {
+            const p = document.getElementById('primaryColorPick').value;
+            const s = document.getElementById('secondaryColorPick').value;
+            document.documentElement.style.setProperty('--accent-primary', p);
+            document.documentElement.style.setProperty('--accent-secondary', s);
+            document.documentElement.style.setProperty('--glow-primary', `0 0 12px ${p}73`);
+            triggerToast('Color tokens dynamically loaded across workspace.');
+        }
+
+        function syncProfileName() {
+            const val = document.getElementById('profileNameInput').value;
+            document.getElementById('navUsername').innerText = val;
+            document.getElementById('profileCardUsername').innerText = val;
+        }
+
+        function handleAvatarChange(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('navAvatar').src = e.target.result;
+                    document.getElementById('profileCardAvatar').src = e.target.result;
+                    triggerToast('Admin profile picture updated.');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function uploadLogoSim(input) {
+            if(input.files && input.files[0]) {
+                triggerToast('Logo uploaded. Applying changes.');
+            }
+        }
+
+        // --- Export Engines ---
+        function generateCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Transaction ID,Booking Reference,Payment Method,Amount,Timestamp,Status\n";
+            paymentsDb.forEach(p => {
+                csvContent += `${p.id},${p.booking},${p.method},${p.amount},${p.time},${p.status}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Zenith_Financial_Report.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            triggerToast('CSV report generated.');
+        }
+
+        function generateExcel() {
+            let xmlContent = `<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Payments"><Table>`;
+            xmlContent += `<Row><Cell><Data ss:Type="String">Transaction ID</Data></Cell><Cell><Data ss:Type="String">Booking Reference</Data></Cell><Cell><Data ss:Type="String">Amount</Data></Cell></Row>`;
+            paymentsDb.forEach(p => {
+                xmlContent += `<Row><Cell><Data ss:Type="String">${p.id}</Data></Cell><Cell><Data ss:Type="String">${p.booking}</Data></Cell><Cell><Data ss:Type="Number">${p.amount}</Data></Cell></Row>`;
+            });
+            xmlContent += `</Table></Worksheet></Workbook>`;
+            
+            const blob = new Blob([xmlContent], { type: 'application/vnd.ms-excel' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "Zenith_Financial_Report.xls";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            triggerToast('Excel workbook exported.');
+        }
+
+        function generatePDF() {
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Zenith Events Operational Audit</title>');
+            printWindow.document.write('<style>body{font-family:sans-serif; padding:30px; color:#111;} table{width:100%; border-collapse:collapse; margin-top:15px;} th,td{border:1px solid #ddd; padding:10px; text-align:left;} th{background-color:#0a0618; color:#fff;}</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write('<h2>Zenith Events Operational Summary Report</h2>');
+            printWindow.document.write('<table><thead><tr><th>Ref ID</th><th>Client Name</th><th>Event Details</th><th>Amount</th><th>Status</th></tr></thead><tbody>');
+            bookingsDb.forEach(b => {
+                printWindow.document.write(`<tr><td>${b.id}</td><td>${b.user}</td><td>${b.event}</td><td>$${b.amount}</td><td>${b.status}</td></tr>`);
+            });
+            printWindow.document.write('</tbody></table></body></html>');
+            printWindow.document.close();
+            printWindow.print();
+            triggerToast('PDF printed.');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Venue Booking</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        :root { --bg: #050505; --vip: #eab308; --std: #3b82f6; --econ: #64748b; --accent: #ef4444; --text: #fff; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 40px; }
+
+        .legend-sidebar { position: fixed; left: 20px; top: 20%; background: #111; padding: 20px; border-radius: 10px; border: 1px solid #333; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .sidebar-title { font-size: 0.7rem; color: #888; font-weight: bold; margin-bottom: 5px; }
+        .legend-item { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+
+        .venue-layout { display: flex; flex-direction: column; gap: 40px; margin-top: 20px; }
+        .section-title { color: #94a3b8; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; text-align: center; }
+        
+        .seat-grid { display: grid; grid-template-columns: repeat(12, 35px); gap: 8px; justify-content: center; }
+        .seat { width: 35px; height: 35px; border-radius: 8px 8px 4px 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 9px; transition: all 0.2s ease; border: 1px solid #444; }
+        .seat.vip { border-color: var(--vip); }
+        .seat.std { border-color: var(--std); }
+        .seat.econ { border-color: var(--econ); }
+        .seat.selected { background: var(--accent) !important; border-color: white !important; transform: scale(1.1); }
+        .seat.reserved { background: #1a1a1a; border-color: #333; cursor: not-allowed; opacity: 0.4; color: #555; }
+        .seat.reserved::after { content: '×'; }
+
+        .btn-checkout { padding: 15px 50px; background: var(--accent); color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; }
+        .btn-checkout:disabled { background: #444; cursor: not-allowed; }
+
+        #checkout-page { display: none; width: 100%; max-width: 400px; margin-top: 40px; }
+        input, select { width: 100%; padding: 14px; margin: 8px 0; border-radius: 8px; border: 1px solid #333; background: #111; color: white; box-sizing: border-box; }
+        .payment-option { display: flex; align-items: center; width: 100%; padding: 14px; margin: 10px 0; background: #111; border-radius: 8px; cursor: pointer; border: 1px solid #333; box-sizing: border-box; }
+        .payment-option input { width: auto; margin-right: 15px; }
+    </style>
+</head>
+<body>
+
+    <div id="booking-page">
+        <div class="legend-sidebar">
+            <div class="sidebar-title">SEATING GUIDE</div>
+            <div class="legend-item"><div class="seat vip" style="width:20px; height:20px; border: 1px solid var(--vip);"></div> VIP (₹2000)</div>
+            <div class="legend-item"><div class="seat std" style="width:20px; height:20px; border: 1px solid var(--std);"></div> Main (₹1200)</div>
+            <div class="legend-item"><div class="seat econ" style="width:20px; height:20px; border: 1px solid var(--econ);"></div> Balcony (₹600)</div>
+            <hr style="width: 100%; border: 0; border-top: 1px solid #333; margin: 5px 0;">
+            <div class="legend-item"><div class="seat reserved" style="width:20px; height:20px; border: 1px solid #333;"></div> Reserved</div>
+            <div class="legend-item"><div class="seat" style="width:20px; height:20px; background: var(--accent); border: 1px solid white;"></div> Selected</div>
+        </div>
+
+        <div class="section-title">Stage</div>
+        <div style="width: 500px; height: 50px; background: #111; border-bottom: 4px solid var(--accent); margin-bottom: 40px; display: flex; align-items: center; justify-content: center;">PERFORMANCE AREA</div>
+        
+        <div class="venue-layout" id="venue"></div>
+        
+        <div style="display: flex; flex-direction: column; align-items: center; margin: 40px 0;">
+            <div id="price-display" style="font-size: 1.5rem; margin-bottom: 20px; font-weight: bold;">Total: ₹0</div>
+            <button class="btn-checkout" id="checkout-btn" onclick="goToCheckout()" disabled>BOOK TICKETS</button>
+        </div>
+    </div>
+
+    <div id="checkout-page">
+        <h2 style="text-align: center;">Checkout</h2>
+        <div id="booking-summary" style="background:#111; padding:15px; border-radius:8px; margin-bottom:20px;"></div>
+<input type="text" id="name" placeholder="Full Name (Letters only)" 
+       onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode == 32)" 
+       required>
+        <input type="email" id="email" placeholder="Email" required>
+<input type="tel" id="phone" placeholder="Phone Number (10 digits)" 
+       onkeypress="return event.charCode >= 48 && event.charCode <= 57" 
+       oninput="if(this.value.length > 10) this.value = this.value.slice(0, 10);" 
+       maxlength="10" required>
+        
+        <label style="display: block; margin-top: 20px; color: #94a3b8; font-size: 0.8rem;">PAYMENT METHOD</label>
+        <label class="payment-option"><input type="radio" name="payment" value="card"> Credit/Debit Card</label>
+        <label class="payment-option"><input type="radio" name="payment" value="razorpay"> Razorpay (UPI/Netbanking)</label>
+        
+        <button class="btn-checkout" style="width:100%;" onclick="validateAndPay()">PAY NOW</button>
+        <button style="background:transparent; border:none; color:#666; cursor:pointer; width:100%; margin-top:15px;" onclick="goBack()">Back to Seats</button>
+    </div>
+
+    <script>
+        const venue = document.getElementById('venue'), priceDisplay = document.getElementById('price-display'), checkoutBtn = document.getElementById('checkout-btn');
+        const config = [{ id: 'VIP', name: 'VIP Lounge', rows: 2, cols: 12, price: 2000 }, { id: 'STD', name: 'Main Floor', rows: 5, cols: 12, price: 1200 }, { id: 'ECON', name: 'Balcony', rows: 5, cols: 12, price: 600 }];
+        const reservedSeats = (function() {
+            const all = []; config.forEach(s => { for(let i=1; i<=s.rows*s.cols; i++) all.push(`${s.id}-${i}`); });
+            return all.sort(() => 0.5 - Math.random()).slice(0, 8);
+        })();
+
+        let total = 0, selectedCount = 0;
+
+        config.forEach(sec => {
+            const div = document.createElement('div');
+            div.innerHTML = `<div class="section-title">${sec.name}</div><div class="seat-grid" id="grid-${sec.id}"></div>`;
+            venue.appendChild(div);
+            for(let i = 1; i <= (sec.rows * sec.cols); i++) {
+                const s = document.createElement('div');
+                const id = `${sec.id}-${i}`;
+                s.className = `seat ${sec.id.toLowerCase()}`; s.innerText = i; s.dataset.seatId = id;
+                if (reservedSeats.includes(id)) s.classList.add('reserved');
+                else s.onclick = () => {
+                    const sel = s.classList.toggle('selected');
+                    total += sel ? sec.price : -sec.price; selectedCount += sel ? 1 : -1;
+                    priceDisplay.innerText = `Total: ₹${total}`; checkoutBtn.disabled = selectedCount === 0;
+                };
+                div.querySelector('.seat-grid').appendChild(s);
+            }
+        });
+
+        function goToCheckout() {
+            const sel = document.querySelectorAll('.seat.selected');
+            const map = {}; sel.forEach(s => {
+                const c = config.find(x => s.classList.contains(x.id.toLowerCase()));
+                if(!map[c.name]) map[c.name] = []; map[c.name].push(s.dataset.seatId.split('-')[1]);
+            });
+            let sum = '<strong>Your Selection:</strong><br><br>';
+            for(let t in map) sum += `<strong>${t}:</strong> ${map[t].join(', ')}<br>`;
+            document.getElementById('booking-summary').innerHTML = sum + `<br><strong>${priceDisplay.innerText}</strong>`;
+            document.getElementById('booking-page').style.display = 'none';
+            document.getElementById('checkout-page').style.display = 'block';
+        }
+
+        function goBack() { document.getElementById('booking-page').style.display = 'block'; document.getElementById('checkout-page').style.display = 'none'; }
+
+        function validateAndPay() {
+            const n = document.getElementById('name').value, e = document.getElementById('email').value, p = document.getElementById('phone').value, m = document.querySelector('input[name="payment"]:checked')?.value;
+            if (!n || !e || !p || !m) { alert("Please complete all details."); return; }
+            if (m === 'card') window.location.href = 'payment.html';
+            else new Razorpay({ key: "YOUR_RAZORPAY_TEST_KEY", amount: total*100, currency: "INR", name: "Venue Booking", handler: res => alert("Success! ID: "+res.razorpay_payment_id), prefill: {name:n, email:e, contact:p}, theme: {color: "#ef4444"} }).open();
+        }
+    </script>
+</body>
+</html>

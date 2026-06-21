@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register | Zenith Events</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background:
+        linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+        url("https://images.unsplash.com/photo-1503095396549-807759245b35");
+      background-size: cover;
+      background-position: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      gap: 30px;
+      padding: 20px;
+    }
+
+    .left-panel {
+      flex: 1;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 40px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #ff4d6d, #ffb703, #4cc9f0, #80ffdb, #9b5de5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+
+    .left-panel h2 {
+      font-size: 38px;
+      background: linear-gradient(90deg, #ff006e, #ffbe0b, #3a86ff, #8338ec);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .left-panel p {
+      margin-top: 15px;
+      opacity: 0.85;
+      color: white;
+    }
+
+    .right-panel {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .register-box {
+      width: 380px;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-radius: 20px;
+      color: white;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .register-box h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(90deg, #ff4d6d, #4cc9f0, #ffb703);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 15px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 12px 12px 40px;
+      border: none;
+      border-radius: 12px;
+      outline: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      font-size: 14px;
+      transition: 0.3s;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .input-group input::placeholder { color: rgba(255,255,255,0.6); }
+
+    .input-group input:focus {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 10px #4cc9f0;
+    }
+
+    .input-group span {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    /* error highlight */
+    .input-group input.error {
+      box-shadow: 0 0 10px #ff4d6d;
+      background: rgba(255, 77, 109, 0.2);
+    }
+
+    .error-msg {
+      color: #ff4d6d;
+      font-size: 11px;
+      margin-top: -10px;
+      margin-bottom: 10px;
+      padding-left: 4px;
+      display: none;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #ff4d6d, #4cc9f0);
+      color: white;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    button[type="submit"]:hover { transform: scale(1.03); opacity: 0.95; }
+
+    .links {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .links p { color: white; font-size: 14px; line-height: 2.2; }
+
+    .links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .links a:hover { opacity: 0.8; text-decoration: underline; }
+
+    /* toast */
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: #ff2e63;
+      color: white;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: bold;
+      opacity: 0;
+      transition: all 0.4s ease;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 900px) {
+      .container { flex-direction: column; align-items: center; }
+      .right-panel { justify-content: center; }
+      .left-panel { text-align: center; padding: 20px; }
+      .logo { font-size: 28px; }
+      .left-panel h2 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="toast"></div>
+
+  <div class="container">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <div class="logo">🎭 Zenith Events</div>
+      <h2>Join the Entertainment World</h2>
+      <p>
+        Create your account to book movies, concerts, comedy shows,
+        and live events instantly with Zenith Events.
+      </p>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <div class="register-box">
+        <h2>Create Account</h2>
+
+        <form id="registerForm" novalidate>
+
+          <div class="input-group">
+            <span>👤</span>
+            <input type="text" id="reg_username" placeholder="Username" />
+          </div>
+          <div class="error-msg" id="err_username">Please enter a username.</div>
+
+          <div class="input-group">
+            <span>📧</span>
+            <input type="email" id="reg_email" placeholder="Email Address" />
+          </div>
+          <div class="error-msg" id="err_email">Please enter a valid email.</div>
+
+          <div class="input-group">
+  <span>📱</span>
+  <input type="text" id="reg_phone" placeholder="Phone Number" maxlength="10" 
+         oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+</div>
+
+          <div class="input-group">
+            <span>🔒</span>
+            <input type="password" id="reg_password" placeholder="Password" />
+          </div>
+          <div class="error-msg" id="err_password">Password must be at least 6 characters.</div>
+
+          <div class="input-group">
+            <span>🔒</span>
+            <input type="password" id="reg_confirm" placeholder="Confirm Password" />
+          </div>
+          <div class="error-msg" id="err_confirm">Passwords do not match.</div>
+
+          <button type="submit">Register</button>
+
+        </form>
+
+        <div class="links">
+          <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+          <p><a href="{% url 'home' %}">← Back to Home</a></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function showToast(msg, color = "#ff2e63") {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.style.background = color;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    document.getElementById("registerForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  // Get values
+  const username = document.getElementById("reg_username").value.trim();
+  const email = document.getElementById("reg_email").value.trim();
+  const phone = document.getElementById("reg_phone").value.trim();
+  const password = document.getElementById("reg_password").value.trim();
+  const confirm = document.getElementById("reg_confirm").value.trim();
+
+  // Regex Patterns
+  const nameRegex = /^[A-Za-z\s]+$/;
+  const phoneRegex = /^\d{10}$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+  // Reset errors
+  document.querySelectorAll(".error-msg").forEach(el => el.style.display = "none");
+  document.querySelectorAll(".input-group input").forEach(el => el.classList.remove("error"));
+
+  let valid = true;
+
+  // Validation
+  if (!nameRegex.test(username)) {
+    document.getElementById("err_username").style.display = "block";
+    document.getElementById("reg_username").classList.add("error");
+    valid = false;
+  }
+  if (!email || !email.includes("@")) {
+    document.getElementById("err_email").style.display = "block";
+    document.getElementById("reg_email").classList.add("error");
+    valid = false;
+  }
+  if (!phoneRegex.test(phone)) {
+    document.getElementById("err_phone").textContent = "Must be exactly 10 digits.";
+    document.getElementById("err_phone").style.display = "block";
+    document.getElementById("reg_phone").classList.add("error");
+    valid = false;
+  }
+  if (!passwordRegex.test(password)) {
+    document.getElementById("err_password").textContent = "Must be 8+ chars (Upper, Number, Special).";
+    document.getElementById("err_password").style.display = "block";
+    document.getElementById("reg_password").classList.add("error");
+    valid = false;
+  }
+  if (confirm !== password) {
+    document.getElementById("err_confirm").style.display = "block";
+    document.getElementById("reg_confirm").classList.add("error");
+    valid = false;
+  }
+
+  if (!valid) return;
+
+  // Proceed to duplicate check and save...
+  const existingUsers = JSON.parse(localStorage.getItem("ze_users") || "[]");
+  if (existingUsers.find(u => u.email === email)) {
+    showToast("❌ Email already registered!");
+    return;
+  }
+  if (existingUsers.find(u => u.phone === phone)) {
+    showToast("❌ Phone already registered!");
+    return;
+  }
+
+  existingUsers.push({ username, email, phone, password });
+  localStorage.setItem("ze_users", JSON.stringify(existingUsers));
+  localStorage.setItem("ze_loggedInUserEmail", email);
+  setTimeout(() => {
+    window.location.href = "/dashboard/";
+}, 1500);
+});
+  </script>
+
+</body>
+</html>

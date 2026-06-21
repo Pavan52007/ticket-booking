@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Live Concerts | Zenith</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+/* SAME BACKGROUND */
+body{
+background:
+linear-gradient(rgba(0,0,0,.85),rgba(0,0,0,.92)),
+url('https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1600&q=80');
+background-size:cover;
+background-attachment:fixed;
+color:white;
+font-family:Arial;
+min-height:100vh;
+}
+
+.hero{
+text-align:center;
+padding:60px 20px;
+}
+
+.hero h1{
+font-size:3rem;
+font-weight:800;
+color:#ff4b2b;
+}
+
+.container-custom{
+width:95%;
+max-width:1400px;
+margin:auto;
+padding-bottom:80px;
+}
+
+.section-heading{
+font-size:2rem;
+font-weight:700;
+margin:40px 0 25px;
+color:#ffd93d;
+border-left:5px solid #ff416c;
+padding-left:15px;
+}
+
+/* GRID (UNCHANGED FIX) */
+.grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:25px;
+}
+
+/* CARD (UNCHANGED SIZE) */
+.card{
+position:relative;
+height:320px;
+border-radius:20px;
+overflow:hidden;
+transition:.4s;
+}
+
+.card:hover{
+transform:translateY(-8px);
+box-shadow:0 20px 40px rgba(255,65,108,.35);
+}
+
+/* IMAGE FIX (DO NOT BREAK ALIGNMENT) */
+.poster{
+width:100%;
+height:100%;
+}
+
+.poster img{
+width:100%;
+height:100%;
+object-fit:cover;
+display:block;
+}
+
+/* HEART ONLY TOP RIGHT */
+.wishlist{
+position:absolute;
+top:10px;
+right:10px;
+font-size:20px;
+background:rgba(0,0,0,0.6);
+padding:6px 8px;
+border-radius:50%;
+z-index:10;
+text-decoration:none;
+transition:.3s;
+color:white;
+}
+
+.wishlist:hover{
+background:red;
+transform:scale(1.2);
+}
+
+/* CONTENT OVERLAY */
+.content{
+position:absolute;
+left:0;
+bottom:-100%;
+width:100%;
+padding:15px;
+background:linear-gradient(to top,rgba(0,0,0,.95),rgba(0,0,0,.7));
+transition:.5s;
+}
+
+.card:hover .content{
+bottom:0;
+}
+
+.title{font-size:18px;font-weight:700;}
+.location{color:#38bdf8;font-size:13px;}
+.date{color:#facc15;font-size:13px;}
+.price{color:#4ade80;font-weight:700;margin:5px 0;}
+
+/* BOOK BUTTON ONLY */
+.btn-book{
+display:block;
+text-align:center;
+padding:8px;
+background:linear-gradient(45deg,#ff416c,#ff4b2b);
+border-radius:8px;
+color:white;
+text-decoration:none;
+font-weight:600;
+}
+
+.btn-book:hover{transform:scale(1.03);}
+
+/* RESPONSIVE */
+@media(max-width:1000px){
+.grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:600px){
+.grid{grid-template-columns:1fr;}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="hero">
+<h1>🎤 Live Concerts</h1>
+</div>
+
+<div class="container-custom">
+
+<!-- ================= LIVE ================= -->
+<h2 class="section-heading">🔥 Live Concerts</h2>
+
+<div class="grid">
+
+<div class="card">
+    <div class="wishlist" onclick="addToWishlist(this)">
+        ❤️
+    </div>
+<div class="poster">
+<img src="http://images.news18.com/ibnlive/uploads/2025/03/MixCollage-27-Mar-2025-04-27-PM-7101-2025-03-d0d8043335f19225f216cde07187828f.jpg">
+</div>
+<div class="content">
+<div class="title">Arijit Singh Live</div>
+<div class="location">📍 Hyderabad</div>
+<div class="date">📅 15 Aug 2026</div>
+<div class="price">₹1999 onwards</div>
+<a class="btn-book" href="{% url 'concert_details' %}?concert=arijit">Book Now</a>
+</div>
+</div>
+
+<div class="card">
+    <div class="wishlist" onclick="addToWishlist(this)">
+        ❤️
+    </div>
+<div class="poster">
+<img src="https://th-i.thgim.com/public/entertainment/movies/r9j718/article70636445.ece/alternates/FREE_1200/DSC_2813.jpg">
+</div>
+<div class="content">
+<div class="title">A.R. Rahman Live</div>
+<div class="location">📍 Bangalore</div>
+<div class="date">📅 28 Aug 2026</div>
+<div class="price">₹2499 onwards</div>
+<a class="btn-book" href="{% url 'concert_details' %}?concert=rahman">Book Now</a>
+</div>
+</div>
+
+<div class="card">
+    <div class="wishlist" onclick="addToWishlist(this)">
+        ❤️
+    </div>
+<div class="poster">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlzR5Q4mm41slyohmW9ZFiziOfblfVxzJ5oA&s">
+</div>
+<div class="content">
+<div class="title">Diljit Dosanjh Tour</div>
+<div class="location">📍 Mumbai</div>
+<div class="date">📅 05 Sept 2026</div>
+<div class="price">₹2999 onwards</div>
+<a class="btn-book" href="{% url 'concert_details' %}?concert=diljit">Book Now</a>
+</div>
+</div>
+
+<div class="card">
+    <div class="wishlist" onclick="addToWishlist(this)">
+        ❤️
+    </div>
+<div class="poster">
+<img src="https://s.yimg.com/os/en/mmail.com.my/4680cd388bb0fb5972f21af875544b70">
+</div>
+<div class="content">
+<div class="title">Anirudh Live</div>
+<div class="location">📍 Hyderabad</div>
+<div class="date">📅 25 Sept 2026</div>
+<div class="price">₹1999 onwards</div>
+<a class="btn-book" href="{% url 'concert_details' %}?concert=anirudh">Book Now</a>
+</div>
+</div>
+
+</div>
+
+<!-- ================= TRENDING ================= -->
+<h2 class="section-heading">🔥 Trending Concerts</h2>
+
+<div class="grid">
+
+<div class="card">
+    <div class="wishlist" onclick="addToWishlist(this)">
+        ❤️
+    </div>
+<div class="poster">
+<img src="https://redcherryentertainment.com/wp-content/uploads/2022/07/WhatsApp-Image-2022-07-02-at-12.26.28-PM-16-2.jpeg">
+</div>
+<div class="content">
+<div class="title">Shreya Ghoshal Live</div>
+<div class="location">📍 Chennai</div>
+<div class="date">📅 18 Sept 2026</div>
+<div class="price">₹1499 onwards</div>
+<a class="btn-book" href="{% url 'concert_details' %}?concert=shreya">Book Now</a>
+</div>
+</div>
+
+<div class="card">
+    <div class="wishlist" onclick="addToWishlist(this)">
+        ❤️
+    </div>
+<div class="poster">
+<img src="https://th-i.thgim.com/public/entertainment/movies/pjptg9/article69872846.ece/alternates/LANDSCAPE_1200/Sonu%20Nigam%20celebrates%20the%20seven%20colours%20of%20love%20with%20his%20%E2%80%98Satrangi%20Re%20India%20Tour%E2%80%99%20launching%20his%20heartfelt%20new%20single%20%E2%80%98Kahani%20Meri%E2%80%99%20today.jpg">
+</div>
+<div class="content">
+<div class="title">Sonu Nigam Live</div>
+<div class="location">📍 Pune</div>
+<div class="date">📅 10 Oct 2026</div>
+<div class="price">₹1799 onwards</div>
+<a class="btn-book" href="{% url 'concert_details' %}?concert=sonu">Book Now</a>
+</div>
+</div>
+
+<div class="card">
+    <div class="wishlist" onclick="addToWishlist(this)">
+        ❤️
+    </div>
+<div class="poster">
+<img src="http://i.ytimg.com/vi/w0td7df2ojA/maxresdefault.jpg">
+</div>
+<div class="content">
+<div class="title">Neha Kakkar Live</div>
+<div class="location">📍 Delhi</div>
+<div class="date">📅 12 Oct 2026</div>
+<div class="price">₹1499 onwards</div>
+<a class="btn-book" href="{% url 'concert_details' %}?concert=neha">Book Now</a>
+</div>
+</div>
+
+<div class="card">
+    <div class="wishlist" onclick="addToWishlist(this)">
+        ❤️
+    </div>
+<div class="poster">
+<img src="http://c.saavncdn.com/756/Hits-Of-Jubin-Nautiyal-Hindi-2020-20250916151003-500x500.jpg">
+</div>
+<div class="content">
+<div class="title">Jubin Nautiyal Live</div>
+<div class="location">📍 Malaysia</div>
+<div class="date">📅 20 Oct 2026</div>
+<div class="price">₹1599 onwards</div>
+<a class="btn-book" href="{% url 'concert_details' %}?concert=jubin">Book Now</a>
+</div>
+</div>
+
+</div>
+
+<!-- ================= UPCOMING ================= -->
+<h2 class="section-heading">🎫 Upcoming Concerts</h2>
+
+<div class="grid">
+
+<div class="card">
+    <div class="wishlist" onclick="addToWishlist(this)">
+        ❤️
+    </div>
+<div class="poster">
+<img src="https://www.carnifest.com/wp-content/uploads/2018/10/Sunburn_Goa.jpg">
+</div>
+<div class="content">
+<div class="title">Sunburn Goa 2026</div>
+<div class="location">📍 Goa</div>
+<div class="date">📅 25 Dec 2026</div>
+<div class="price">₹3499 onwards</div>
+<a class="btn-book" href="{% url 'concert_details' %}?concert=sunburn">Book Now</a>
+</div>
+</div>
+
+<div class="card">
+    <div class="wishlist" onclick="addToWishlist(this)">
+        ❤️
+    </div>
+<div class="poster">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWIFwW2DxNbTRlmkZpTBe886L_zX08mNMOFQ&s">
+</div>
+<div class="content">
+<div class="title">Alan Walker Live</div>
+<div class="location">📍 Hyderabad</div>
+<div class="date">📅 22 Dec 2026</div>
+<div class="price">₹3499 onwards</div>
+<a class="btn-book" href="{% url 'concert_details' %}?concert=alanwalker">Book Now</a>
+</div>
+</div>
+
+<div class="card">
+    <div class="wishlist" onclick="addToWishlist(this)">
+        ❤️
+    </div>
+<div class="poster">
+<img src="https://pbs.twimg.com/media/Cw9G_2qWgAAD14h.jpg">
+</div>
+<div class="content">
+<div class="title">Martin Garrix India Tour</div>
+<div class="location">📍 Mumbai</div>
+<div class="date">📅 20 Dec 2026</div>
+<div class="price">₹3999 onwards</div>
+<a class="btn-book" href="{% url 'concert_details' %}?concert=martingarrix">Book Now</a>
+</div>
+</div>
+
+<div class="card">
+    <div class="wishlist" onclick="addToWishlist(this)">
+        ❤️
+    </div>
+<div class="poster">
+<img src="https://blackhattalent.com/wp-content/uploads/2025/03/NUCLEYA-1-e1745559942465.jpg">
+</div>
+<div class="content">
+<div class="title">Nucleya Bass Night</div>
+<div class="location">📍 Pune</div>
+<div class="date">📅 30 Dec 2026</div>
+<div class="price">₹2499 onwards</div>
+<a class="btn-book" href="{% url 'concert_details' %}?concert=nucleya">Book Now</a>
+</div>
+</div>
+
+</div>
+
+</div>
+<script>
+    function addToWishlist(el) {
+    
+        const card = el.closest(".card");
+    
+        const title = card.querySelector(".title").innerText;
+        const image = card.querySelector("img").src;
+        const location = card.querySelector(".location").innerText;
+        const date = card.querySelector(".date").innerText;
+        const price = card.querySelector(".price").innerText;
+    
+        let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    
+        let exists = wishlist.find(item => item.title === title);
+    
+        if (!exists) {
+            wishlist.push({
+                title,
+                image,
+                location,
+                date,
+                price
+            });
+    
+            localStorage.setItem("wishlist", JSON.stringify(wishlist));
+    
+            alert(title + " added to wishlist ❤️");
+        } else {
+            alert("Already in wishlist ❤️");
+        }
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,328 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Login | Zenith Events</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:
+    linear-gradient(rgba(0,0,0,0.65),rgba(0,0,0,0.65)),
+    url("https://images.unsplash.com/photo-1503095396549-807759245b35");
+    background-size:cover;
+    background-position:center;
+}
+
+.container{
+    width:100%;
+    max-width:1100px;
+    display:flex;
+    gap:30px;
+    padding:20px;
+}
+
+.left-panel{
+    flex:1;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:40px;
+}
+
+.logo{
+    font-family:'Orbitron',sans-serif;
+    font-size:40px;
+    font-weight:700;
+    background:linear-gradient(90deg,#ff4d6d,#ffb703,#4cc9f0,#80ffdb,#9b5de5);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:20px;
+}
+
+.left-panel h2{
+    font-size:38px;
+    background:linear-gradient(90deg,#ff006e,#ffbe0b,#3a86ff,#8338ec);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.right-panel{
+    flex:1;
+    display:flex;
+    justify-content:flex-end;
+}
+
+.login-box{
+    width:380px;
+    padding:30px;
+    background:rgba(255,255,255,0.12);
+    backdrop-filter:blur(15px);
+    border-radius:20px;
+    color:white;
+}
+
+.login-box h2{
+    text-align:center;
+    margin-bottom:25px;
+    font-family:'Orbitron',sans-serif;
+}
+
+.input-group{
+    margin-bottom:20px;
+}
+
+.input-group input{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    outline:none;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(90deg,#ff4d6d,#4cc9f0);
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    opacity:0.9;
+    transform:scale(1.02);
+}
+
+.links{
+    text-align:center;
+    margin-top:20px;
+    color:white;
+}
+
+.links a{
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.links a:hover{
+    text-decoration:underline;
+}
+.role-select{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    outline:none;
+    font-size:15px;
+    cursor:pointer;
+    background:white;
+    color:#333;
+    transition:0.3s;
+}
+
+.role-select:hover{
+    transform:scale(1.01);
+}
+
+.role-select:focus{
+    box-shadow:0 0 10px rgba(76,201,240,0.6);
+}
+.promoter-grid{
+    display:grid;
+    gap:10px;
+}
+
+.promoter-card{
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:10px;
+    padding:12px;
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.promoter-card:hover{
+    background:rgba(255,255,255,0.22);
+    transform:translateY(-2px);
+}
+
+.promoter-card input{
+    margin-right:8px;
+}
+
+.promoter-card:has(input:checked){
+    border:2px solid #4cc9f0;
+    background:rgba(76,201,240,0.25);
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="left-panel">
+        <div class="logo">🎭 Zenith Events</div>
+        <h2>Experience Events Like Never Before</h2>
+    </div>
+
+    <div class="right-panel">
+
+        <div class="login-box">
+
+            <h2>Login</h2>
+
+            {% if error %}
+            <div style="
+                background:#ff4d4d;
+                color:white;
+                padding:10px;
+                border-radius:8px;
+                margin-bottom:15px;
+                text-align:center;
+            ">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+            
+                <div class="input-group">
+                    <input type="text"
+                           name="username"
+                           placeholder="Username"
+                           required>
+                </div>
+            
+                <div class="input-group">
+                    <input type="password"
+                           name="password"
+                           placeholder="Password"
+                           required>
+                </div>
+            
+                <!-- LOGIN AS -->
+                <div class="input-group">
+                    <label style="
+                        display:block;
+                        margin-bottom:8px;
+                        color:white;
+                        font-size:14px;
+                        font-weight:500;
+                    ">
+                        Login As
+                    </label>
+            
+                    <select name="role" required class="role-select" id="roleSelect">
+                        <option value="">Select Role</option>
+                        <option value="customer">👤 Customer</option>
+                        <option value="admin">🛡️ Admin</option>
+                        <option value="promoter">🎤 Event Promoter</option>
+                    </select>
+                </div>
+                <div id="promoterOptions" style="display:none; margin-bottom:20px;">
+
+                    <label style="
+                        display:block;
+                        margin-bottom:10px;
+                        color:white;
+                        font-size:14px;
+                        font-weight:500;
+                    ">
+                        Select Business Type
+                    </label>
+                
+                    <div class="promoter-grid">
+                
+                        <label class="promoter-card">
+                            <input type="radio" name="promoter_type" value="theatre_owner">
+                            🎬 Theatre Owner
+                        </label>
+                
+                        <label class="promoter-card">
+                            <input type="radio" name="promoter_type" value="restaurant_owner">
+                            🍽 Restaurant Owner
+                        </label>
+                
+                        <label class="promoter-card">
+                            <input type="radio" name="promoter_type" value="stadium_owner">
+                            🏟 Stadium Owner
+                        </label>
+                
+                        <label class="promoter-card">
+                            <input type="radio" name="promoter_type" value="music_concert_owner">
+                            🎵 Music Concert Owner
+                        </label>
+                
+                        <label class="promoter-card">
+                            <input type="radio" name="promoter_type" value="standup_comedy_owner">
+                            🎤 Stand-up Comedy Owner
+                        </label>
+                
+                    </div>
+                
+                </div>
+            
+                <button type="submit">Login</button>
+            
+            </form>
+
+            <div class="links">
+                <p>
+                    Don't have an account?
+                    <a href="{% url 'register' %}">Register</a>
+                </p>
+
+                <p style="margin-top:10px;">
+                    <a href="{% url 'home' %}">← Back to Home</a>
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+
+    const roleSelect = document.getElementById("roleSelect");
+    const promoterOptions = document.getElementById("promoterOptions");
+    
+    roleSelect.addEventListener("change", function(){
+    
+        if(this.value === "promoter"){
+            promoterOptions.style.display = "block";
+        }
+        else{
+            promoterOptions.style.display = "none";
+        }
+    
+    });
+    
+    </script>
+</body>
+</html>

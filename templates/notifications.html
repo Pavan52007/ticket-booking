@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Recommendations</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#0f0f0f,#1a1a1a,#2b2b2b);
+    min-height:100vh;
+    color:white;
+    padding:30px;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.header h1{
+    color:#e0e0e0;
+    font-size:32px;
+}
+
+.back-btn{
+    text-decoration:none;
+    color:white;
+    background:#444;
+    padding:10px 18px;
+    border-radius:8px;
+}
+
+.back-btn:hover{
+    background:#666;
+}
+
+.recommendation-box{
+    background:#222;
+    border:1px solid #444;
+    border-radius:15px;
+    padding:20px;
+    margin-bottom:20px;
+    transition:0.3s;
+}
+
+.recommendation-box:hover{
+    transform:translateY(-5px);
+    border-color:#888;
+}
+
+.recommendation-box h3{
+    margin-bottom:8px;
+    color:#f5f5f5;
+}
+
+.recommendation-box p{
+    color:#bdbdbd;
+}
+
+.tag{
+    display:inline-block;
+    margin-top:10px;
+    padding:5px 10px;
+    background:#555;
+    border-radius:20px;
+    font-size:12px;
+}
+.recommendation-box{
+    background:#222;
+    border:1px solid #444;
+    border-radius:15px;
+    padding:20px;
+    margin-bottom:20px;
+    transition:0.3s;
+    cursor:pointer;
+}
+
+.recommendation-box:hover{
+    transform:translateY(-5px);
+    border-color:#888;
+    box-shadow:0 0 15px rgba(255,255,255,0.15);
+}
+.recommendation-box{
+    display:flex;
+    gap:20px;
+    align-items:center;
+    background:#222;
+    border:1px solid #444;
+    border-radius:15px;
+    padding:15px;
+    margin-bottom:20px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.recommendation-box:hover{
+    transform:translateY(-5px);
+    border-color:#888;
+}
+
+.recommendation-box img{
+    width:180px;
+    height:120px;
+    object-fit:cover;
+    border-radius:10px;
+}
+
+.content{
+    flex:1;
+}
+
+.content h3{
+    margin-bottom:8px;
+}
+
+.content p{
+    color:#bdbdbd;
+}
+
+.tag{
+    display:inline-block;
+    margin-top:10px;
+    padding:5px 10px;
+    background:#555;
+    border-radius:20px;
+    font-size:12px;
+}
+
+@media(max-width:768px){
+    .recommendation-box{
+        flex-direction:column;
+        text-align:center;
+    }
+
+    .recommendation-box img{
+        width:100%;
+        height:200px;
+    }
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🔔 Recommended Events</h1>
+    <a href="{% url 'notifications' %}">
+        <i class="fas fa-bell"></i>
+        <span>Notifications</span>
+    </a>
+</div>
+
+<div class="recommendation-box"
+onclick="window.location.href='concerts.html'">
+
+    <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a">
+
+    <div class="content">
+        <h3>🎵 Sunburn Music Festival</h3>
+        <p>India's biggest EDM music festival featuring top DJs.</p>
+        <span class="tag">Music</span>
+    </div>
+
+</div>
+
+
+<div class="recommendation-box"
+onclick="window.location.href='theatre-comedy.html'">
+
+    <img src="https://images.unsplash.com/photo-1527224538127-2104bb71c51b">
+
+    <div class="content">
+        <h3>😂 Stand-Up Comedy Night</h3>
+        <p>Enjoy a live comedy show with popular comedians.</p>
+        <span class="tag">Comedy</span>
+    </div>
+
+</div>
+
+
+<div class="recommendation-box"
+onclick="window.location.href='restaurants.html'">
+
+    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836">
+
+    <div class="content">
+        <h3>🍔 Food Carnival 2026</h3>
+        <p>Explore cuisines from around the world.</p>
+        <span class="tag">Food</span>
+    </div>
+
+</div>
+
+
+<div class="recommendation-box"
+onclick="window.location.href='sports.html'">
+
+    <img src="https://images.unsplash.com/photo-1531415074968-036ba1b575da">
+
+    <div class="content">
+        <h3>🏏 IPL Fan Experience</h3>
+        <p>Meet fellow cricket fans and enjoy match screenings.</p>
+        <span class="tag">Sports</span>
+    </div>
+
+</div>
+
+
+<div class="recommendation-box"
+onclick="window.location.href='events.html'">
+
+    <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678">
+
+    <div class="content">
+        <h3>🎭 Cultural Fest</h3>
+        <p>Music, dance, drama and cultural performances.</p>
+        <span class="tag">Festival</span>
+    </div>
+
+</div>
+</body>
+</html>

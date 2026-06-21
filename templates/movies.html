@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Movies | Zenith</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+
+body{
+background:linear-gradient(135deg,#000,#1a0000,#000);
+font-family:Arial,sans-serif;
+color:white;
+min-height:100vh;
+overflow-x:hidden;
+}
+
+.navbar{
+background:#111;
+padding:15px;
+}
+
+.movie-section{
+padding:35px;
+}
+
+.section-title{
+font-size:28px;
+font-weight:bold;
+margin:35px 0 20px;
+color:#ff7b7b;
+}
+
+.search-box{
+margin:25px auto;
+max-width:600px;
+}
+
+.search-box input{
+
+background:#181818;
+border:1px solid #5a0000;
+color:white;
+height:48px;
+border-radius:30px;
+padding-left:20px;
+
+}
+
+.search-box input:focus{
+background:#181818;
+color:white;
+box-shadow:none;
+border:1px solid red;
+}
+
+.movie-card{
+
+position:relative;
+height:400px;
+overflow:hidden;
+border-radius:15px;
+cursor:pointer;
+transition:.4s;
+border:1px solid #5a0000;
+animation:fadeUp .7s ease;
+
+}
+
+.movie-card:hover{
+
+transform:translateY(-8px);
+box-shadow:0 0 22px rgba(255,0,0,.5);
+
+}
+
+.movie-card img{
+
+width:100%;
+height:100%;
+object-fit:cover;
+transition:.5s;
+
+}
+
+.movie-card:hover img{
+
+transform:scale(1.08);
+
+}
+
+.movie-body{
+
+position:absolute;
+bottom:-100%;
+left:0;
+width:100%;
+height:76%;
+padding:15px;
+background:linear-gradient(to top,#000,rgba(0,0,0,.92));
+transition:.5s;
+display:flex;
+flex-direction:column;
+
+}
+
+.movie-card:hover .movie-body{
+
+bottom:0;
+
+}
+
+.movie-meta{
+
+background:rgba(255,255,255,.05);
+padding:10px;
+border-radius:8px;
+font-size:13px;
+margin-top:10px;
+
+}
+
+.button-group{
+
+display:flex;
+gap:10px;
+margin-top:auto;
+
+}
+
+.book-btn{
+
+flex:1;
+background:#ff3b3b;
+color:white;
+text-decoration:none;
+padding:10px;
+text-align:center;
+border-radius:10px;
+font-weight:bold;
+
+}
+
+.book-btn:hover{
+
+background:#ff0000;
+color:white;
+
+}
+
+.fav-btn{
+
+flex:1;
+background:linear-gradient(45deg,#7c3aed,#9333ea);
+color:white;
+text-decoration:none;
+padding:10px;
+text-align:center;
+border-radius:10px;
+font-weight:bold;
+
+}
+
+.fav-btn:hover{
+
+color:white;
+
+}
+
+.heart{
+
+position:absolute;
+top:12px;
+right:12px;
+height:42px;
+width:42px;
+border-radius:50%;
+background:rgba(0,0,0,.7);
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:20px;
+color:white;
+z-index:99;
+transition:.3s;
+
+}
+
+.heart:hover{
+
+color:red;
+transform:scale(1.15);
+
+}
+
+.details-btn{
+
+margin-top:10px;
+display:block;
+text-align:center;
+background:#222;
+padding:8px;
+color:white;
+border-radius:8px;
+text-decoration:none;
+
+}
+
+.details-btn:hover{
+
+background:#444;
+color:white;
+
+}
+
+@keyframes fadeUp{
+
+from{
+
+opacity:0;
+transform:translateY(30px);
+
+}
+
+to{
+
+opacity:1;
+transform:translateY(0);
+
+}
+
+}
+
+@media(max-width:768px){
+
+.movie-card{
+
+height:360px;
+
+}
+
+.movie-section{
+
+padding:15px;
+
+}
+
+.section-title{
+
+font-size:22px;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark">
+
+<div class="container-fluid">
+
+<a class="navbar-brand fw-bold">
+
+🎬 Zenith Movies
+
+</a>
+
+<a href="{% url 'wishlist' %}" class="btn btn-danger">
+
+❤️ Wishlist
+
+</a>
+
+</div>
+
+</nav>
+
+<div class="container movie-section">
+
+<div class="search-box">
+
+<input
+type="text"
+class="form-control"
+id="searchMovie"
+placeholder="Search movies..."
+onkeyup="searchMovies()">
+
+</div>
+<!-- ================= TRENDING ================= -->
+
+<div class="section-title">🔥 Trending Movies</div>
+
+<div class="row g-4" id="movieContainer">
+
+<!-- Avengers -->
+
+<div class="col-md-3 movie-item">
+
+<div class="movie-card">
+
+<div class="heart"
+onclick="addToWishlist('Avengers: Secret Wars','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ44OJbG6u-1AaaSZswAnJTnmmkyQnFwTJWYw&s')">
+<i class="fa-solid fa-heart"></i>
+</div>
+
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ44OJbG6u-1AaaSZswAnJTnmmkyQnFwTJWYw&s">
+
+<div class="movie-body">
+
+<h5>Avengers: Secret Wars</h5>
+
+<p>Action • Sci-Fi</p>
+
+<div class="movie-meta">
+
+<p>📅 Release : 2026</p>
+
+<p>⭐ Rating : 9.1/10</p>
+
+<p>🎭 Cast : Robert Downey Jr.</p>
+
+<p>⏱ Duration : 2h 55m</p>
+
+</div>
+
+
+
+<div class="button-group">
+
+<a href="{% url 'movie_booking' %}?movie=avengers"
+class="book-btn">
+Book
+</a>
+
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Dune -->
+
+<div class="col-md-3 movie-item">
+
+<div class="movie-card">
+
+<div class="heart"
+onclick="addToWishlist('Dune: Part Three','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfqwuSuzX3FC83e3DpgvjkNyw73COMcMxikQ&s')">
+<i class="fa-solid fa-heart"></i>
+</div>
+
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfqwuSuzX3FC83e3DpgvjkNyw73COMcMxikQ&s">
+
+<div class="movie-body">
+
+<h5>Dune: Part Three</h5>
+
+<p>Adventure • Sci-Fi</p>
+
+<div class="movie-meta">
+
+<p>📅 Release : 2026</p>
+
+<p>⭐ Rating : 8.9/10</p>
+
+<p>🎭 Cast : Timothée Chalamet</p>
+
+<p>⏱ Duration : 2h 40m</p>
+
+</div>
+
+
+
+<div class="button-group">
+
+<a href="{% url 'movie_booking' %}?movie=dune"
+class="book-btn">
+Book
+</a>
+
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- John Wick -->
+
+<div class="col-md-3 movie-item">
+
+<div class="movie-card">
+
+<div class="heart"
+onclick="addToWishlist('John Wick 5','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcChgnKp3Xq9euuooiKApcg-tb6tv4HIEAXA&s')">
+<i class="fa-solid fa-heart"></i>
+</div>
+
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcChgnKp3Xq9euuooiKApcg-tb6tv4HIEAXA&s">
+
+<div class="movie-body">
+
+<h5>John Wick 5</h5>
+
+<p>Action • Thriller</p>
+
+<div class="movie-meta">
+
+<p>📅 Release : 2026</p>
+
+<p>⭐ Rating : 8.8/10</p>
+
+<p>🎭 Cast : Keanu Reeves</p>
+
+<p>⏱ Duration : 2h 30m</p>
+
+</div>
+
+
+
+<div class="button-group">
+
+<a href="{% url 'movie_booking' %}?movie=johnwick"
+class="book-btn">
+Book
+</a>
+
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Deadpool -->
+
+<div class="col-md-3 movie-item">
+
+<div class="movie-card">
+
+<div class="heart"
+onclick="addToWishlist('Deadpool 3','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSfVdJDbcwuTRi6GZvN0aXWCK1XRS8TTC_Rw&s')">
+<i class="fa-solid fa-heart"></i>
+</div>
+
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSfVdJDbcwuTRi6GZvN0aXWCK1XRS8TTC_Rw&s">
+
+<div class="movie-body">
+
+<h5>Deadpool 3</h5>
+
+<p>Action • Comedy</p>
+
+<div class="movie-meta">
+
+<p>📅 Release : 2026</p>
+
+<p>⭐ Rating : 8.7/10</p>
+
+<p>🎭 Cast : Ryan Reynolds</p>
+
+<p>⏱ Duration : 2h 10m</p>
+
+</div>
+
+
+
+<div class="button-group">
+
+<a href="{% url 'movie_booking' %}?movie=deadpool"
+class="book-btn">
+Book
+</a>
+
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<!-- ================= UPCOMING ================= -->
+
+<div class="section-title">🎬 Upcoming Movies</div>
+
+<div class="row g-4">
+
+<!-- Fantastic Four -->
+
+<div class="col-md-3 movie-item">
+
+<div class="movie-card">
+
+<div class="heart"
+onclick="addToWishlist('Fantastic Four','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq8IdMms6CKDS3A3G5QsUX5Z4IcNKbWKDRNg&s')">
+<i class="fa-solid fa-heart"></i>
+</div>
+
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq8IdMms6CKDS3A3G5QsUX5Z4IcNKbWKDRNg&s">
+
+<div class="movie-body">
+
+<h5>Fantastic Four</h5>
+
+<p>Action • Superhero</p>
+
+<div class="movie-meta">
+
+<p>📅 Release : 2026</p>
+
+<p>⭐ Rating : 8.5/10</p>
+
+<p>🎭 Cast : Pedro Pascal</p>
+
+<p>⏱ Duration : 2h 25m</p>
+
+</div>
+
+
+
+<div class="button-group">
+
+<a href="{% url 'movie_booking' %}?movie=fantastic4"
+class="book-btn">
+Book
+</a>
+
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Spider-Man -->
+
+<div class="col-md-3 movie-item">
+
+<div class="movie-card">
+
+<div class="heart"
+onclick="addToWishlist('Spider-Man 4','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRX06hQg2DaZgDmCz2cC0ZFBmS3wX9UQu9M_A&s')">
+<i class="fa-solid fa-heart"></i>
+</div>
+
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRX06hQg2DaZgDmCz2cC0ZFBmS3wX9UQu9M_A&s">
+
+<div class="movie-body">
+
+<h5>Spider-Man 4</h5>
+
+<p>Action • Adventure</p>
+
+<div class="movie-meta">
+
+<p>📅 Release : 2026</p>
+
+<p>⭐ Rating : 9.0/10</p>
+
+<p>🎭 Cast : Tom Holland</p>
+
+<p>⏱ Duration : 2h 20m</p>
+
+</div>
+
+
+
+<div class="button-group">
+
+<a href="{% url 'movie_booking' %}?movie=spiderman"
+class="book-btn">
+Book
+</a>
+
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Joker -->
+
+<div class="col-md-3 movie-item">
+
+<div class="movie-card">
+
+<div class="heart"
+onclick="addToWishlist('Joker Madness','https://www.infamousinspiration.com/wp-content/uploads/2017/06/Heath-Ledger-The-Joker-Poster-2-scaled.jpg')">
+<i class="fa-solid fa-heart"></i>
+</div>
+
+<img src="https://www.infamousinspiration.com/wp-content/uploads/2017/06/Heath-Ledger-The-Joker-Poster-2-scaled.jpg">
+
+<div class="movie-body">
+
+<h5>Joker: Madness</h5>
+
+<p>Crime • Drama</p>
+
+<div class="movie-meta">
+
+<p>📅 Release : 2026</p>
+
+<p>⭐ Rating : 8.6/10</p>
+
+<p>🎭 Cast : Joaquin Phoenix</p>
+
+<p>⏱ Duration : 2h 35m</p>
+
+</div>
+
+
+
+<div class="button-group">
+
+<a href="{% url 'movie_booking' %}?movie=joker"
+class="book-btn">
+Book
+</a>
+
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Mission Impossible -->
+
+<div class="col-md-3 movie-item">
+
+<div class="movie-card">
+
+<div class="heart"
+onclick="addToWishlist('Mission Impossible 8','https://m.media-amazon.com/images/M/MV5BZGQ5NGEyYTItMjNiMi00Y2EwLTkzOWItMjc5YjJiMjMyNTI0XkEyXkFqcGc@._V1_.jpg')">
+<i class="fa-solid fa-heart"></i>
+</div>
+
+<img src="https://m.media-amazon.com/images/M/MV5BZGQ5NGEyYTItMjNiMi00Y2EwLTkzOWItMjc5YjJiMjMyNTI0XkEyXkFqcGc@._V1_.jpg">
+
+<div class="movie-body">
+
+<h5>Mission Impossible 8</h5>
+
+<p>Action • Spy</p>
+
+<div class="movie-meta">
+
+<p>📅 Release : 2026</p>
+
+<p>⭐ Rating : 8.9/10</p>
+
+<p>🎭 Cast : Tom Cruise</p>
+
+<p>⏱ Duration : 2h 45m</p>
+
+</div>
+
+
+
+<div class="button-group">
+
+<a href="{% url 'movie_booking' %}?movie=mi8"
+class="book-btn">
+Book
+</a>
+
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<!-- ================= BEST PICKS FOR YOU ================= -->
+
+<div class="section-title">⭐ Best Picks For You</div>
+
+<div class="row g-4">
+
+<!-- Interstellar 2 -->
+
+<div class="col-md-3 movie-item">
+
+<div class="movie-card">
+
+<div class="heart"
+onclick="addToWishlist('Interstellar 2','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1p0dQ3HRDZGnsdGchwNvdgnu9eCJW-iKNKg&s')">
+<i class="fa-solid fa-heart"></i>
+</div>
+
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1p0dQ3HRDZGnsdGchwNvdgnu9eCJW-iKNKg&s">
+
+<div class="movie-body">
+
+<h5>Interstellar 2</h5>
+
+<p>Sci-Fi • Adventure</p>
+
+<div class="movie-meta">
+
+<p>📅 Release : 2026</p>
+
+<p>⭐ Rating : 9.5/10</p>
+
+<p>🎭 Cast : Matthew McConaughey</p>
+
+<p>⏱ Duration : 3h 00m</p>
+
+</div>
+
+
+
+<div class="button-group">
+
+<a href="{% url 'movie_booking' %}?movie=interstellar"
+class="book-btn">
+Book
+</a>
+
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Batman -->
+
+<div class="col-md-3 movie-item">
+
+<div class="movie-card">
+
+<div class="heart"
+onclick="addToWishlist('Batman Dark Legacy','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLoAI-31V3E-kh5wkkxxs6EHE_33VD1BD32g&s')">
+<i class="fa-solid fa-heart"></i>
+</div>
+
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLoAI-31V3E-kh5wkkxxs6EHE_33VD1BD32g&s">
+
+<div class="movie-body">
+
+<h5>Batman: Dark Legacy</h5>
+
+<p>Action • DC</p>
+
+<div class="movie-meta">
+
+<p>📅 Release : 2026</p>
+
+<p>⭐ Rating : 9.0/10</p>
+
+<p>🎭 Cast : Robert Pattinson</p>
+
+<p>⏱ Duration : 2h 50m</p>
+
+</div>
+
+
+
+<div class="button-group">
+
+<a href="{% url 'movie_booking' %}?movie=batman"
+class="book-btn">
+Book
+</a>
+
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Black Panther -->
+
+<div class="col-md-3 movie-item">
+
+<div class="movie-card">
+
+<div class="heart"
+onclick="addToWishlist('Black Panther Legacy','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBYOCBtvQX1nKJPsxPVozkoHZv5zyicayrYw&s')">
+<i class="fa-solid fa-heart"></i>
+</div>
+
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBYOCBtvQX1nKJPsxPVozkoHZv5zyicayrYw&s">
+
+<div class="movie-body">
+
+<h5>Black Panther: Legacy</h5>
+
+<p>Action • Marvel</p>
+
+<div class="movie-meta">
+
+<p>📅 Release : 2026</p>
+
+<p>⭐ Rating : 8.8/10</p>
+
+<p>🎭 Cast : Letitia Wright</p>
+
+<p>⏱ Duration : 2h 30m</p>
+
+</div>
+
+
+
+<div class="button-group">
+
+<a href="{% url 'movie_booking' %}?movie=blackpanther"
+class="book-btn">
+Book
+</a>
+
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Fast X2 -->
+
+<div class="col-md-3 movie-item">
+
+<div class="movie-card">
+
+<div class="heart"
+onclick="addToWishlist('Fast X2','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1wTDVJzl0BioMPNn5JkC3I6RNvG7cIp3iWQ&s')">
+<i class="fa-solid fa-heart"></i>
+</div>
+
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1wTDVJzl0BioMPNn5JkC3I6RNvG7cIp3iWQ&s">
+
+<div class="movie-body">
+
+<h5>Fast X2</h5>
+
+<p>Action • Racing</p>
+
+<div class="movie-meta">
+
+<p>📅 Release : 2026</p>
+
+<p>⭐ Rating : 8.4/10</p>
+
+<p>🎭 Cast : Vin Diesel</p>
+
+<p>⏱ Duration : 2h 15m</p>
+
+</div>
+
+
+
+<div class="button-group">
+
+<a href="{% url 'movie_booking' %}?movie=fastx2"
+class="book-btn">
+Book
+</a>
+
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<script>
+
+    function searchMovies(){
+    
+        let input = document.getElementById("searchMovie").value.toLowerCase();
+    
+        let movies = document.querySelectorAll(".movie-item");
+    
+        movies.forEach(function(movie){
+    
+            let text = movie.innerText.toLowerCase();
+    
+            if(text.includes(input)){
+                movie.style.display = "block";
+            }
+            else{
+                movie.style.display = "none";
+            }
+    
+        });
+    
+    }
+    
+    function addToWishlist(title,image){
+    
+        let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    
+        let exists = wishlist.find(item => (item.title || item.name) === title);
+    
+        if(!exists){
+    
+            wishlist.push({
+    
+                title: title,
+    
+                image: image,
+    
+                page: "{% url 'movies' %}"
+    
+            });
+    
+            localStorage.setItem("wishlist",JSON.stringify(wishlist));
+    
+            alert(title + " added to wishlist ❤️");
+    
+        }
+    
+        else{
+    
+            alert("Already in wishlist ❤️");
+    
+        }
+    
+    }
+    
+    </script>
+    
+    </div>
+    
+    </body>
+    
+    </html>

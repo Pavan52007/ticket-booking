@@ -1,0 +1,105 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Seat Reservation</title>
+
+<style>
+
+body{
+background:#111;
+font-family:Arial;
+color:white;
+text-align:center;
+}
+
+h1{
+margin-top:20px;
+}
+
+.grid{
+
+display:grid;
+grid-template-columns:repeat(8,50px);
+gap:10px;
+justify-content:center;
+margin-top:40px;
+
+}
+
+.seat{
+
+width:50px;
+height:50px;
+background:#444;
+border-radius:8px;
+cursor:pointer;
+line-height:50px;
+
+}
+
+.selected{
+
+background:red;
+
+}
+
+button{
+
+margin-top:40px;
+padding:12px 30px;
+background:red;
+border:none;
+color:white;
+border-radius:10px;
+font-size:18px;
+cursor:pointer;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Select Your Seat</h1>
+
+<div class="grid" id="grid"></div>
+
+<a href="{% url 'event_checkout' %}">
+<button>Continue</button>
+</a>
+
+<script>
+
+const grid=document.getElementById("grid");
+
+for(let i=1;i<=40;i++){
+
+let seat=document.createElement("div");
+
+seat.className="seat";
+
+seat.innerHTML=i;
+
+seat.onclick=function(){
+
+document.querySelectorAll(".seat").forEach(x=>x.classList.remove("selected"));
+
+seat.classList.add("selected");
+
+localStorage.setItem("seat",i);
+
+}
+
+grid.appendChild(seat);
+
+}
+
+</script>
+
+</body>
+</html>
+```

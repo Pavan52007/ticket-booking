@@ -1,0 +1,97 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+
+<title>Checkout</title>
+
+<style>
+
+body{
+
+background:black;
+font-family:Arial;
+color:white;
+
+}
+
+.box{
+
+width:450px;
+margin:50px auto;
+background:#1a1a1a;
+padding:30px;
+border-radius:15px;
+
+}
+
+input{
+
+width:100%;
+padding:12px;
+margin-top:12px;
+border-radius:8px;
+border:none;
+
+}
+
+button{
+
+width:100%;
+padding:14px;
+margin-top:20px;
+background:red;
+border:none;
+color:white;
+font-size:18px;
+border-radius:8px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Checkout</h2>
+
+<p><b>Seat :</b> <span id="seat"></span></p>
+
+<input type="text" placeholder="Full Name">
+
+<input type="email" placeholder="Email">
+
+<input type="tel" placeholder="Phone Number">
+
+<input type="text" placeholder="Card Number">
+
+<input type="text" placeholder="Expiry">
+
+<input type="text" placeholder="CVV">
+
+<button onclick="book()">Pay Now</button>
+
+</div>
+
+<script>
+
+document.getElementById("seat").innerHTML=localStorage.getItem("seat");
+
+function book(){
+
+alert("🎉 Booking Successful!");
+
+window.location.href="{% url 'dashboard' %}";
+
+}
+
+</script>
+
+</body>
+</html>
+```

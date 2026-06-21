@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Event Checkout — Theater Theme</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+        
+            document.getElementById("checkoutForm").addEventListener("submit", function(e) {
+                e.preventDefault();
+        
+                const selectedPayment = document.querySelector('input[name="paymentGateway"]:checked').value;
+        
+                const totalAmountText = document.getElementById('summaryTotal').textContent;
+                const totalAmount = parseFloat(totalAmountText) || 0;
+        
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const userEmail = document.getElementById('emailAddress').value;
+                const userPhone = document.getElementById('phoneNumber').value;
+        
+                // 🔥 ALWAYS STORE FINAL BOOKING DATA (important fix)
+                const finalBooking = {
+                    name: firstName + " " + lastName,
+                    email: userEmail,
+                    phone: userPhone,
+                    amount: totalAmount,
+                    seats: document.getElementById('preferredSeats').value,
+                    time: document.getElementById('preferredTime').value
+                };
+        
+                localStorage.setItem("finalBooking", JSON.stringify(finalBooking));
+        
+                // =======================
+                // RAZORPAY FLOW
+                // =======================
+                if (selectedPayment === "razorpay") {
+        
+                    var options = {
+                        "key": "YOUR_RAZORPAY_KEY_ID",
+                        "amount": totalAmount * 100,
+                        "currency": "INR",
+                        "name": "Secure Cinema Interface",
+                        "description": "Theater Ticket Booking",
+                        "handler": function (response){
+        
+                            alert("Payment Successful! ID: " + response.razorpay_payment_id);
+        
+                            localStorage.removeItem('bookingData');
+                            localStorage.removeItem('selectedShowTime');
+        
+                            // ✅ FIX: redirect properly
+                            window.location.href = "/ticket/?booking=" + encodeURIComponent(finalBooking.name)
+                                + "&seats=" + encodeURIComponent(finalBooking.seats);
+                        },
+                        "prefill": {
+                            "name": firstName + " " + lastName,
+                            "email": userEmail,
+                            "contact": userPhone
+                        },
+                        "theme": {
+                            "color": "#960010"
+                        }
+                    };
+        
+                    var rzp1 = new Razorpay(options);
+                    rzp1.on('payment.failed', function (response){
+                        alert("Payment Failed: " + response.error.description);
+                    });
+                    rzp1.open();
+        
+                } 
+                // =======================
+                // CARD / OTHER FLOW
+                // =======================
+                else {
+        
+                    // ✅ FIX: real redirect (your old "payment.html" was breaking)
+                    window.location.href = "/ticket/?booking=" + encodeURIComponent(finalBooking.name)
+                        + "&seats=" + encodeURIComponent(finalBooking.seats);
+                }
+            });
+        
+        });
+        </script>
+</head>
+<body class="bg-gradient-to-br from-[#060608] via-[#0d0e12] to-[#1e0206] font-sans min-h-screen py-10 px-4 sm:px-6 lg:px-8 text-slate-100">
+
+    <div class="max-w-6xl mx-auto bg-[#111216]/95 backdrop-blur-xl rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden border border-white/5 border-t-4 border-t-[#960010]">
+        
+        <div class="w-[85%] h-[3px] mx-auto bg-gradient-to-r from-transparent via-[#e60018] to-transparent shadow-[0_0_15px_4px_rgba(230,0,24,0.6)] rounded-full opacity-70 mb-2"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12">
+            
+            <div class="p-8 lg:col-span-7 space-y-8">
+                <div class="flex justify-between items-center border-b border-white/5 pb-5">
+                    <h1 class="text-2xl font-extrabold text-white flex items-center gap-3 relative pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:h-6 before:w-[4px] before:bg-[#e60018] before:rounded-sm before:shadow-[0_0_8px_#e60018]">
+                        <a href="s19.html" class="text-xl text-slate-500 hover:text-[#e60018] transition-colors no-underline" title="Back to Seat Selection">&larr;</a>
+                        Checkout
+                    </h1>
+                    <div class="text-sm text-slate-400 bg-black/50 px-3 py-1.5 rounded-full border border-white/5 shadow-inner">
+                        Time left: <span id="timer" class="font-bold transition-colors duration-300">19:30</span>
+                    </div>
+                </div>
+
+                <form id="checkoutForm" class="space-y-8">
+                    <!-- Seat Legend -->
+<div class="bg-black/40 border border-white/5 rounded-xl p-4 mb-4">
+    <h4 class="text-sm font-bold text-white mb-3">Seat Legend</h4>
+
+    <div class="flex flex-col gap-2 text-sm">
+        <div class="flex items-center gap-2">
+            <span class="w-4 h-4 rounded bg-violet-500 inline-block"></span>
+            <span class="text-slate-300">Vacant Seats</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <span class="w-4 h-4 rounded bg-black border border-white/20 inline-block"></span>
+            <span class="text-slate-300">Reserved Seats</span>
+        </div>
+    </div>
+</div>
+                    <div class="space-y-4 bg-black/40 backdrop-blur-md p-6 rounded-xl border border-[#960010]/30 shadow-lg text-white">
+                        <div class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-[#e60018] animate-pulse"></span>
+                            <h2 class="text-xs font-bold text-[#e60018] uppercase tracking-widest">Ticket Selection Engine Data</h2>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Ticket Type & Price *</label>
+                                <textarea id="ticketTypeDisplay" readonly class="w-full border border-slate-800 bg-black/40 text-slate-200 rounded-lg p-3 cursor-not-allowed outline-none focus:ring-0 font-semibold tracking-wide resize-none leading-relaxed overflow-hidden min-h-[44px]"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Quantity</label>
+                                <input type="number" id="quantity" value="0" readonly class="w-full border border-slate-800 bg-black/40 text-[#e60018] rounded-lg p-3 cursor-not-allowed outline-none focus:ring-0 text-center font-black text-lg">
+                            </div>
+                        </div>
+
+                        <!-- Screen Type field -->
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Screen Type</label>
+                                <input type="text" id="screenType" readonly placeholder="Loading screen type..." class="w-full border border-slate-800 bg-black/40 text-[#e60018] rounded-lg p-3 cursor-not-allowed outline-none focus:ring-0 font-bold tracking-wide">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Preferred Seats / Row *</label>
+                                <textarea id="preferredSeats" readonly class="w-full border border-slate-800 bg-black/40 text-slate-200 rounded-lg p-3 cursor-not-allowed outline-none focus:ring-0 font-semibold tracking-wide resize-none leading-relaxed overflow-hidden min-h-[44px]"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Selected Show Time *</label>
+                                <input type="text" id="preferredTime" placeholder="Loading time..." readonly class="w-full border border-slate-800 bg-black/40 text-[#e60018] rounded-lg p-3 cursor-not-allowed outline-none focus:ring-0 font-bold tracking-wide">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-5 bg-white/5 p-6 rounded-xl border border-white/5">
+                        <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 border-b border-white/5 pb-3">
+                            <h2 class="text-xl font-bold text-[#e60018] tracking-wide">Billing Information</h2>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1.5">First name *</label>
+                                <input type="text" id="firstName" placeholder="John" required class="w-full bg-[#060608] border border-slate-800 rounded-lg p-3 text-white placeholder-slate-600 outline-none focus:border-[#960010] focus:ring-2 focus:ring-[#960010]/20 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1.5">Last name *</label>
+                                <input type="text" id="lastName" placeholder="Doe" required class="w-full bg-[#060608] border border-slate-800 rounded-lg p-3 text-white placeholder-slate-600 outline-none focus:border-[#960010] focus:ring-2 focus:ring-[#960010]/20 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1.5">Email address *</label>
+                                <input type="email" id="emailAddress" placeholder="john@example.com" required class="w-full bg-[#060608] border border-slate-800 rounded-lg p-3 text-white placeholder-slate-600 outline-none focus:border-[#960010] focus:ring-2 focus:ring-[#960010]/20 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1.5">Phone Number *</label>
+                                <input type="tel" id="phoneNumber" placeholder="xxxxxxxxxx" pattern="[0-9]{10}" maxlength="10" required class="w-full bg-slate-950/40 border border-slate-800 rounded-lg p-3 text-white placeholder-slate-600 outline-none focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10 transition-all">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-white/5 p-6 rounded-xl border border-white/5">
+                        <h2 class="text-xl font-bold text-white tracking-wide border-b border-white/5 pb-3">Pay With</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="flex items-center justify-between p-4 border border-slate-800 bg-black/40 rounded-xl cursor-pointer hover:bg-white/5 transition-all has-[:checked]:border-[#e60018] has-[:checked]:bg-[#960010]/15">
+                                <div class="flex items-center">
+                                    <input type="radio" name="paymentGateway" value="card" checked class="h-4 w-4 text-[#e60018] focus:ring-[#960010]/30 accent-[#e60018]">
+                                    <span class="ml-3 font-semibold text-slate-200 text-sm">Credit or Debit Card</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center justify-between p-4 border border-slate-800 bg-black/40 rounded-xl cursor-pointer hover:bg-white/5 transition-all has-[:checked]:border-[#e60018] has-[:checked]:bg-[#960010]/15">
+                                <div class="flex items-center">
+                                    <input type="radio" name="paymentGateway" value="razorpay" class="h-4 w-4 text-[#e60018] focus:ring-[#960010]/30 accent-[#e60018]">
+                                    <span class="ml-3 font-semibold text-slate-200 text-sm">Razorpay</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-[#960010] to-[#e60018] text-white font-black py-4 rounded-xl text-center text-base tracking-wider uppercase">
+                        Place Order
+                    </button>
+                </form>
+            </div>
+
+            <div class="p-8 lg:col-span-5 bg-black/20 border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col justify-between">
+                <div class="space-y-6">
+                    <div class="rounded-xl overflow-hidden bg-gradient-to-r from-[#3a0007] via-[#15171c] to-[#060608] border border-[#960010]/30 text-white flex items-stretch min-h-[80px]">
+                        <div class="p-5 flex flex-col justify-center flex-1">
+                            <h3 class="text-base font-black uppercase tracking-wide text-white leading-snug">Cinema Event Show</h3>
+                            <span id="summaryTimeBadge" class="text-[9px] tracking-wider text-rose-200 bg-[#960010]/40 border border-[#e60018]/30 px-2 py-0.5 rounded font-bold w-max mt-2.5">Loading...</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-white/5 border border-white/5 rounded-xl p-5 shadow-inner">
+                        <h3 class="text-base font-bold text-white border-b border-white/5 pb-2 tracking-wide">Order Summary</h3>
+                        
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400 font-medium">Selected Seats Breakdowns</span>
+                            <span id="summarySeats" class="font-semibold text-slate-200 text-right whitespace-pre-line">None Selected</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400 font-medium">Show Time</span>
+                            <span id="summaryTimeText" class="font-semibold text-[#e60018]">Loading...</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400 font-medium">Ticket Pricing Tiers</span>
+                            <span id="summaryUnitPrice" class="font-semibold text-violet-300 text-sm text-right whitespace-pre-line leading-relaxed">
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400 font-medium">Total Quantity</span>
+                            <span id="summaryQuantity" class="font-semibold text-slate-200">0</span>
+                        </div>
+                        <div class="flex justify-between text-sm pt-3 border-t border-dashed border-white/5">
+                            <span class="text-slate-400 font-medium">Subtotal</span>
+                            <span class="font-semibold text-slate-200">₹<span id="summarySubtotal">0</span></span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400 font-medium">Convenience Fees</span>
+                            <span class="font-semibold text-slate-200">₹<span id="summaryFees">0</span></span>
+                        </div>
+                        <div class="flex justify-between items-center pt-4 border-t border-white/5">
+                            <span class="text-base font-bold text-white">Total Amount</span>
+                            <span class="text-2xl font-black text-[#e60018]">₹<span id="summaryTotal">0</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const FLAT_CONVENIENCE_FEE = 80;
+
+        // Valid row letters A through Q
+        const VALID_ROWS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q'];
+
+        function deriveScreenType(timeStr) {
+            if (!timeStr || timeStr === "Not Selected") return "Standard";
+            const t = timeStr.trim();
+            if (t.includes("9:05AM") || t.includes("9:05 AM")) return "IMAX";
+            if (t.includes("2:40PM") || t.includes("2:40 PM")) return "Multiplex";
+            if (t.includes("8:15PM") || t.includes("8:15 PM")) return "Dolby Atmos";
+            return "Standard";
+        }
+
+        function autoResizeTextarea(el) {
+            if (!el) return;
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const bookingData = JSON.parse(localStorage.getItem('bookingData')) || [];
+
+            const ticketTypeDisplay = document.getElementById('ticketTypeDisplay');
+            const preferredSeats    = document.getElementById('preferredSeats');
+            const quantityInput     = document.getElementById('quantity');
+            const summarySeats      = document.getElementById('summarySeats');
+            const summaryUnitPrice  = document.getElementById('summaryUnitPrice');
+            const summaryQuantity   = document.getElementById('summaryQuantity');
+            const summarySubtotal   = document.getElementById('summarySubtotal');
+            const summaryFees       = document.getElementById('summaryFees');
+            const summaryTotal      = document.getElementById('summaryTotal');
+
+            // ── Group by tier (no duplicates) ──────────────────────────────
+            // tierMap: { tierName -> { unitPrice, rows: Set, totalSeats: 0 } }
+            const tierMap = {};
+
+            let seatLines = [];
+            let accumulatedQuantity = 0;
+            let accumulatedSubtotal = 0;
+
+            bookingData.forEach(item => {
+                const count    = item.seats.length;
+                const rowLabel = (item.rowName || '').toString().trim().toUpperCase();
+
+                // Seat breakdown line (Preferred Seats field)
+                seatLines.push(`Row ${rowLabel}: ${item.seats.join(', ')}`);
+
+                accumulatedQuantity += count;
+                accumulatedSubtotal += item.unitPrice * count;
+
+                const key = item.tierName;
+                if (!tierMap[key]) {
+                    tierMap[key] = { unitPrice: item.unitPrice, rows: new Set(), totalSeats: 0 };
+                }
+
+                // Only add row letter if it's within A–Q
+                if (VALID_ROWS.includes(rowLabel)) {
+                    tierMap[key].rows.add(rowLabel);
+                }
+                tierMap[key].totalSeats += count;
+            });
+
+            // ── Build Ticket Type & Price display (one line per tier) ──────
+            // Format: TierName (Row A, B, C) - ₹Price x TotalSeatCount
+            const ticketLines        = [];
+            const pricingSummaryLines = [];
+
+            Object.entries(tierMap).forEach(([tierName, info]) => {
+                // Sort rows in A–Q order
+                const sortedRows = [...info.rows].sort(
+                    (a, b) => VALID_ROWS.indexOf(a) - VALID_ROWS.indexOf(b)
+                );
+                const rowPart = sortedRows.length > 0
+                    ? `Row ${sortedRows.join(', ')}`
+                    : 'Row —';
+
+                ticketLines.push(
+                    `${tierName} (${rowPart}) - ₹${info.unitPrice} x ${info.totalSeats}`
+                );
+                pricingSummaryLines.push(
+                    `${tierName}: ${info.totalSeats} x ₹${info.unitPrice}`
+                );
+            });
+
+            // ── Populate fields ────────────────────────────────────────────
+            ticketTypeDisplay.value      = ticketLines.join('\n');
+            preferredSeats.value         = seatLines.join('\n');
+            summarySeats.textContent     = seatLines.join('\n');
+            summaryUnitPrice.innerHTML = pricingSummaryLines
+    .map(line => `• ${line}`)
+    .join('<br>');
+            quantityInput.value          = accumulatedQuantity;
+            summaryQuantity.textContent  = accumulatedQuantity;
+
+            const dynamicFee = accumulatedSubtotal > 0 ? FLAT_CONVENIENCE_FEE : 0;
+            summarySubtotal.textContent = accumulatedSubtotal;
+            summaryFees.textContent     = dynamicFee;
+            summaryTotal.textContent    = accumulatedSubtotal + dynamicFee;
+
+            autoResizeTextarea(ticketTypeDisplay);
+            autoResizeTextarea(preferredSeats);
+
+            // ── Show time ──────────────────────────────────────────────────
+            const variants = ['selectedShowTime','selectedTime','showTime','timeSlot','movieTime','time'];
+            let storedTime = "";
+
+            for (let v of variants) {
+                let val = localStorage.getItem(v);
+                if (val && val.trim() !== "" && val !== "undefined" && val !== "null") {
+                    storedTime = val;
+                    break;
+                }
+            }
+
+            if (!storedTime && bookingData.length > 0 && bookingData[0].showTime) {
+                storedTime = bookingData[0].showTime;
+            }
+
+            if (!storedTime) storedTime = "Not Selected";
+
+            storedTime = storedTime.replace(/[\[\]"]/g, '').trim();
+
+            document.getElementById('preferredTime').value         = storedTime;
+            document.getElementById('summaryTimeText').textContent = storedTime;
+            document.getElementById('summaryTimeBadge').textContent = storedTime;
+
+            // ── Screen Type ────────────────────────────────────────────────
+            document.getElementById('screenType').value = deriveScreenType(storedTime);
+        });
+
+        // ── Countdown timer ────────────────────────────────────────────────
+        let totalSecondsLeft = 19 * 60 + 30;
+        const timerTextNode  = document.getElementById('timer');
+        setInterval(() => {
+            if (totalSecondsLeft <= 0) return;
+            totalSecondsLeft--;
+            const m = Math.floor(totalSecondsLeft / 60);
+            const s = totalSecondsLeft % 60;
+            timerTextNode.textContent = `${m}:${s < 10 ? '0' + s : s}`;
+        }, 1000);
+    </script>
+</body>
+</html>
