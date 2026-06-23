@@ -1,0 +1,2212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CinePulse Promoter Hub</title>
+    <!-- Fonts & Icons CDNs -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- jsVectorMap CSS CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- jsVectorMap Core and Maps CDNs -->
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+
+    <style>
+        /* --- GLOBAL THEME SETUP & RESET --- */
+        :root {
+            --bg-dark: #050505;
+            --sidebar-bg: #09090c;
+            --card-bg: #121212;
+            --primary: #e11d48;
+            --primary-hover: #be123c;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-dim: #9ca3af;
+            --text-muted: #55555c;
+            
+            --accent-red: #e50914;
+            --accent-red-hover: #b80710;
+            --accent-red-bg: rgba(229, 9, 20, 0.1);
+            --accent-red-glow: rgba(229, 9, 20, 0.25);
+            --trend-up: #22c55e;
+            --trend-down: #ef4444;
+            
+            --sidebar-width: 250px;
+            --right-panel-width: 320px;
+            --transition: all 0.2s ease-in-out;
+        }
+
+        /* Light Mode Variable Overrides */
+        body.light-theme {
+            --bg-dark: #f4f4f5;
+            --sidebar-bg: #ffffff;
+            --card-bg: #ffffff;
+            --text-main: #09090b;
+            --text-dim: #52525b;
+            --text-muted: #71717a;
+            --border: #e4e4e7;
+            --accent-red-bg: rgba(229, 9, 20, 0.08);
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; 
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* --- LAYOUT WRAPPER --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 100;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: var(--transition);
+        }
+
+        .main-workspace {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            min-width: 0;
+        }
+
+        /* View Section Toggles */
+        .view-section {
+            display: none;
+            width: 100%;
+            padding: 32px;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        .view-section.active-view {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- SIDEBAR COMPONENTS --- */
+        .logo-area { display: flex; align-items: center; gap: 10px; margin-bottom: 40px; }
+        .logo-box { background: var(--primary); padding: 5px 8px; border-radius: 4px; font-weight: 800; font-size: 14px; color: #fff;}
+        .logo-text { font-weight: 700; font-size: 18px; letter-spacing: -0.5px; }
+        .logo-sub { font-size: 9px; color: var(--text-dim); display: block; margin-top: -2px; }
+
+        .sidebar-menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            color: var(--text-dim);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .nav-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .nav-item.active { background: var(--primary); color: white; }
+        .nav-item:hover:not(.active) { background: rgba(255,255,255,0.05); color: white; }
+        body.light-theme .nav-item:hover:not(.active) { background: rgba(0,0,0,0.05); color: var(--text-main); }
+
+        .sidebar-promo {
+            margin-top: auto;
+            background: linear-gradient(135deg, #4c0519 0%, #000 100%);
+            border: 1px solid rgba(225, 29, 72, 0.2);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .sidebar-promo h4 { font-size: 13px; margin-bottom: 4px; }
+        .sidebar-promo p { font-size: 10px; color: var(--text-dim); margin-bottom: 12px; }
+        .btn-boost {
+            width: 100%;
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* --- SHARED STYLINGS --- */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .search-bar {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 350px;
+        }
+        .search-bar input { background: transparent; border: none; color: inherit; font-size: 13px; width: 100%; outline: none; }
+        .user-profile { display: flex; align-items: center; gap: 12px; }
+        .user-info { text-align: right; }
+        .user-info h4 { font-size: 14px; }
+        .user-info p { font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); cursor: pointer; }
+
+        /* KPI Cards Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 14px;
+        }
+        .stat-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .stat-icon { color: var(--primary); background: rgba(225,29,72,0.1); padding: 6px; border-radius: 8px; }
+        .stat-card h2 { font-size: 20px; margin-top: 4px; }
+        .stat-card p { font-size: 11px; color: var(--text-dim); }
+        .trend { font-size: 11px; color: #10b981; font-weight: 700; }
+        .sparkline-container { height: 40px; margin-top: 10px; }
+
+        /* Split Columns Panels */
+        .chart-row { display: grid; grid-template-columns: 1fr 1.2fr 1.5fr; gap: 16px; margin-bottom: 24px; }
+        .chart-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+        }
+        .chart-card h4 { font-size: 12px; text-transform: uppercase; margin-bottom: 20px; color: var(--text-dim); }
+        .chart-container { height: 180px; position: relative; }
+
+        /* Progress lists */
+        .theatre-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .progress-bar { height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; flex: 1; margin: 0 15px; position: relative; }
+        .progress-fill { position: absolute; height: 100%; background: var(--primary); border-radius: 10px; }
+
+        /* Floating right panel for Dashboard view */
+        .dashboard-layout-container { display: flex; width: 100%; }
+        .dashboard-main-content { flex: 1; min-width: 0; }
+        .right-panel {
+            width: var(--right-panel-width);
+            border-left: 1px solid var(--border);
+            padding: 24px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        /* Calendar widgets inside Right Panel */
+        .calendar-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 11px; font-weight: 700; color: var(--text-dim); }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+        .cal-day { font-size: 10px; padding: 6px; border-radius: 6px; color: var(--text-dim); }
+        .cal-date { font-size: 11px; padding: 8px; border-radius: 8px; cursor: pointer; color: var(--text-dim); }
+        .cal-date:hover { background: var(--primary); color: white; }
+        .selected-date { background: var(--primary); color: white; box-shadow: 0 0 15px rgba(225,29,72,.5); }
+        .cal-date.active { background: var(--primary); color: white; }
+        .selected-date-box { margin-top: 10px; font-size: 11px; color: var(--text-dim); }
+
+        /* Tasks & Lists Components */
+        .task-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; font-size: 11px; }
+        .task-left { display: flex; align-items: center; gap: 10px; }
+        .task-check { width: 14px; height: 14px; border: 1px solid var(--border); border-radius: 4px; }
+        .task-check.done { background: var(--primary); border: none; display: flex; align-items: center; justify-content: center; }
+        .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 30px; }
+        .action-btn { background: var(--card-bg); border: 1px solid var(--border); padding: 16px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; text-align: center; }
+        .action-btn:hover { background: rgba(255,255,255,0.05); }
+        .action-btn span { font-size: 10px; font-weight: 700; }
+        .action-btn i { color: var(--primary); }
+
+        /* View-specific Heros */
+        .hero {
+            position: relative;
+            height: 420px;
+            background: url('data:image/jpeg;base64,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 aoe de s=') no-repeat center center;
+            background-size: cover;
+            border-radius: 24px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, #000 15%, transparent 60%);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        .live-tag { color: var(--primary); font-size: 10px; font-weight: 800; display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+        .hero h1 { font-size: 96px; font-weight: 900; letter-spacing: -3px; }
+        .hero-stats { display: flex; gap: 40px; margin: 20px 0; }
+        .hero-stat p { font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+        .hero-stat h3 { font-size: 24px; }
+        .hero-btns { display: flex; gap: 12px; }
+
+        /* Unified Buttons UI */
+        .watch-btn, .btn-play {
+            background: linear-gradient(90deg, #ff1e1e, #8b0000);
+            color: white; border: none; padding: 12px 28px; border-radius: 12px;
+            font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.3s;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .watch-btn:hover, .btn-play:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(255,0,0,0.5); }
+        
+        .boost-btn {
+            background: linear-gradient(90deg, #ff1e1e, #8b0000);
+            color: white; border: none; padding: 12px 28px; border-radius: 12px;
+            font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.3s;
+        }
+        .boost-btn:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(255,0,0,0.5); }
+
+        .btn-outline, .btn-secondary {
+            background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+            color: white; padding: 12px 24px; border-radius: 12px; font-weight: 700;
+            cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .btn-outline:hover, .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+
+        /* Unified Modals */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active-modal {
+            display: flex;
+        }
+        .modal-content-box {
+            background: #111113;
+            border: 1px solid #e11d48;
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 550px;
+            color: white;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-content-box h2 { color: var(--primary); margin-bottom: 20px; }
+        .modal-content-box label { display: block; margin-top: 15px; margin-bottom: 6px; font-size: 13px; color: var(--text-dim); }
+        .modal-content-box select, 
+        .modal-content-box input, 
+        .modal-content-box textarea {
+            width: 100%; padding: 12px; background: #1a1a1c; border: 1px solid rgba(255,0,0,.2);
+            color: white; border-radius: 10px; font-size: 14px;
+        }
+        .modal-close-btn { position: absolute; right: 20px; top: 15px; font-size: 28px; color: white; cursor: pointer; border: none; background: transparent; }
+        .modal-close-btn:hover { color: var(--primary); }
+
+        /* --- MOVIES VIEW --- */
+        .carousel-container { position: relative; margin-bottom: 32px; }
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+        .movie-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 8px; transition: transform 0.2s; position: relative; }
+        .movie-card:hover { transform: translateY(-4px); border-color: var(--primary); }
+        .poster-wrapper { position: relative; width: 100%; aspect-ratio: 2 / 2.8; border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+        .poster-img { width: 100%; height: 100%; object-fit: cover; background: #1a1a1f; }
+        .poster-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,0.85) 100%); }
+        .movie-options { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); border: 1px solid var(--border); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .movie-info { padding: 0 4px; display: flex; flex-direction: column; gap: 3px; }
+        .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .movie-meta { font-size: 11px; color: var(--text-dim); }
+        .movie-release { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+
+        /* Movies Table */
+        .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; margin-top: 20px; }
+        .movies-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .movies-table th { padding: 14px 20px; font-size: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border); text-transform: uppercase; }
+        .movies-table td { padding: 12px 20px; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+        .table-movie-info { display: flex; align-items: center; gap: 12px; }
+        .table-movie-thumb { width: 32px; height: 44px; border-radius: 4px; object-fit: cover; }
+        .table-actions { display: flex; gap: 8px; }
+
+        /* Badges */
+        .badge { display: inline-flex; align-items: center; justify-content: center; padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+        .badge-running { background-color: rgba(225, 29, 72, 0.1); color: #ff3b30; border: 1px solid var(--primary); }
+        .badge-pre { background-color: rgba(245, 166, 35, 0.1); color: #f5a623; border: 1px solid rgba(245,166,35,0.3); }
+        .badge-upcoming { background-color: rgba(0, 122, 255, 0.1); color: #007aff; border: 1px solid rgba(0,122,255,0.3); }
+        .badge-post { background-color: rgba(175, 82, 222, 0.1); color: #bf5af2; border: 1px solid rgba(175,82,222,0.3); }
+        .badge-completed { background-color: rgba(52, 199, 89, 0.1); color: #22c55e; border: 1px solid rgba(52,199,89,0.3); }
+
+        /* Notification Dropdown */
+        .notification-btn { width: 40px; height: 40px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+        .notification-badge { position: absolute; top: -3px; right: -3px; background: var(--primary); color: #fff; font-size: 9px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .notification-dropdown { display: none; position: absolute; top: 70px; right: 40px; width: 320px; background: #0e0e12; border: 1px solid var(--primary); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); z-index: 1000; overflow: hidden; }
+        .notification-dropdown.active { display: block; }
+        .notification-header { padding: 14px 16px; background: rgba(225,29,72,0.05); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .notification-list { max-height: 280px; overflow-y: auto; }
+        .notification-item { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text-dim); cursor: pointer; display: flex; gap: 8px; }
+        .notification-dot { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+
+        /* --- CAMPAIGNS VIEW --- */
+        .hero-section { display: grid; grid-template-columns: 2fr 1.3fr; gap: 24px; margin-bottom: 24px; }
+        .movie-poster-container { width: 200px; height: 280px; border-radius: 12px; overflow: hidden; flex-shrink: 0; }
+        .movie-poster-container img { width: 100%; height: 100%; object-fit: cover; }
+        .metadata-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px; }
+        .countdown-boxes { display: flex; gap: 10px; }
+        .count-box { width: 60px; height: 60px; background: #10131d; border: 1px solid var(--border); border-radius: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .count-number { color: var(--primary); font-size: 20px; font-weight: 700; }
+        .count-label { color: var(--text-dim); font-size: 9px; }
+        .budget-section { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px; }
+        .budget-bar { width: 100%; height: 8px; background: #23273b; border-radius: 20px; overflow: hidden; margin-top: 8px; }
+        .budget-fill { width: 49%; height: 100%; background: var(--primary); }
+        .campaign-table { width: 100%; border-collapse: collapse; }
+        .campaign-table th { text-align: left; font-size: 11px; color: var(--text-dim); padding: 12px; border-bottom: 1px solid var(--border); }
+        .campaign-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .platform-mini-icon { width: 22px; height: 22px; background-color: #1e1f29; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; color: var(--text-dim); margin-right: 4px; }
+        .platform-mini-icon svg { width: 12px; height: 12px; }
+
+        /* --- THEATRES VIEW --- */
+        .theatre-logo { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+        .logo-pvr { background: linear-gradient(135deg, #f5a623, #800000); color: white; }
+        .logo-inox { background: linear-gradient(135deg, #007aff, #0b3318); color: white; }
+        .logo-amb { background: linear-gradient(135deg, #af52de, #3b0a0a); color: white; }
+        .logo-asian { background: linear-gradient(135deg, #34c759, #332400); color: white; }
+        .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+        .card-bottom { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+        .running-movie{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:14px;
+}
+
+.running-movie img{
+    width:40px;
+    height:55px;
+    object-fit:cover;
+    border-radius:6px;
+    flex-shrink:0;
+}
+
+.movie-name{
+    font-size:14px;
+    font-weight:600;
+    color:white;
+    flex:1;
+}
+
+.screen-count{
+    color:var(--text-dim);
+    font-size:13px;
+}
+
+        /* --- AUDIENCE VIEW --- */
+        .grid-three-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 24px; }
+        .donut-card-content { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 15px; }
+        .donut-chart-wrapper { width: 120px; height: 120px; position: relative; }
+        .platforms-list { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .platform-row { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+        .platform-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .platform-brand-info { display: flex; align-items: center; gap: 10px; }
+        .platform-logo-wrapper { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; }
+        .logo-facebook { background-color: #1877f2; }
+        .logo-instagram { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 90%); }
+        .logo-twitter { background-color: #1da1f2; }
+        .logo-youtube { background-color: #ff0000; }
+        .logo-tiktok { background-color: #010101; }
+
+        /* Map styling */
+        #locationMap { background-color: transparent !important; }
+
+        /* --- SOCIAL MEDIA VIEW --- */
+        .tabs-container { display: flex; gap: 24px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .tab-btn { background: none; border: none; color: var(--text-dim); font-size: 14px; font-weight: 500; padding: 8px 4px 12px 4px; cursor: pointer; position: relative; }
+        .tab-btn.active { color: var(--text-main); font-weight: 600; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background-color: var(--primary); }
+        .post-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .post-thumbnail { width: 44px; height: 60px; border-radius: 4px; background-size: cover; background-position: center; }
+        .post-stats-list { display: flex; gap: 12px; font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+        /* --- SETTINGS VIEW --- */
+        .profile-grid { display: flex; gap: 32px; }
+        .avatar-container { position: relative; width: 110px; height: 110px; }
+        .avatar-circle { width: 100%; height: 100%; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; background: #18181b; overflow: hidden; }
+        .avatar-edit-btn { position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; border-radius: 50%; background: #27272a; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .form-control { background: #18181b; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: white; width: 100%; }
+        .row-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #27272a; transition: .3s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* Toast Notifications */
+        .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 12px; z-index: 9999; }
+        .toast { background-color: #121214; border-left: 4px solid var(--primary); border-radius: 0 8px 8px 0; padding: 14px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .toast.show { transform: translateX(0); }
+
+        /* Layout Responsiveness Adjustments */
+        @media(max-width: 1200px){
+            .chart-row, .hero-section, .bottom-grid { grid-template-columns: 1fr; }
+            .dashboard-layout-container { flex-direction: column; }
+            .right-panel { width: 100%; height: auto; border-left: none; border-top: 1px solid var(--border); margin-top: 30px; }
+        }
+        @media(max-width: 768px){
+            .sidebar { display: none; }
+            .main-workspace { margin-left: 0; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+        .hero {
+    position: relative;
+    height: 600px;
+    background:url('data:image/jpeg;base64,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');
+background-size:cover;
+background-position:center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar">
+        <div class="logo-area">
+            <div class="logo-box">C</div>
+            <div>
+                <span class="logo-text">CINEPULSE</span>
+                <span class="logo-sub">PROMOTER HUB</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu-list">
+            <a class="nav-item active" data-view="dashboard" onclick="switchView('dashboard')">
+                <span class="nav-item-left"><i data-lucide="layout-dashboard"></i> Dashboard</span>
+            </a>
+            <a class="nav-item" data-view="movies" onclick="switchView('movies')">
+                <span class="nav-item-left"><i data-lucide="film"></i> Movies</span>
+            </a>
+            <a class="nav-item" onclick="switchView('campaigns')">
+                <span class="nav-item-left"><i data-lucide="megaphone"></i> Campaigns</span>
+            </a>
+            <a class="nav-item" onclick="switchView('theatres')">
+                <span class="nav-item-left"><i data-lucide="map-pin"></i> Theatres</span>
+            </a>
+            <a class="nav-item" onclick="switchView('reports')">
+                <span class="nav-item-left"><i data-lucide="bar-chart-3"></i> Reports</span>
+            </a>
+            <a class="nav-item" onclick="switchView('audience')">
+                <span class="nav-item-left"><i data-lucide="users"></i> Audience</span>
+            </a>
+            <a class="nav-item" onclick="switchView('social')">
+                <span class="nav-item-left"><i data-lucide="share-2"></i> Social Media</span>
+            </a>
+            <a class="nav-item" onclick="switchView('settings')">
+                <span class="nav-item-left"><i data-lucide="settings"></i> Settings</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-promo">
+            <h4>Promote Smarter</h4>
+            <p>Ready to boost campaign outreach metrics?</p>
+            <button class="btn-boost" onclick="openBoostCampaign()">🚀 Boost Now</button>
+        </div>
+    </aside>
+
+    <!-- Main Workspace Container -->
+    <div class="main-workspace">
+
+        <!-- ==================== DASHBOARD VIEW ==================== -->
+        <section class="view-section active-view" id="view-dashboard">
+            <div class="dashboard-layout-container">
+                <div class="dashboard-main-content">
+                    <header>
+                        <div>
+                            <h2 style="font-size: 24px;">Dashboard</h2>
+                            <p style="font-size: 13px; color: var(--text-dim);">Welcome back, Arjun! 👋</p>
+                        </div>
+                        <div class="user-profile">
+                            <div class="search-bar">
+                                <i data-lucide="search" size="16"></i>
+                                <input type="text" id="dash-search-input" placeholder="Search movies, theatres..." oninput="syncAndSearch(this.value)">
+                            </div>
+                            <div class="user-info" onclick="openProfileModal()" style="cursor:pointer;">
+                                <h4>Arjun Mehta</h4>
+                                <p>Promoter</p>
+                            </div>
+                            <img src="https://ui-avatars.com/api/?name=Arjun+Mehta&background=e11d48&color=fff" class="avatar" onclick="openProfileModal()">
+                        </div>
+                    </header>
+
+                    <section class="hero">
+                        <div class="hero-overlay">
+                            <div class="live-tag"><span style="width:6px; height:6px; border-radius:50%; background:var(--primary);"></span> LIVE PROMOTION</div>
+                            <h1>KALKI</h1>
+                            <p style="color:var(--text-dim); max-width: 400px; font-size: 14px; margin-top: 10px;">Witness the epic. Promote the legend.</p>
+                            
+                            <div class="hero-stats">
+                                <div class="hero-stat">
+                                    <p>Total Reach</p>
+                                    <h3>2.35M <span class="trend">+18.6%</span></h3>
+                                </div>
+                                <div class="hero-stat">
+                                    <p>Engagement</p>
+                                    <h3>452K <span class="trend">+24.7%</span></h3>
+                                </div>
+                            </div>
+
+                            <div class="hero-btns">
+                                <button class="watch-btn" onclick="openTrailer()">▶ Watch Trailer</button>
+                                <button class="boost-btn" onclick="openBoostCampaign()">🚀 Boost Campaign</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon"><i data-lucide="ticket" size="16"></i></div>
+                                <span class="trend">+16.8%</span>
+                            </div>
+                            <p>Tickets Sold</p>
+                            <h2>12,450</h2>
+                            <div class="sparkline-container"><canvas id="spark1"></canvas></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon"><i data-lucide="users" size="16"></i></div>
+                                <span class="trend">+18.6%</span>
+                            </div>
+                            <p>Total Reach</p>
+                            <h2>5.2M</h2>
+                            <div class="sparkline-container"><canvas id="spark2"></canvas></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon"><i data-lucide="thumbs-up" size="16"></i></div>
+                                <span class="trend">+24.7%</span>
+                            </div>
+                            <p>Engagement</p>
+                            <h2>950K</h2>
+                            <div class="sparkline-container"><canvas id="spark3"></canvas></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon"><i data-lucide="indian-rupee" size="16"></i></div>
+                                <span class="trend">+22.5%</span>
+                            </div>
+                            <p>Revenue Impact</p>
+                            <h2>₹3.25Cr</h2>
+                            <div class="sparkline-container"><canvas id="spark4"></canvas></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon"><i data-lucide="layout-grid" size="16"></i></div>
+                                <span class="trend">+11.3%</span>
+                            </div>
+                            <p>Occupancy Avg</p>
+                            <h2>78%</h2>
+                            <div class="sparkline-container"><canvas id="spark5"></canvas></div>
+                        </div>
+                    </div>
+
+                    <div class="chart-row">
+                        <div class="chart-card">
+                            <h4>Theatre Performance</h4>
+                            <div class="theatre-item">
+                                <span style="font-size: 11px;">PVR Orion</span>
+                                <div class="progress-bar"><div class="progress-fill" style="width: 95%;"></div></div>
+                                <span style="font-size: 11px; font-weight: 700;">95%</span>
+                            </div>
+                            <div class="theatre-item">
+                                <span style="font-size: 11px;">INOX Garuda</span>
+                                <div class="progress-bar"><div class="progress-fill" style="width: 89%;"></div></div>
+                                <span style="font-size: 11px; font-weight: 700;">89%</span>
+                            </div>
+                            <div class="theatre-item">
+                                <span style="font-size: 11px;">Cinepolis</span>
+                                <div class="progress-bar"><div class="progress-fill" style="width: 84%;"></div></div>
+                                <span style="font-size: 11px; font-weight: 700;">84%</span>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h4>Audience Distribution</h4>
+                            <div style="height: 150px;"><canvas id="audienceChart"></canvas></div>
+                        </div>
+                        <div class="chart-card">
+                            <h4>Social Media Outreach</h4>
+                            <div style="height: 150px;"><canvas id="socialChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Right-side Panel -->
+                <aside class="right-panel">
+                    <div class="calendar-header">
+                        <span>CAMPAIGN CALENDAR</span>
+                        <button class="view-all-btn" onclick="openCalendarModal()" style="background:none; border:none; color:var(--primary); cursor:pointer;">Open Calendar</button>
+                    </div>
+                    <div class="calendar-grid" id="calendar"></div>
+                    <div class="selected-date-box">
+                        Selected Date: <span id="selectedDate">None</span>
+                    </div>
+
+                    <div style="margin-top: 30px;">
+                        <div class="calendar-header" style="margin-bottom:10px;">
+                            <h3>TODAY'S EVENTS</h3>
+                            <button class="view-all-btn" onclick="openEventsModal()" style="background:none; border:none; color:var(--primary); cursor:pointer;">View All</button>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-left">
+                                <div class="stat-icon" style="padding:4px;"><i data-lucide="film" size="12"></i></div>
+                                <span>Trailer Promo Release</span>
+                            </div>
+                            <span style="color:var(--text-dim)">10:00 AM</span>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-left">
+                                <div class="stat-icon" style="padding:4px;"><i data-lucide="users" size="12"></i></div>
+                                <span>Influencer Collab</span>
+                            </div>
+                            <span style="color:var(--text-dim)">02:00 PM</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px;">
+                        <div class="calendar-header" style="margin-bottom:10px;">
+                            <h3>CAMPAIGN TASKS</h3> 
+                            <button class="view-all-btn" onclick="openTasksModal()" style="background:none; border:none; color:var(--primary); cursor:pointer;">View All</button>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-left">
+                                <div class="task-check done"><i data-lucide="check" size="10" color="white"></i></div> Approve Poster
+                            </div>
+                            <span style="color:var(--text-dim); font-style: italic;">Due 2h</span>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-left">
+                                <div class="task-check"></div> Review Ad Creatives
+                            </div>
+                            <span style="color:var(--text-dim); font-style: italic;">Due 1d</span>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <div class="action-btn" onclick="openCampaignModal()">
+                            <i data-lucide="plus-circle"></i><span>Create Campaign</span>
+                        </div>
+                        <div class="action-btn" onclick="openTheatreModal()">
+                            <i data-lucide="map-pin"></i><span>Add Theatre</span>
+                        </div>
+                        <div class="action-btn" onclick="openAdsModal()">
+                            <i data-lucide="calendar-days"></i><span>Book Ads</span>
+                        </div>
+                        <div class="action-btn" onclick="openReportsModal()">
+                            <i data-lucide="file-text"></i><span>Reports</span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <!-- ==================== MOVIES VIEW ==================== -->
+        <section class="view-section" id="view-movies">
+            <header>
+                <div class="header-title-area" style="display:flex; align-items:center; gap:14px;">
+                    <div class="header-icon" style="width:40px; height:40px; background:var(--card-bg); border:1px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center;"><i data-lucide="film" style="color: var(--primary);"></i></div>
+                    <div>
+                        <h2>My Movies</h2>
+                        <p>Manage and track all your movies in one place</p>
+                    </div>
+                </div>
+                <div class="header-actions" style="display:flex; align-items:center; gap:14px;">
+                    <div class="search-bar">
+                        <i data-lucide="search" size="16"></i>
+                        <input type="text" id="movie-search-input" placeholder="Search movies..." oninput="syncAndSearch(this.value)">
+                    </div>
+                    <div class="notification-btn" onclick="toggleNotifications(event)">
+                        <span class="notification-badge" id="notif-badge">6</span>
+                        <i data-lucide="bell" size="18"></i>
+                    </div>
+                    <!-- Notification Panel Dropdown -->
+                    <div class="notification-dropdown" id="notifPanel">
+                        <div class="notification-header">
+                            <h4>Notifications</h4>
+                            <button class="clear-notifications" onclick="clearNotifications()" style="background:none; border:none; color:var(--primary); cursor:pointer;">Dismiss All</button>
+                        </div>
+                        <div class="notification-list" id="notifList">
+                            <div class="notification-item" onclick="dismissItem(this)"><span class="notification-dot"></span><div><strong>Pushpa 2: The Rule</strong> promotional campaign is running.</div></div>
+                            <div class="notification-item" onclick="dismissItem(this)"><span class="notification-dot"></span><div><strong>Kalki 2898 AD</strong> final revenue updated to 1,042 Cr.</div></div>
+                            <div class="notification-item" onclick="dismissItem(this)"><span class="notification-dot"></span><div>Campaign ROI for <strong>War 2</strong> has been calculated.</div></div>
+                            <div class="notification-item" onclick="dismissItem(this)"><span class="notification-dot"></span><div>Screen count for <strong>Bhagavanth Kesari</strong> increased to 1,800.</div></div>
+                            <div class="notification-item" onclick="dismissItem(this)"><span class="notification-dot"></span><div><strong>Toxic</strong> trailer release schedule confirmed.</div></div>
+                            <div class="notification-item" onclick="dismissItem(this)"><span class="notification-dot"></span><div><strong>Adipurush</strong> archived from directory.</div></div>
+                        </div>
+                    </div>
+                    <button class="create-btn" onclick="openCreateMovieModal()"><i data-lucide="plus" size="14"></i> Create New Movie</button>
+                </div>
+            </header>
+
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <p>Total Movies</p>
+                    <h2 class="total-movies-stat">6</h2>
+                    <p class="stat-subtext" style="color:var(--text-dim); font-size:10px;">Active Directory Size</p>
+                </div>
+                <div class="stat-card">
+                    <p>Upcoming Releases</p>
+                    <h2 class="upcoming-movies-stat">3</h2>
+                    <p class="stat-subtext" style="color:var(--text-dim); font-size:10px;">In Next 90 Days</p>
+                </div>
+                <div class="stat-card">
+                    <p>Promotions Running</p>
+                    <h2 class="promo-movies-stat">1</h2>
+                    <p class="stat-subtext" style="color:var(--text-dim); font-size:10px;">Active Campaigns</p>
+                </div>
+                <div class="stat-card">
+                    <p>Total Reach</p>
+                    <h2 class="total-views-stat">238.1M</h2>
+                    <p class="stat-subtext" style="color:var(--text-dim); font-size:10px;">Views Evaluation</p>
+                </div>
+            </section>
+
+            <div class="filter-bar" style="display:flex; justify-content:space-between; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom:10px;">
+                <span style="font-weight: 700; color:var(--text-main);">All Movies</span>
+            </div>
+
+            <div class="carousel-container">
+                <div class="movie-grid" id="movieGrid"></div>
+            </div>
+
+            <div class="table-container">
+                <table class="movies-table">
+                    <thead>
+                        <tr>
+                            <th>Movie</th>
+                            <th>Genre</th>
+                            <th>Release Date</th>
+                            <th>Status</th>
+                            <th>Views</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="movieTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ==================== CAMPAIGNS VIEW ==================== -->
+        <section class="view-section" id="view-campaigns">
+            <header>
+                <div>
+                    <h1>Campaign Studio</h1>
+                    <p>Manage, track, and optimize your movie promotion campaigns</p>
+                </div>
+                <button class="watch-btn" onclick="openCampaignModal()"><i data-lucide="plus" size="14"></i> New Campaign</button>
+            </header>
+
+            <section class="hero-section">
+                <div class="movie-card" style="display:flex; gap: 24px; padding: 24px; flex-grow:1;">
+                    <div class="movie-poster-container">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQySalZHXYC6pQJanrtbroqG5K1KgF7zC5LbGb_6Zt2NA&s=10" alt="Coolie Poster">
+                    </div>
+                    <div class="movie-info">
+                        <div>
+                            <h2>Coolie</h2>
+                            <div style="color: var(--text-dim); margin-bottom: 10px;">Action • Thriller • Tamil</div>
+                            <div class="badge badge-running"><span class="dot-pulse"></span> Promotion Running</div>
+                        </div>
+                        <div class="metadata-grid">
+                            <div>
+                                <span class="meta-item-label"><i data-lucide="calendar" size="12"></i> Release Date</span>
+                                <div class="meta-item-val">14 Aug 2026</div>
+                            </div>
+                            <div>
+                                <span class="meta-item-label"><i data-lucide="user" size="12"></i> Director</span>
+                                <div class="meta-item-val">Lokesh Kanagaraj</div>
+                            </div>
+                            <div>
+                                <span class="meta-item-label"><i data-lucide="shield" size="12"></i> Producer</span>
+                                <div class="meta-item-val">Sun Pictures</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-banner-card">
+                    <div class="countdown-section">
+                        <h3 class="countdown-title">RELEASE COUNTDOWN</h3>
+                        <div class="countdown-wrapper">
+                            <div class="countdown-boxes">
+                                <div class="count-box"><span class="count-number" id="days">53</span><span class="count-label">Days</span></div>
+                                <div class="count-box"><span class="count-number" id="hours">03</span><span class="count-label">Hrs</span></div>
+                                <div class="count-box"><span class="count-number" id="mins">47</span><span class="count-label">Mins</span></div>
+                                <div class="count-box"><span class="count-number" id="secs">35</span><span class="count-label">Secs</span></div>
+                            </div>
+                        </div>
+                        <div class="budget-section">
+                            <div class="budget-header" style="display:flex; justify-content:space-between; margin-bottom: 8px;">
+                                <span>Budget Spent</span>
+                                <strong>₹ 2.45 Cr / ₹ 5.00 Cr</strong>
+                            </div>
+                            <div class="budget-bar"><div class="budget-fill"></div></div>
+                            <div style="text-align:right; font-size:12px; margin-top:4px;">49%</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <p>Total Campaigns</p>
+                    <h2 id="totalCampaignsVal">24</h2>
+                    <p class="trend">Active: 6</p>
+                </div>
+                <div class="stat-card">
+                    <p>Total Reach</p>
+                    <h2>48.2M</h2>
+                    <p class="trend">+12.5% vs last 7d</p>
+                </div>
+                <div class="stat-card">
+                    <p>Engagement</p>
+                    <h2>3.8M</h2>
+                    <p class="trend">+8.3% vs last 7d</p>
+                </div>
+                <div class="stat-card">
+                    <p>Total Views</p>
+                    <h2>22.4M</h2>
+                    <p class="trend">+15.4% vs last 7d</p>
+                </div>
+            </section>
+
+            <section class="dashboard-grid" style="display:grid; grid-template-columns: 1.6fr 1fr; gap: 24px;">
+                <div class="campaign-section" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 24px;">
+                    <h3 style="margin-bottom:20px;">Active Campaigns</h3>
+                    <table class="campaign-table">
+                        <thead>
+                            <tr>
+                                <th>Campaign</th>
+                                <th>Platform</th>
+                                <th>Progress</th>
+                                <th>Budget</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="campaignTableBody">
+                            <tr>
+                                <td><strong>Trailer Announcement</strong><br><span style="font-size:11px;color:var(--text-dim)">Coolie Official Trailer</span></td>
+                                <td>
+                                    <span class="platform-mini-icon"><i class="fa-brands fa-youtube" style="color:red"></i></span>
+                                    <span class="platform-mini-icon"><i class="fa-brands fa-instagram" style="color:pink"></i></span>
+                                </td>
+                                <td>
+                                    <div class="table-progress-box" style="display:flex; align-items:center;">
+                                        <div class="progress-bar" style="margin:0 10px 0 0;"><div class="progress-fill" style="width: 75%;"></div></div>
+                                        <span>75%</span>
+                                    </div>
+                                </td>
+                                <td>₹ 45L</td>
+                                <td><span style="color:green; font-weight:600;">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Poster Reveal</strong><br><span style="font-size:11px;color:var(--text-dim)">First Look Poster</span></td>
+                                <td>
+                                    <span class="platform-mini-icon"><i class="fa-brands fa-instagram" style="color:pink"></i></span>
+                                    <span class="platform-mini-icon"><i class="fa-brands fa-facebook" style="color:blue"></i></span>
+                                </td>
+                                <td>
+                                    <div class="table-progress-box" style="display:flex; align-items:center;">
+                                        <div class="progress-bar" style="margin:0 10px 0 0;"><div class="progress-fill" style="width: 59%;"></div></div>
+                                        <span>59%</span>
+                                    </div>
+                                </td>
+                                <td>₹ 30L</td>
+                                <td><span style="color:green; font-weight:600;">Active</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="analytics-column">
+                    <div class="analytics-card" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 24px;">
+                        <h3>Campaign Performance</h3>
+                        <div class="chart-svg-container" style="height: 150px; margin-top: 15px;">
+                            <svg viewBox="0 0 400 150" width="100%" height="100%">
+                                <path d="M10,110 L70,90 L130,98 L190,80 L250,55 L310,88 L370,60" fill="none" stroke="#e50914" stroke-width="3" />
+                                <circle cx="10" cy="110" r="4" fill="white" stroke="#e50914" stroke-width="2" />
+                                <circle cx="190" cy="80" r="4" fill="white" stroke="#e50914" stroke-width="2" />
+                                <circle cx="370" cy="60" r="4" fill="white" stroke="#e50914" stroke-width="2" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- ==================== THEATRES VIEW ==================== -->
+        <section class="view-section" id="view-theatres">
+            <header>
+                <div>
+                    <h1>Theatres Dashboard</h1>
+                    <p>Manage theatre partnerships and screen performance</p>
+                </div>
+                <button class="watch-btn" onclick="openTheatreModal()"><i data-lucide="plus" size="14"></i> Add Theatre</button>
+            </header>
+
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <p>Total Theatres</p>
+                    <h2>248</h2>
+                    <p style="color: var(--text-dim); font-size:10px;">Across India</p>
+                </div>
+                <div class="stat-card">
+                    <p>Active Screens</p>
+                    <h2>1,250</h2>
+                    <p class="trend">+25 This Week</p>
+                </div>
+                <div class="stat-card">
+                    <p>Occupancy Rate</p>
+                    <h2>78%</h2>
+                    <p style="color: var(--text-dim); font-size:10px;">Weekend Average</p>
+                </div>
+                <div class="stat-card">
+                    <p>Running Movies</p>
+                    <h2>12</h2>
+                    <p style="color: var(--text-dim); font-size:10px;">Currently Screening</p>
+                </div>
+            </section>
+
+            <section class="network-card" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+                <div class="network-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h2>Theatre Network</h2>
+                    <div class="search-bar">
+                        <i data-lucide="search" size="16"></i>
+                        <input type="text" id="theatreSearch" placeholder="Search Theatre..." oninput="filterTheatres(this.value)">
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="movies-table" id="theatreTable">
+                        <thead>
+                            <tr>
+                                <th>Theatre</th>
+                                <th>Location</th>
+                                <th>Screens</th>
+                                <th>Occupancy</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><div class="table-movie-info"><div class="theatre-logo logo-pvr">PVR</div><span>PVR Cinemas</span></div></td>
+                                <td>Hyderabad</td>
+                                <td>18</td>
+                                <td style="color:#22c55e">82%</td>
+                                <td><span style="color:#22c55e">Active</span></td>
+                                <td><button class="action-btn" onclick="alert('Managing PVR Cinemas')"><i data-lucide="settings" size="14"></i></button></td>
+                            </tr>
+                            <tr>
+                                <td><div class="table-movie-info"><div class="theatre-logo logo-inox">INOX</div><span>INOX</span></div></td>
+                                <td>Bangalore</td>
+                                <td>14</td>
+                                <td style="color:#eab308">75%</td>
+                                <td><span style="color:#22c55e">Active</span></td>
+                                <td><button class="action-btn" onclick="alert('Managing INOX')"><i data-lucide="settings" size="14"></i></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <div class="bottom-grid">
+
+    <div class="card-bottom">
+        <h3 style="margin-bottom:20px;">Top Performing Theatres</h3>
+
+        <div class="theatre-item">
+            <span>1 PVR Cinemas</span>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width:92%"></div>
+            </div>
+            <span style="color:#22c55e">92%</span>
+        </div>
+
+        <div class="theatre-item">
+            <span>2 AMB Cinemas</span>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width:88%"></div>
+            </div>
+            <span style="color:#22c55e">88%</span>
+        </div>
+
+        <div class="theatre-item">
+            <span>3 INOX</span>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width:81%"></div>
+            </div>
+            <span style="color:#22c55e">81%</span>
+        </div>
+
+        <div class="theatre-item">
+            <span>4 Asian Cinemas</span>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width:69%"></div>
+            </div>
+            <span style="color:#facc15">69%</span>
+        </div>
+    </div>
+
+    <div class="card-bottom">
+    <h3 style="margin-bottom:20px;">Current Running Movies</h3>
+
+    <div class="running-movie">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQySalZHXYC6pQJanrtbroqG5K1KgF7zC5LbGb_6Zt2NA&s=10">
+        <span class="movie-name">Coolie</span>
+        <span class="screen-count">420 Screens</span>
+    </div>
+
+    <div class="running-movie">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMt54yv99NUpKEUGxCj-oN-AJIvMPIZ405aFjP-GbpYw&s=10">
+        <span class="movie-name">War 2</span>
+        <span class="screen-count">380 Screens</span>
+    </div>
+
+    <div class="running-movie">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFT6oZ95TQv1rJjd3RcqiN11wERSmvRbT75u-ZFmmsDw&s=10">
+        <span class="movie-name">Kalki</span>
+        <span class="screen-count">310 Screens</span>
+    </div>
+
+    <div class="running-movie">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpYRo7Qqigm--wEKujIpRu79gla37jcobpFmQZybhElg&s=10">
+        <span class="movie-name">Animal</span>
+        <span class="screen-count">140 Screens</span>
+    </div>
+
+</div>
+        </section>
+
+        <!-- ==================== REPORTS VIEW ==================== -->
+        <section class="view-section" id="view-reports">
+            <header>
+                <div>
+                    <h1>Reports</h1>
+                    <p>Track performance and analyze insights</p>
+                </div>
+                <div class="header-controls" style="display:flex; gap:12px;">
+                    <button class="btn-outline">
+                        <i data-lucide="calendar"></i>
+                        <select onchange="alert('Report period updated')" style="background:transparent; border:none; color:inherit; outline:none; cursor:pointer;">
+                            <option value="month" selected>This Month</option>
+                            <option value="quarter">This Quarter</option>
+                            <option value="year">This Year</option>
+                        </select>
+                    </button>
+                    <button class="watch-btn" onclick="openExportModal()"><i data-lucide="download" size="14"></i> Export Report</button>
+                </div>
+            </header>
+
+            <section class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="stat-header">
+                        <span class="kpi-title" style="font-size:12px; color:var(--text-dim);">Total Campaigns</span>
+                    </div>
+                    <h2>24</h2>
+                    <p class="trend">&uparrow; 20% vs Last Month</p>
+                </div>
+                <div class="kpi-card">
+                    <div class="stat-header">
+                        <span class="kpi-title" style="font-size:12px; color:var(--text-dim);">Total Impressions</span>
+                    </div>
+                    <h2>24.8M</h2>
+                    <p class="trend">&uparrow; 18% vs Last Month</p>
+                </div>
+                <div class="kpi-card">
+                    <div class="stat-header">
+                        <span class="kpi-title" style="font-size:12px; color:var(--text-dim);">Total Engagements</span>
+                    </div>
+                    <h2>2.45M</h2>
+                    <p class="trend">&uparrow; 22% vs Last Month</p>
+                </div>
+                <div class="kpi-card">
+                    <div class="stat-header">
+                        <span class="kpi-title" style="font-size:12px; color:var(--text-dim);">Total Spend</span>
+                    </div>
+                    <h2>₹4.82 Cr</h2>
+                    <p style="color:#ef4444; font-size:11px;">&downarrow; 8% vs Last Month</p>
+                </div>
+            </section>
+
+            <section class="grid-three-col" style="grid-template-columns: 1fr 1fr;">
+                <div class="chart-card">
+                    <h4>Impressions Over Time</h4>
+                    <div class="chart-container"><canvas id="impressionsChart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <h4>Engagements Over Time</h4>
+                    <div class="chart-container"><canvas id="engagementsChart"></canvas></div>
+                </div>
+            </section>
+
+            <section class="grid-three-col" style="grid-template-columns: 1.6fr 1fr;">
+                <div class="chart-card">
+                    <h4>Campaign Performance Table</h4>
+                    <div class="table-container" style="border:none; margin-top:0;">
+                        <table class="movies-table">
+                            <thead>
+                                <tr>
+                                    <th>Campaign</th>
+                                    <th>Impressions</th>
+                                    <th>Spend</th>
+                                    <th>ROI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Coolie Jukebox</td>
+                                    <td>8.4M</td>
+                                    <td>₹1.42 Cr</td>
+                                    <td style="color:#22c55e">320%</td>
+                                </tr>
+                                <tr>
+                                    <td>War 2 Teaser</td>
+                                    <td>6.7M</td>
+                                    <td>₹1.18 Cr</td>
+                                    <td style="color:#22c55e">280%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h4>Top Platforms</h4>
+                    <div class="donut-card-content">
+                        <div class="donut-chart-wrapper"><canvas id="platformsChart"></canvas></div>
+                        <div class="platforms-list">
+                            <div class="platform-row">
+                                <div class="platform-info"><span class="platform-dot" style="background-color: #E50914;"></span><span class="platform-name">Instagram</span></div>
+                                <span class="platform-share">38%</span>
+                            </div>
+                            <div class="platform-row">
+                                <div class="platform-info"><span class="platform-dot" style="background-color: #E25C6E;"></span><span class="platform-name">YouTube</span></div>
+                                <span class="platform-share">26%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- ==================== AUDIENCE VIEW ==================== -->
+        <section class="view-section" id="view-audience">
+            <header>
+                <div>
+                    <h1>Audience Insights</h1>
+                    <p>Understand your audience demographics and locations</p>
+                </div>
+                <button class="watch-btn" onclick="openExportModal()"><i data-lucide="download" size="14"></i> Export Insights</button>
+            </header>
+
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <p>Total Audience</p>
+                    <h2>2.78M</h2>
+                    <p class="trend">&uparrow; 18% vs Last Month</p>
+                </div>
+                <div class="stat-card">
+                    <p>Total Bookings</p>
+                    <h2>1.86M</h2>
+                    <p class="trend">&uparrow; 22% vs Last Month</p>
+                </div>
+                <div class="stat-card">
+                    <p>New Audience</p>
+                    <h2>483K</h2>
+                    <p class="trend">&uparrow; 15% vs Last Month</p>
+                </div>
+                <div class="stat-card">
+                    <p>Returning Audience</p>
+                    <h2>2.29M</h2>
+                    <p class="trend">&uparrow; 8% vs Last Month</p>
+                </div>
+            </section>
+
+            <section class="grid-three-col">
+                <div class="chart-card">
+                    <h4>Audience by Age Group</h4>
+                    <div class="donut-card-content">
+                        <div class="donut-chart-wrapper"><canvas id="ageChart"></canvas></div>
+                        <div class="platforms-list">
+                            <div class="platform-row">
+                                <div class="platform-info"><span class="platform-dot" style="background-color: #e50914;"></span><span class="platform-name">18-24</span></div>
+                                <span class="platform-share">28%</span>
+                            </div>
+                            <div class="platform-row">
+                                <div class="platform-info"><span class="platform-dot" style="background-color: #7c3aed;"></span><span class="platform-name">25-34</span></div>
+                                <span class="platform-share">32%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h4>Audience by Gender</h4>
+                    <div class="donut-card-content">
+                        <div class="donut-chart-wrapper"><canvas id="genderChart"></canvas></div>
+                        <div class="platforms-list">
+                            <div class="platform-row">
+                                <div class="platform-info"><span class="platform-dot" style="background-color: #e50914;"></span><span class="platform-name">Male</span></div>
+                                <span class="platform-share">58%</span>
+                            </div>
+                            <div class="platform-row">
+                                <div class="platform-info"><span class="platform-dot" style="background-color: #2563eb;"></span><span class="platform-name">Female</span></div>
+                                <span class="platform-share">40%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h4>Audience by Location</h4>
+                    <div class="chart-container" style="height: 120px;">
+                        <div id="locationMap" style="width: 100%; height: 100%;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid-three-col" style="grid-template-columns: 1.5fr 1fr 1fr;">
+                <div class="chart-card">
+                    <h4>Audience Segments</h4>
+                    <table class="segments-table">
+                        <thead>
+                            <tr>
+                                <th>Segment</th>
+                                <th>% Share</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Movie Enthusiasts</td>
+                                <td style="color:#22c55e">45%</td>
+                            </tr>
+                            <tr>
+                                <td>Casual Viewers</td>
+                                <td style="color:#22c55e">31%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="chart-card">
+                    <h4>Audience Activity Log</h4>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <span>New user from Mumbai</span>
+                            <span class="activity-time">2 min ago</span>
+                        </div>
+                        <div class="activity-item">
+                            <span>Shared Coolie Trailer</span>
+                            <span class="activity-time">1 hr ago</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- ==================== SOCIAL MEDIA VIEW ==================== -->
+        <section class="view-section" id="view-social">
+            <header>
+                <div>
+                    <h1>Social Media</h1>
+                    <p>Manage your social media content reach metrics</p>
+                </div>
+                <button class="watch-btn" onclick="openCreatePostModal()"><i data-lucide="plus" size="14"></i> Create Social Post</button>
+            </header>
+
+            <nav class="tabs-container">
+                <button class="tab-btn active" onclick="switchSocialTab('overview')">Overview</button>
+                <button class="tab-btn" onclick="switchSocialTab('posts')">Posts Management</button>
+            </nav>
+
+            <div id="social-tab-overview" class="social-tab-content">
+                <section class="kpi-grid" style="margin-bottom:24px;">
+                    <div class="kpi-card" style="background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:24px;">
+                        <span class="kpi-value" style="font-size:32px; font-weight:700;">128</span><br>
+                        <span class="kpi-label" style="color:var(--text-dim)">Total Posts</span>
+                    </div>
+                    <div class="kpi-card" style="background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:24px;">
+                        <span class="kpi-value" style="font-size:32px; font-weight:700;">24.5K</span><br>
+                        <span class="kpi-label" style="color:var(--text-dim)">Total Followers</span>
+                    </div>
+                    <div class="kpi-card" style="background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:24px;">
+                        <span class="kpi-value" style="font-size:32px; font-weight:700;">4.8%</span><br>
+                        <span class="kpi-label" style="color:var(--text-dim)">Avg Engagement Rate</span>
+                    </div>
+                </section>
+
+                <section class="performance-card" style="background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:24px;">
+                    <h3>Platform Metrics Overview</h3>
+                    <div class="platforms-list" style="margin-top:20px;">
+                        <div class="platform-row">
+                            <div class="platform-brand-info">
+                                <div class="platform-logo-wrapper logo-facebook"><i class="fa-brands fa-facebook-f"></i></div>
+                                <span>Facebook</span>
+                            </div>
+                            <div style="flex:1; max-width:250px; margin:0 20px;"><div class="progress-bar" style="margin:0;"><div class="progress-fill" style="width: 42%;"></div></div></div>
+                            <span>4.2%</span>
+                        </div>
+                        <div class="platform-row">
+                            <div class="platform-brand-info">
+                                <div class="platform-logo-wrapper logo-instagram"><i class="fa-brands fa-instagram"></i></div>
+                                <span>Instagram</span>
+                            </div>
+                            <div style="flex:1; max-width:250px; margin:0 20px;"><div class="progress-bar" style="margin:0;"><div class="progress-fill" style="width: 61%;"></div></div></div>
+                            <span>6.1%</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="social-tab-posts" class="social-tab-content" style="display:none;">
+                <div class="post-row">
+                    <div class="post-main-content">
+                        <div class="post-thumbnail" style="background-image: url('https://image.tmdb.org/t/p/w500/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg');"></div>
+                        <div class="post-text-details" style="margin-left:16px;">
+                            <span class="post-headline">New Movie Trailer Out Now!</span><br>
+                            <span class="post-timestamp" style="font-size:11px; color:var(--text-dim);">Today, 2:30 PM</span>
+                        </div>
+                    </div>
+                    <span class="status-badge" style="background: rgba(34, 197, 94, 0.12); color:#22c55e; border: 1px solid rgba(34,197,94,0.2); padding: 4px 10px; border-radius: 6px; font-size:11px; font-weight:600;">Published</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SETTINGS VIEW ==================== -->
+        <section class="view-section" id="view-settings">
+            <header>
+                <div>
+                    <h1>Settings</h1>
+                    <p>Manage your CinePulse Promoter Profile and preferences</p>
+                </div>
+            </header>
+
+            <div class="settings-view">
+                <section class="settings-card">
+                    <h3 class="card-title">Profile Information</h3>
+                    <div class="profile-grid">
+                        <div class="avatar-container">
+                            <div class="avatar-circle">
+                                <i data-lucide="video" id="profile-icon"></i>
+                                <img id="avatar-img" src="" alt="Avatar" style="display: none;" />
+                            </div>
+                            <label for="avatar-input" class="avatar-edit-btn" title="Change Avatar">
+                                <i data-lucide="camera" style="width: 16px; height: 16px; color:white;"></i>
+                            </label>
+                            <input type="file" id="avatar-input" style="display: none;" accept="image/*" onchange="uploadAvatar(event)">
+                        </div>
+
+                        <form class="profile-form" id="profile-info-form" style="flex:1;" onsubmit="saveProfileChanges(event)">
+                            <div class="form-group" style="margin-bottom:15px;">
+                                <label style="display:block; margin-bottom:6px; font-size:13px;">Full Name</label>
+                                <input type="text" class="form-control" id="form-fullname" value="Arjun Mehta" required />
+                            </div>
+                            <div class="form-group" style="margin-bottom:15px;">
+                                <label style="display:block; margin-bottom:6px; font-size:13px;">Email Address</label>
+                                <input type="email" class="form-control" id="form-email" value="arjun@cinepulse.com" required />
+                            </div>
+                            <button type="submit" class="watch-btn" style="float:right;">Save Changes</button>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="settings-card" style="margin-top:24px;">
+                    <h3 class="card-title">Account Customizations</h3>
+                    <div class="row-item">
+                        <div>
+                            <h4>Theme Customization</h4>
+                            <p style="font-size:12px; color:var(--text-dim);">Enable light background themes</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="dark-mode-toggle" onchange="toggleTheme()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="row-item">
+                        <div>
+                            <h4>Two Factor Authentication</h4>
+                            <p style="font-size:12px; color:var(--text-dim);">Keep security protocols enabled</p>
+                        </div>
+                        <button class="btn-secondary" onclick="toggleTwoFactor()">Toggle 2FA</button>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<!-- ==================== MODALS WRAPPER ==================== -->
+
+<!-- Trailer Modal -->
+<div id="trailerModal" class="modal-overlay">
+    <div class="modal-content-box" style="max-width:800px;">
+        <button class="modal-close-btn" onclick="closeTrailer()">&times;</button>
+        <h2>Movie Trailer Showcase</h2>
+        <iframe id="trailerFrame" width="100%" height="450" src="" title="Movie Trailer" allowfullscreen style="border:none; border-radius:12px;"></iframe>
+    </div>
+</div>
+
+<!-- Boost Campaign Modal -->
+<div id="boostModal" class="modal-overlay">
+    <div class="modal-content-box">
+        <button class="modal-close-btn" onclick="closeBoostCampaign()">&times;</button>
+        <h2>🚀 Boost Movie Campaign</h2>
+        <form>
+            <label>Movie Name</label>
+            <select><option>Kalki 2898 AD</option><option>Pushpa 2</option><option>Shadow Strike</option></select>
+            <label>Promotion Type</label>
+            <select><option>Instagram Ads</option><option>YouTube Ads</option><option>Facebook Ads</option></select>
+            <label>Target City</label>
+            <select><option>Hyderabad</option><option>Bangalore</option><option>Mumbai</option></select>
+            <label>Budget (₹)</label>
+            <input type="number" placeholder="Enter Budget Amount">
+            <button type="button" class="launch-btn" style="margin-top:20px; width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:10px; cursor:pointer;" onclick="launchCampaign()">Launch Boost</button>
+        </form>
+    </div>
+</div>
+
+<!-- Add Theatre Modal -->
+<div id="theatreModal" class="modal-overlay">
+    <div class="modal-content-box">
+        <button class="modal-close-btn" onclick="closeTheatreModal()">&times;</button>
+        <h2>🏢 Add New Theatre</h2>
+        <form>
+            <label>Theatre Name</label><input type="text" placeholder="Enter Theatre Name">
+            <label>Location</label><input type="text" placeholder="Enter Location Address">
+            <label>City</label>
+            <select><option>Hyderabad</option><option>Bangalore</option><option>Mumbai</option></select>
+            <label>Number of Screens</label><input type="number" placeholder="Example: 5">
+            <button type="button" class="launch-btn" style="margin-top:20px; width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:10px; cursor:pointer;" onclick="saveTheatre()">Save Theatre</button>
+        </form>
+    </div>
+</div>
+
+<!-- Create Campaign Modal -->
+<div id="campaignModal" class="modal-overlay">
+    <div class="modal-content-box">
+        <button class="modal-close-btn" onclick="closeCampaignModal()">&times;</button>
+        <h2>🚀 Create Movie Campaign</h2>
+        <form id="newCampaignForm">
+            <label>Campaign Name</label><input type="text" id="campName" placeholder="Enter Campaign Name" required>
+            <label>Movie Name</label>
+            <select id="campMovie"><option>Kalki 2898 AD</option><option>Pushpa 2</option><option>Shadow Strike</option></select>
+            <label>Platform Target</label>
+            <select id="campPlatform"><option value="youtube">YouTube</option><option value="instagram">Instagram</option></select>
+            <label>Campaign Budget (₹ in Lakhs)</label><input type="number" id="campBudget" placeholder="Enter Budget Amount" required>
+            <button type="button" class="launch-btn" style="margin-top:20px; width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:10px; cursor:pointer;" onclick="launchNewCampaign()">Launch Campaign</button>
+        </form>
+    </div>
+</div>
+
+<!-- Create Movie Modal -->
+<div id="createMovieModal" class="modal-overlay">
+    <div class="modal-content-box">
+        <button class="modal-close-btn" onclick="closeCreateMovieModal()">&times;</button>
+        <h2>🎬 Create New Movie</h2>
+        <form>
+            <label>Movie Title</label><input type="text" id="createMovieTitle" placeholder="e.g., Pushpa 3" required>
+            <label>Movie Poster Image URL</label><input type="text" id="createPosterUrl" placeholder="Image Link address...">
+            <label>Genre</label><input type="text" id="createGenre" placeholder="Action, Drama">
+            <label>Release Date</label><input type="text" id="createReleaseDate" placeholder="e.g., 20 Oct 2026">
+            <label>Status</label>
+            <select id="createStatus"><option value="Upcoming">Upcoming</option><option value="Completed">Completed</option></select>
+            <label>Estimated Views</label><input type="text" id="createViews" placeholder="e.g., 25M">
+            <button type="button" class="launch-btn" style="margin-top:20px; width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:10px; cursor:pointer;" onclick="saveNewMovie()">Create Movie Entry</button>
+        </form>
+    </div>
+</div>
+
+<!-- Events Modal -->
+<div id="eventsModal" class="modal-overlay">
+    <div class="modal-content-box">
+        <button class="modal-close-btn" onclick="closeEventsModal()">&times;</button>
+        <h2>📅 Today's Events List</h2>
+        <div class="event-item" style="padding:12px 0; border-bottom:1px solid var(--border)"><h4>Trailer Promo Release</h4><p>10:00 AM</p></div>
+        <div class="event-item" style="padding:12px 0;"><h4>Influencer Collab</h4><p>02:00 PM</p></div>
+    </div>
+</div>
+
+<!-- Calendar Modal -->
+<div id="calendarModal" class="modal-overlay">
+    <div class="modal-content-box">
+        <button class="modal-close-btn" onclick="closeCalendarModal()">&times;</button>
+        <h2>📅 Campaign Calendar Details</h2>
+        <p>Interactive calendar setup loaded for Arjun Mehta's scheduler workspace.</p>
+    </div>
+</div>
+
+<!-- Tasks Modal -->
+<div id="tasksModal" class="modal-overlay">
+    <div class="modal-content-box">
+        <button class="modal-close-btn" onclick="closeTasksModal()">&times;</button>
+        <h2>📋 All Tasks Management</h2>
+        <div class="task-item"><span>Approve Poster</span><span>Completed</span></div>
+        <div class="task-item"><span>Review Ad Creatives</span><span>Pending</span></div>
+    </div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profileModal" class="modal-overlay">
+    <div class="modal-content-box">
+        <button class="modal-close-btn" onclick="closeProfileModal()">&times;</button>
+        <h2>👤 Promoter Profile Overview</h2>
+        <h4>Arjun Mehta</h4>
+        <p>Role: Campaign Manager & Lead Promoter</p>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div id="exportModal" class="modal-overlay">
+    <div class="modal-content-box">
+        <button class="modal-close-btn" onclick="closeExportModal()">&times;</button>
+        <h2>📊 Export Reports Layout</h2>
+        <p>Download format options:</p><br>
+        <button class="btn-boost" onclick="alert('Export PDF Initiated')">Download PDF</button><br>
+        <button class="btn-boost" onclick="alert('Export Excel Initiated')">Download Excel</button>
+    </div>
+</div>
+
+<!-- Toast Notifications Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ==================== MAIN JAVASCRIPT LOGIC ==================== -->
+<script>
+    // --- GLOBAL SPA ROUTING ---
+    function switchView(viewId) {
+        // Toggle Nav States
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        const activeNav = document.querySelector(`.nav-item[onclick="switchView('${viewId}')"]`);
+        if (activeNav) activeNav.classList.add('active');
+
+        // Toggle Views
+        document.querySelectorAll('.view-section').forEach(view => {
+            view.classList.remove('active-view');
+        });
+        const targetView = document.getElementById(`view-${viewId}`);
+        if (targetView) targetView.classList.add('active-view');
+
+        // Trigger on-demand Chart render updates
+        if (viewId === 'reports') {
+            renderReportsCharts();
+        } else if (viewId === 'audience') {
+            renderAudienceCharts();
+        }
+        
+        showToast(`Switched view to: ${viewId.toUpperCase()}`, 'success');
+    }
+
+    // --- TOAST NOTIFICATIONS FACTORY ---
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        toast.innerHTML = `<span class="toast-message">${message}</span>`;
+        container.appendChild(toast);
+        
+        setTimeout(() => { toast.classList.add('show'); }, 50);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => { toast.remove(); }, 300);
+        }, 4000);
+    }
+
+    // --- BOOT UP SYSTEM ---
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+        generateSparklines();
+        initDashboardCharts();
+        initCalendarGrid();
+        renderMovies();
+    });
+
+    // --- DASHBOARD CHARTS ---
+    function generateSparklines() {
+        function createSparkline(id, color) {
+            const ctx = document.getElementById(id);
+            if (!ctx) return;
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [1,2,3,4,5,6],
+                    datasets: [{
+                        data: Array.from({length: 6}, () => Math.floor(Math.random() * 10) + 5),
+                        borderColor: color,
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { display: false }, y: { display: false } }
+                }
+            });
+        }
+        ['spark1', 'spark2', 'spark3', 'spark4', 'spark5'].forEach(s => createSparkline(s, '#e11d48'));
+    }
+
+    function initDashboardCharts() {
+        const audCtx = document.getElementById('audienceChart');
+        if (audCtx) {
+            new Chart(audCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['18-24', '25-34', '35-45', '45+'],
+                    datasets: [{
+                        data: [45, 35, 15, 5],
+                        backgroundColor: ['#e11d48', '#9f1239', '#4c0519', '#111'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        const socCtx = document.getElementById('socialChart');
+        if (socCtx) {
+            new Chart(socCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Insta', 'FB', 'YT', 'X'],
+                    datasets: [{
+                        data: [1.2, 0.8, 2.8, 0.6],
+                        backgroundColor: '#e11d48',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { display: false },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+    }
+
+    // --- CALENDAR SYSTEM ---
+    function initCalendarGrid() {
+        const cal = document.getElementById('calendar');
+        if (!cal) return;
+        ['M','T','W','T','F','S','S'].forEach(d => {
+            const div = document.createElement('div');
+            div.className = 'cal-day';
+            div.innerText = d;
+            cal.appendChild(div);
+        });
+
+        for(let i=1; i<=30; i++) {
+            const date = document.createElement("div");
+            date.classList.add("cal-date");
+            date.innerText = i;
+            date.onclick = function() { selectDate(this); };
+            cal.appendChild(date);
+        }
+    }
+
+    function selectDate(element) {
+        document.querySelectorAll(".cal-date").forEach(day => {
+            day.classList.remove("selected-date");
+        });
+        element.classList.add("selected-date");
+        document.getElementById("selectedDate").innerText = element.innerText + " June 2026";
+        openCalendarModal();
+    }
+
+    // --- MOVIE DATABASE ENGINE & ACTIONS ---
+    let movies = [
+      { id: "coolie", title: "Coolie", genre: "Action, Thriller", date: "14 Aug 2026", status: "Promotion Running", views: "48.2M", poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKyrSGneUWJYWSknrWJ0z9MaF5UivdSNsE01xI7U3ezQ&s" },
+      { id: "kalki-universe-2", title: "Kalki Universe 2", genre: "Sci-Fi, Action", date: "12 Jan 2027", status: "Pre-Production", views: "32.7M", poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbTMPmqA5nuUu4FsjhV5iaYLARg_bVzOep54ny5GgFCxyhQaPkNVqis1VT&s=10" },
+      { id: "war-2", title: "War 2", genre: "Action, Spy", date: "15 Aug 2026", status: "Upcoming", views: "28.9M", poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfmVJSj9Bo1nwYrEspbNqRjvVvLrV3wRMdURSR16ufHA&s" },
+      { id: "vikram-2", title: "Vikram 2", genre: "Action, Crime", date: "22 Nov 2026", status: "In Post Production", views: "35.6M", poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTh-w3gexFX7gAAnx_-s_XH0LrSYzwXPcXj-ArQJYghmQ&s" },
+      { id: "animal-park", title: "Animal Park", genre: "Action, Crime", date: "28 May 2027", status: "Upcoming", views: "42.1M", poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-BX9sEUzigjAnjnc9u7zHpaMQLZXQNNsgeo4CAMDiDA&s=10" },
+      { id: "pushpa-2", title: "Pushpa 2", genre: "Action, Drama", date: "Released", status: "Completed", views: "51.4M", poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUMN4OeObNtdbPxY9XvlgM5830BRdMxsCMTDUNmL9dKg&s=10" }
+    ];
+
+    function getBadgeClass(status) {
+        switch(status) {
+            case "Promotion Running": return "badge-running";
+            case "Pre-Production": return "badge-pre";
+            case "Upcoming": return "badge-upcoming";
+            case "In Post Production": return "badge-post";
+            case "Completed": return "badge-completed";
+            default: return "badge-upcoming";
+        }
+    }
+
+    function renderMovies() {
+        const grid = document.getElementById("movieGrid");
+        const tableBody = document.getElementById("movieTableBody");
+        if (!grid || !tableBody) return;
+
+        grid.innerHTML = "";
+        tableBody.innerHTML = "";
+
+        movies.forEach(movie => {
+            const badgeClass = getBadgeClass(movie.status);
+            grid.innerHTML += `
+                <div class="movie-card" id="card-${movie.id}">
+                  <div class="poster-wrapper">
+                    <img class="poster-img" src="${movie.poster}" alt="${movie.title}">
+                    <div class="poster-overlay"></div>
+                  </div>
+                  <div class="movie-info">
+                    <div class="movie-title">${movie.title}</div>
+                    <div class="movie-meta">${movie.genre}</div>
+                    <div class="movie-release">${movie.date}</div>
+                    <span class="badge ${badgeClass}">${movie.status}</span>
+                  </div>
+                </div>`;
+
+            tableBody.innerHTML += `
+                <tr id="row-${movie.id}">
+                  <td>
+                    <div class="table-movie-info">
+                      <img class="table-movie-thumb" src="${movie.poster}" alt="${movie.title}">
+                      <span>${movie.title}</span>
+                    </div>
+                  </td>
+                  <td>${movie.genre}</td>
+                  <td>${movie.date}</td>
+                  <td><span class="badge ${badgeClass}">${movie.status}</span></td>
+                  <td><strong>${movie.views}</strong></td>
+                  <td>
+                    <div class="table-actions">
+                      <button class="action-btn" onclick="alert('Viewing statistics for ${movie.title}')"><i data-lucide="eye" style="width:14px; height:14px;"></i></button>
+                      <button class="action-btn" onclick="deleteMovie('${movie.id}')"><i data-lucide="trash" style="width:14px; height:14px;"></i></button>
+                    </div>
+                  </td>
+                </tr>`;
+        });
+        lucide.createIcons();
+    }
+
+    function deleteMovie(id) {
+        if (confirm('Delete this entry?')) {
+            movies = movies.filter(m => m.id !== id);
+            renderMovies();
+            showToast('Movie deleted from workspace directory', 'error');
+        }
+    }
+
+    function saveNewMovie() {
+        const title = document.getElementById('createMovieTitle').value;
+        const poster = document.getElementById('createPosterUrl').value || 'https://via.placeholder.com/150';
+        const genre = document.getElementById('createGenre').value;
+        const date = document.getElementById('createReleaseDate').value;
+        const status = document.getElementById('createStatus').value;
+        const views = document.getElementById('createViews').value;
+
+        if (!title) return;
+
+        movies.push({
+            id: title.toLowerCase().replace(/\s+/g, '-'),
+            title, genre, date, status, views, poster
+        });
+
+        renderMovies();
+        closeCreateMovieModal();
+        showToast('Movie added successfully', 'success');
+    }
+
+    // --- CAMPAIGNS & COUNTDOWNS ---
+    const countdownTarget = new Date('Aug 14, 2026 00:00:00').getTime();
+    setInterval(() => {
+        const now = new Date().getTime();
+        const diff = countdownTarget - now;
+        if (diff > 0) {
+            document.getElementById('days').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+            document.getElementById('hours').innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            document.getElementById('mins').innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            document.getElementById('secs').innerText = Math.floor((diff % (1000 * 60)) / 1000);
+        }
+    }, 1000);
+
+    function launchNewCampaign() {
+        const name = document.getElementById('campName').value;
+        const budget = document.getElementById('campBudget').value;
+        const movie = document.getElementById('campMovie').value;
+        const platform = document.getElementById('campPlatform').value;
+
+        if (!name || !budget) return;
+
+        const tableBody = document.getElementById('campaignTableBody');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${name}</strong><br><span style="font-size:11px;color:var(--text-dim)">${movie} Campaign</span></td>
+            <td><span class="platform-mini-icon"><i class="fa-brands fa-${platform}"></i></span></td>
+            <td>
+                <div class="table-progress-box" style="display:flex; align-items:center;">
+                    <div class="progress-bar" style="margin:0 10px 0 0;"><div class="progress-fill" style="width: 10%;"></div></div>
+                    <span>10%</span>
+                </div>
+            </td>
+            <td>₹ ${budget}L</td>
+            <td><span style="color:green; font-weight:600;">Active</span></td>
+        `;
+        tableBody.insertBefore(tr, tableBody.firstChild);
+        closeCampaignModal();
+        showToast('Campaign launched successfully!', 'success');
+    }
+
+    // --- THEATRES SEARCH FILTER ---
+    function filterTheatres(val) {
+        const searchVal = val.toLowerCase();
+        const rows = document.querySelectorAll('#theatreTable tbody tr');
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(searchVal) ? '' : 'none';
+        });
+    }
+
+    // --- REPORTS VIEW CHARTS ---
+    let reportsChartsRendered = false;
+    function renderReportsCharts() {
+        if (reportsChartsRendered) return;
+        reportsChartsRendered = true;
+
+        const ctxImp = document.getElementById('impressionsChart').getContext('2d');
+        new Chart(ctxImp, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 31}, (_, i) => `${i + 1} May`),
+                datasets: [{
+                    data: [2.2, 2.5, 2.3, 2.6, 3.2, 2.8, 3.1, 3.4, 3.8, 3.5, 3.1, 4.4, 4.7, 5.6, 5.0, 6.2, 4.4, 4.1, 3.8, 4.3, 3.8, 4.1, 4.4, 4.2, 4.6, 5.0, 4.8, 5.2, 5.6, 6.1, 6.5],
+                    borderColor: '#e50914',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { x: { grid: { display: false } }, y: { min: 0, max: 8 } }
+            }
+        });
+
+        const ctxEng = document.getElementById('engagementsChart').getContext('2d');
+        new Chart(ctxEng, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 31}, (_, i) => `${i + 1} May`),
+                datasets: [{
+                    data: [130, 150, 130, 120, 160, 200, 180, 165, 195, 220, 200, 240, 260, 310, 380, 320, 280, 250, 220, 200, 230, 210, 240, 225, 250, 240, 260, 250, 280, 310, 360],
+                    borderColor: '#e11d48',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { x: { grid: { display: false } } }
+            }
+        });
+
+        const ctxPlat = document.getElementById('platformsChart').getContext('2d');
+        new Chart(ctxPlat, {
+            type: 'doughnut',
+            data: {
+                labels: ['Instagram', 'YouTube', 'Facebook', 'Twitter (X)', 'Others'],
+                datasets: [{
+                    data: [38, 26, 18, 10, 8],
+                    backgroundColor: ['#E50914', '#E25C6E', '#2E60CF', '#7844C4', '#FABE28'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // --- AUDIENCE VIEW CHARTS ---
+    let audienceChartsRendered = false;
+    function renderAudienceCharts() {
+        if (audienceChartsRendered) return;
+        audienceChartsRendered = true;
+
+        const ctxAge = document.getElementById('ageChart').getContext('2d');
+        new Chart(ctxAge, {
+            type: 'doughnut',
+            data: {
+                labels: ['Under 18', '18 - 24', '25 - 34', '35 - 44'],
+                datasets: [{
+                    data: [12, 28, 32, 18],
+                    backgroundColor: ['#e50914', '#e25c6e', '#7c3aed', '#2563eb'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        const ctxGender = document.getElementById('genderChart').getContext('2d');
+        new Chart(ctxGender, {
+            type: 'doughnut',
+            data: {
+                labels: ['Male', 'Female', 'Other'],
+                datasets: [{
+                    data: [58, 40, 2],
+                    backgroundColor: ['#e50914', '#2563eb', '#7c3aed'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Map Initialize
+        new jsVectorMap({
+            selector: '#locationMap',
+            map: 'world',
+            backgroundColor: 'transparent',
+            zoomButtons: false,
+            regionStyle: {
+                initial: { fill: '#1e1e24', stroke: '#09090b', strokeWidth: 0.8 }
+            },
+            series: {
+                regions: [{
+                    values: { IN: '#e50914', US: '#E25C6E', AE: '#7844C4' },
+                    attribute: 'fill'
+                }]
+            }
+        });
+
+        const ctxInterests = document.getElementById('interestsChart').getContext('2d');
+        new Chart(ctxInterests, {
+            type: 'bar',
+            data: {
+                labels: ['Action', 'Drama', 'Thriller', 'Comedy', 'Romance'],
+                datasets: [{
+                    data: [32, 24, 18, 12, 8],
+                    backgroundColor: '#e50914',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // --- SOCIAL MEDIA TABS ---
+    function switchSocialTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        document.querySelectorAll('.social-tab-content').forEach(content => content.style.display = 'none');
+        document.getElementById(`social-tab-${tabId}`).style.display = 'block';
+    }
+
+    // --- SEARCH SYNCHRONIZER ---
+    function syncAndSearch(value) {
+        document.getElementById('dash-search-input').value = value;
+        document.getElementById('movie-search-input').value = value;
+        searchMovie(value);
+    }
+
+    function searchMovie(query) {
+        if (!query.trim()) return;
+        const lowerQuery = query.toLowerCase().trim();
+        const match = movies.find(m => m.title.toLowerCase().includes(lowerQuery));
+        if (match) {
+            switchView('movies');
+            setTimeout(() => {
+                const card = document.getElementById(`card-${match.id}`);
+                if (card) {
+                    card.scrollIntoView({ behavior: "smooth", block: "center" });
+                    card.style.borderColor = 'var(--primary)';
+                    setTimeout(() => { card.style.borderColor = 'var(--border)'; }, 3000);
+                }
+            }, 300);
+        }
+    }
+
+    // --- INTERACTIVE PREFERENCE CONTROLS ---
+    function toggleTheme() {
+        document.body.classList.toggle('light-theme');
+        showToast('App theme preferences updated', 'success');
+    }
+
+    function uploadAvatar(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('avatar-img').src = e.target.result;
+                document.getElementById('avatar-img').style.display = 'block';
+                document.getElementById('profile-icon').style.display = 'none';
+                showToast('New profile photo loaded', 'success');
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function saveProfileChanges(e) {
+        e.preventDefault();
+        const name = document.getElementById('form-fullname').value;
+        showToast(`Profile changes saved for ${name}`, 'success');
+    }
+
+    let is2FA = true;
+    function toggleTwoFactor() {
+        is2FA = !is2FA;
+        showToast(`Two factor authentication ${is2FA ? 'Enabled' : 'Disabled'}`, is2FA ? 'success' : 'error');
+    }
+
+    // --- MODAL ENGINE UTILITIES ---
+    function openTrailer() {
+        document.getElementById("trailerModal").classList.add("active-modal");
+        document.getElementById("trailerFrame").src = "https://www.youtube.com/embed/BfCIPsEGAS8?autoplay=1";
+    }
+    function closeTrailer() {
+        document.getElementById("trailerModal").classList.remove("active-modal");
+        document.getElementById("trailerFrame").src = "";
+    }
+    function openBoostCampaign() { document.getElementById("boostModal").classList.add("active-modal"); }
+    function closeBoostCampaign() { document.getElementById("boostModal").classList.remove("active-modal"); }
+    function launchCampaign() {
+        closeBoostCampaign();
+        showToast('Ad Outreach boost campaign launched successfully!', 'success');
+    }
+    function openTheatreModal() { document.getElementById("theatreModal").classList.add("active-modal"); }
+    function closeTheatreModal() { document.getElementById("theatreModal").classList.remove("active-modal"); }
+    function saveTheatre() {
+        closeTheatreModal();
+        showToast('Theatre registered into campaign network', 'success');
+    }
+    function openCampaignModal() { document.getElementById("campaignModal").classList.add("active-modal"); }
+    function closeCampaignModal() { document.getElementById("campaignModal").classList.remove("active-modal"); }
+    function openCreateMovieModal() { document.getElementById("createMovieModal").classList.add("active-modal"); }
+    function closeCreateMovieModal() { document.getElementById("createMovieModal").classList.remove("active-modal"); }
+    function openEventsModal() { document.getElementById("eventsModal").classList.add("active-modal"); }
+    function closeEventsModal() { document.getElementById("eventsModal").classList.remove("active-modal"); }
+    function openCalendarModal() { document.getElementById("calendarModal").classList.add("active-modal"); }
+    function closeCalendarModal() { document.getElementById("calendarModal").classList.remove("active-modal"); }
+    function openTasksModal() { document.getElementById("tasksModal").classList.add("active-modal"); }
+    function closeTasksModal() { document.getElementById("tasksModal").classList.remove("active-modal"); }
+    function openProfileModal() { document.getElementById("profileModal").classList.add("active-modal"); }
+    function closeProfileModal() { document.getElementById("profileModal").classList.remove("active-modal"); }
+    function openExportModal() { document.getElementById("exportModal").classList.add("active-modal"); }
+    function closeExportModal() { document.getElementById("exportModal").classList.remove("active-modal"); }
+    function openAdsModal() { alert('Loading advertisement templates...'); }
+    function openReportsModal() { switchView('reports'); }
+
+    // --- NOTIFICATIONS PANEL ---
+    function toggleNotifications(e) {
+        e.stopPropagation();
+        document.getElementById('notifPanel').classList.toggle('active');
+    }
+    function dismissItem(el) {
+        el.style.opacity = '0.5';
+        const dot = el.querySelector('.notification-dot');
+        if (dot) dot.remove();
+        const count = document.querySelectorAll('#notifList .notification-dot').length;
+        document.getElementById('notif-badge').innerText = count;
+        if (count === 0) document.getElementById('notif-badge').style.display = 'none';
+    }
+    function clearNotifications() {
+        document.getElementById('notifList').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim)">No notifications</div>';
+        document.getElementById('notif-badge').style.display = 'none';
+    }
+    document.addEventListener('click', () => {
+        document.getElementById('notifPanel').classList.remove('active');
+    });
+</script>
+</body>
+</html>
