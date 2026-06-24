@@ -227,42 +227,77 @@
       <div class="register-box">
         <h2>Create Account</h2>
 
-        <form id="registerForm" novalidate>
+      <form id="registerForm" method="POST">
+    {% csrf_token %}
 
-          <div class="input-group">
-            <span>👤</span>
-            <input type="text" id="reg_username" placeholder="Username" />
-          </div>
-          <div class="error-msg" id="err_username">Please enter a username.</div>
+    <div class="input-group">
+        <span>👤</span>
+        <input type="text" name="username" id="reg_username" placeholder="Username">
+    </div>
 
-          <div class="input-group">
-            <span>📧</span>
-            <input type="email" id="reg_email" placeholder="Email Address" />
-          </div>
-          <div class="error-msg" id="err_email">Please enter a valid email.</div>
+    <div class="input-group">
+        <span>📧</span>
+        <input type="email" name="email" id="reg_email" placeholder="Email">
+    </div>
 
-          <div class="input-group">
-  <span>📱</span>
-  <input type="text" id="reg_phone" placeholder="Phone Number" maxlength="10" 
-         oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+    <div class="input-group">
+        <span>📱</span>
+        <input type="text" name="phone" id="reg_phone" placeholder="Phone Number">
+    </div>
+
+    <div class="input-group">
+        <span>🔒</span>
+        <input type="password" name="password" id="reg_password" placeholder="Password">
+    </div>
+
+    <div class="input-group">
+    <span>👥</span>
+
+    <select
+        name="role"
+        id="role"
+        onchange="togglePromoterType()"
+        style="
+            width:100%;
+            padding:12px 12px 12px 40px;
+            border:none;
+            border-radius:12px;
+            background:white;
+            color:black;
+            font-size:14px;
+        "
+    >
+        <option value="customer">Customer</option>
+        <option value="promoter">Promoter</option>
+    </select>
 </div>
 
-          <div class="input-group">
-            <span>🔒</span>
-            <input type="password" id="reg_password" placeholder="Password" />
-          </div>
-          <div class="error-msg" id="err_password">Password must be at least 6 characters.</div>
+<div class="input-group" id="promoterDiv" style="display:none;">
+    <span>🎭</span>
 
-          <div class="input-group">
-            <span>🔒</span>
-            <input type="password" id="reg_confirm" placeholder="Confirm Password" />
-          </div>
-          <div class="error-msg" id="err_confirm">Passwords do not match.</div>
+    <select
+        name="promoter_type"
+        style="
+            width:100%;
+            padding:12px 12px 12px 40px;
+            border:none;
+            border-radius:12px;
+            background:white;
+            color:black;
+            font-size:14px;
+        "
+    >
+        <option value="">Select Promoter Type</option>
+        <option value="music_concert_owner">Music Concert Owner</option>
+        <option value="restaurant_owner">Restaurant Owner</option>
+        <option value="theatre_owner">Theatre Owner</option>
+        <option value="stadium_owner">Stadium Owner</option>
+        <option value="standup_comedy_owner">Standup Comedy Owner</option>
+    </select>
+</div>
 
-          <button type="submit">Register</button>
-
-        </form>
-
+    <button type="submit">Register</button>
+</form>
         <div class="links">
           <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
           <p><a href="{% url 'home' %}">← Back to Home</a></p>
@@ -273,6 +308,7 @@
   </div>
 
   <script>
+/*
     function showToast(msg, color = "#ff2e63") {
       const toast = document.getElementById("toast");
       toast.textContent = msg;
@@ -351,7 +387,24 @@
     window.location.href = "/dashboard/";
 }, 1500);
 });
+*/
+
   </script>
+
+<script>
+function togglePromoterType() {
+
+    const role = document.getElementById("role").value;
+    const promoterDiv = document.getElementById("promoterDiv");
+
+    if(role === "promoter"){
+        promoterDiv.style.display = "block";
+    }
+    else{
+        promoterDiv.style.display = "none";
+    }
+}
+</script>
 
 </body>
 </html>

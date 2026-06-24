@@ -229,7 +229,17 @@
             </div>
 
             <div class="p-6 lg:col-span-4 bg-black/30 border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col justify-between space-y-6">
-                <form id="checkoutForm" class="space-y-5">
+                <form id="checkoutForm"
+                    method="POST"
+                    action="{% url 'create_sports_booking' %}"
+                    class="space-y-5">
+
+                    {% csrf_token %}
+
+                    <input type="hidden" name="event_id" value="{{ event.id }}">
+                    <input type="hidden" name="seats" id="hiddenSeats">
+                    <input type="hidden" name="amount" id="hiddenAmount">
+                    
                     <div class="bg-gradient-to-r from-[#1c0408] to-[#111216] border border-[#e63946]/20 rounded-xl p-4 flex items-stretch">
                         <div class="bg-black/40 p-3 flex flex-col justify-center items-center text-center border-r border-slate-900 min-w-[85px] rounded-l-lg">
                             <span class="text-[9px] tracking-widest text-rose-400 uppercase font-extrabold">Match Day</span>
@@ -529,15 +539,24 @@
         };
 
         document.getElementById("checkoutForm").addEventListener("submit", function(e) {
-            e.preventDefault();
+            console.log("FORM SUBMIT CLICKED");
 
-            if (selectedSeatsCount === 0) {
-                alert('Please pick at least one ticket before generating an invoice.');
-                return;
-            }
+    if (selectedSeatsCount === 0) {
+        alert('Please pick at least one ticket before generating an invoice.');
+        return;
+    }
 
-            const selectedPayment = document.querySelector('input[name="paymentGateway"]:checked').value;
+    document.getElementById("hiddenSeats").value =
+    Object.values(selectionRegistry)
+    .map(item => `${item.tier} Seat ${item.seatNum}`)
+    .join(", ");
 
+    document.getElementById("hiddenAmount").value =
+    document.getElementById("summaryTotal").textContent.replace(/,/g, '');
+
+    const selectedPayment = document.querySelector('input[name="paymentGateway"]:checked').value;
+
+            
             if (selectedPayment === "razorpay") {
                 const totalAmountText = document.getElementById('summaryTotal').textContent.replace(/,/g, '');
                 const totalAmount = parseFloat(totalAmountText) || 0;
@@ -555,8 +574,10 @@
                     "description": `Championship Seating Booking - ${selectedSeatsCount} Allocation Passes`,
                     "image": "https://cdn.razorpay.com/logos/F9Yhfb7ZXjXmIQ_medium.jpg",
                     "handler": function (response){
-                        alert("Transaction Successful! Booking Verification ID: " + response.razorpay_payment_id);
-                        window.location.href = "success.html?payment_id=" + response.razorpay_payment_id;
+
+                        alert("Payment Successful!");
+
+                        document.getElementById("checkoutForm").submit();
                     },
                     "prefill": {
                         "name": clientFirst + " " + clientLast,
@@ -574,8 +595,7 @@
                 });
                 rzp1.open();
             } else {
-                // Route for Standard Credit or Debit card option
-                window.location.href = "payment.html";
+                document.getElementById("checkoutForm").submit();
             }
         });
 

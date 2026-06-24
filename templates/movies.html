@@ -301,51 +301,46 @@ onkeyup="searchMovies()">
 <!-- ================= TRENDING ================= -->
 
 <div class="section-title">🔥 Trending Movies</div>
-
 <div class="row g-4" id="movieContainer">
 
-<!-- Avengers -->
+{% for movie in movies %}
 
 <div class="col-md-3 movie-item">
 
 <div class="movie-card">
 
-<div class="heart"
-onclick="addToWishlist('Avengers: Secret Wars','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ44OJbG6u-1AaaSZswAnJTnmmkyQnFwTJWYw&s')">
+<div class="heart">
 <i class="fa-solid fa-heart"></i>
 </div>
 
-<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ44OJbG6u-1AaaSZswAnJTnmmkyQnFwTJWYw&s">
+<img src="{{ movie.image }}">
 
 <div class="movie-body">
 
-<h5>Avengers: Secret Wars</h5>
+<h5>{{ movie.title }}</h5>
 
-<p>Action • Sci-Fi</p>
+<p>{{ movie.genre }}</p>
 
 <div class="movie-meta">
 
-<p>📅 Release : 2026</p>
+<p>📅 Release : {{ movie.release_date }}</p>
 
-<p>⭐ Rating : 9.1/10</p>
+<p>⭐ Rating : {{ movie.rating }}</p>
 
-<p>🎭 Cast : Robert Downey Jr.</p>
+<p>🎭 Cast : {{ movie.cast }}</p>
 
-<p>⏱ Duration : 2h 55m</p>
+<p>⏱ Duration : {{ movie.duration }}</p>
+
 
 </div>
 
-
-
 <div class="button-group">
 
-<a href="{% url 'movie_booking' %}?movie=avengers"
+<a href="{% url 'movie_booking' %}?movie_id={{ movie.id }}"
 class="book-btn">
 Book
 </a>
 
-
-
 </div>
 
 </div>
@@ -354,45 +349,10 @@ Book
 
 </div>
 
-<!-- Dune -->
-
-<div class="col-md-3 movie-item">
-
-<div class="movie-card">
-
-<div class="heart"
-onclick="addToWishlist('Dune: Part Three','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfqwuSuzX3FC83e3DpgvjkNyw73COMcMxikQ&s')">
-<i class="fa-solid fa-heart"></i>
-</div>
-
-<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfqwuSuzX3FC83e3DpgvjkNyw73COMcMxikQ&s">
-
-<div class="movie-body">
-
-<h5>Dune: Part Three</h5>
-
-<p>Adventure • Sci-Fi</p>
-
-<div class="movie-meta">
-
-<p>📅 Release : 2026</p>
-
-<p>⭐ Rating : 8.9/10</p>
-
-<p>🎭 Cast : Timothée Chalamet</p>
-
-<p>⏱ Duration : 2h 40m</p>
+{% endfor %}
 
 </div>
 
-
-
-<div class="button-group">
-
-<a href="{% url 'movie_booking' %}?movie=dune"
-class="book-btn">
-Book
-</a>
 
 
 
@@ -404,95 +364,7 @@ Book
 
 </div>
 
-<!-- John Wick -->
 
-<div class="col-md-3 movie-item">
-
-<div class="movie-card">
-
-<div class="heart"
-onclick="addToWishlist('John Wick 5','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcChgnKp3Xq9euuooiKApcg-tb6tv4HIEAXA&s')">
-<i class="fa-solid fa-heart"></i>
-</div>
-
-<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcChgnKp3Xq9euuooiKApcg-tb6tv4HIEAXA&s">
-
-<div class="movie-body">
-
-<h5>John Wick 5</h5>
-
-<p>Action • Thriller</p>
-
-<div class="movie-meta">
-
-<p>📅 Release : 2026</p>
-
-<p>⭐ Rating : 8.8/10</p>
-
-<p>🎭 Cast : Keanu Reeves</p>
-
-<p>⏱ Duration : 2h 30m</p>
-
-</div>
-
-
-
-<div class="button-group">
-
-<a href="{% url 'movie_booking' %}?movie=johnwick"
-class="book-btn">
-Book
-</a>
-
-
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- Deadpool -->
-
-<div class="col-md-3 movie-item">
-
-<div class="movie-card">
-
-<div class="heart"
-onclick="addToWishlist('Deadpool 3','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSfVdJDbcwuTRi6GZvN0aXWCK1XRS8TTC_Rw&s')">
-<i class="fa-solid fa-heart"></i>
-</div>
-
-<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSfVdJDbcwuTRi6GZvN0aXWCK1XRS8TTC_Rw&s">
-
-<div class="movie-body">
-
-<h5>Deadpool 3</h5>
-
-<p>Action • Comedy</p>
-
-<div class="movie-meta">
-
-<p>📅 Release : 2026</p>
-
-<p>⭐ Rating : 8.7/10</p>
-
-<p>🎭 Cast : Ryan Reynolds</p>
-
-<p>⏱ Duration : 2h 10m</p>
-
-</div>
-
-
-
-<div class="button-group">
-
-<a href="{% url 'movie_booking' %}?movie=deadpool"
-class="book-btn">
-Book
-</a>
 
 
 

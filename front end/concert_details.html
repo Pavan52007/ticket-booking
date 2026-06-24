@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Concert Details</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+min-height:100vh;
+background:
+linear-gradient(rgba(0,0,0,.75),rgba(0,0,0,.85)),
+url("https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1600&q=80");
+background-size:cover;
+background-position:center;
+background-attachment:fixed;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:40px 20px;
+}
+
+.concert-card{
+width:100%;
+max-width:1200px;
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(18px);
+border-radius:25px;
+overflow:hidden;
+display:grid;
+grid-template-columns:450px 1fr;
+box-shadow:0 20px 60px rgba(0,0,0,.5);
+border:1px solid rgba(255,255,255,.1);
+}
+
+.poster img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+.content{
+padding:40px;
+color:white;
+}
+
+.badge-custom{
+display:inline-block;
+padding:8px 18px;
+border-radius:30px;
+background:rgba(255,0,128,.2);
+color:#ff5ca8;
+font-weight:600;
+margin-bottom:20px;
+}
+
+.title{
+font-size:42px;
+font-weight:800;
+margin-bottom:15px;
+}
+
+.info{
+font-size:17px;
+margin-bottom:12px;
+color:#e2e8f0;
+}
+
+.desc{
+margin-top:25px;
+line-height:1.9;
+color:#cbd5e1;
+font-size:16px;
+}
+
+.highlights{
+margin-top:25px;
+}
+
+.highlights li{
+margin-bottom:10px;
+color:#f8fafc;
+}
+
+.buttons{
+display:flex;
+gap:15px;
+margin-top:35px;
+}
+
+.btn-book{
+flex:1;
+text-align:center;
+padding:14px;
+text-decoration:none;
+border-radius:12px;
+font-weight:700;
+background:linear-gradient(45deg,#ff416c,#ff4b2b);
+color:white;
+transition:.3s;
+}
+
+.btn-book:hover{
+transform:translateY(-3px);
+color:white;
+}
+
+.btn-back{
+flex:1;
+text-align:center;
+padding:14px;
+text-decoration:none;
+border-radius:12px;
+font-weight:700;
+background:linear-gradient(45deg,#3b82f6,#06b6d4);
+color:white;
+transition:.3s;
+}
+
+.btn-back:hover{
+transform:translateY(-3px);
+color:white;
+}
+
+@media(max-width:900px){
+.concert-card{
+grid-template-columns:1fr;
+}
+.poster{
+height:450px;
+}
+.title{
+font-size:30px;
+}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="concert-card">
+
+<div class="poster">
+
+{% if concert == "arijit" %}
+<img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=900&q=80">
+
+{% elif concert == "anirudh" %}
+<img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=900&q=80">
+
+{% elif concert == "diljit" %}
+<img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80">
+
+{% elif concert == "shreya" %}
+<img src="https://images.unsplash.com/photo-1501612780327-45045538702b?auto=format&fit=crop&w=900&q=80">
+
+{% else %}
+<img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=900&q=80">
+{% endif %}
+
+</div>
+
+<div class="content">
+
+<span class="badge-custom">🎤 Live Concert</span>
+
+{% if concert == "arijit" %}
+
+<h1 class="title">Arijit Singh India Tour 2026</h1>
+
+<p class="info">📍 Hyderabad Stadium</p>
+<p class="info">📅 18 July 2026</p>
+<p class="info">⏰ 7:00 PM</p>
+<p class="info">💰 Starting ₹1999</p>
+
+<p class="desc">
+Experience an unforgettable evening with Arijit Singh performing
+his biggest hits live.
+</p>
+
+{% elif concert == "anirudh" %}
+
+<h1 class="title">Anirudh Live in Concert</h1>
+
+<p class="info">📍 Chennai Arena</p>
+<p class="info">📅 30 August 2026</p>
+<p class="info">⏰ 6:30 PM</p>
+<p class="info">💰 Starting ₹2499</p>
+
+<p class="desc">
+Feel the energy of Anirudh Ravichander performing blockbuster hits.
+</p>
+
+{% elif concert == "diljit" %}
+
+<h1 class="title">Diljit Dosanjh World Tour</h1>
+
+<p class="info">📍 Bengaluru Grounds</p>
+<p class="info">📅 12 September 2026</p>
+<p class="info">⏰ 7:30 PM</p>
+<p class="info">💰 Starting ₹2999</p>
+
+<p class="desc">
+Join thousands for Diljit's electrifying performance.
+</p>
+
+{% elif concert == "shreya" %}
+
+<h1 class="title">Shreya Ghoshal Live</h1>
+
+<p class="info">📍 Mumbai Dome</p>
+<p class="info">📅 25 October 2026</p>
+<p class="info">⏰ 6:00 PM</p>
+<p class="info">💰 Starting ₹1799</p>
+
+<p class="desc">
+A mesmerizing evening of melody by Shreya Ghoshal.
+</p>
+
+{% else %}
+
+<h1 class="title">A.R. Rahman Live</h1>
+
+<p class="info">📍 Delhi Stadium</p>
+<p class="info">📅 15 November 2026</p>
+<p class="info">⏰ 7:00 PM</p>
+<p class="info">💰 Starting ₹3499</p>
+
+<p class="desc">
+Witness the musical genius of A.R. Rahman live.
+</p>
+
+{% endif %}
+
+<ul class="highlights">
+<li>✨ Premium Sound Experience</li>
+<li>🎆 Massive Stage Production</li>
+<li>🎵 Live Band Performance</li>
+<li>📸 Photo Opportunities</li>
+</ul>
+
+<div class="buttons">
+
+<!-- ✅ FIXED BUTTON -->
+<a href="{% url 'concerts_checkout' concert %}" class="btn-book">
+🎟 Book Tickets
+</a>
+
+<a href="{% url 'concerts' %}" class="btn-back">
+⬅ Back to Concerts
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>

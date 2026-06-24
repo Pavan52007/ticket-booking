@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Event Details | Zenith</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    color:white;
+
+    background:
+    radial-gradient(circle at top,
+    rgba(255,0,0,0.35),
+    transparent 40%),
+
+    radial-gradient(circle at bottom,
+    rgba(120,0,0,0.5),
+    transparent 50%),
+
+    linear-gradient(
+    135deg,
+    #000000,
+    #120000,
+    #1a0000,
+    #000000
+    );
+
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.card{
+    width:90%;
+    max-width:700px;
+    background:rgba(20,0,0,0.9);
+    border:1px solid rgba(255,0,0,0.3);
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 0 25px rgba(255,0,0,0.25);
+}
+
+h1{
+    color:#ff4b4b;
+    margin-bottom:20px;
+}
+
+.details{
+    line-height:2;
+    font-size:18px;
+}
+
+.book-btn{
+    margin-top:25px;
+    display:inline-block;
+    padding:12px 25px;
+    background:linear-gradient(45deg,#ff416c,#ff4b2b);
+    color:white;
+    text-decoration:none;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.book-btn:hover{
+    opacity:0.9;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+    <div id="content"></div>
+</div>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+
+const type = params.get("type");
+const id = params.get("id");
+
+const data = {
+
+sport: {
+
+cskmi:{
+title:"CSK vs MI",
+price:"₹1200",
+location:"Wankhede Stadium, Mumbai",
+time:"7:30 PM",
+date:"22 July 2026",
+seat:"A-23",
+host:"BCCI"
+},
+
+indiaaus:{
+title:"India vs Australia ODI",
+price:"₹1500",
+location:"Eden Gardens, Kolkata",
+time:"2:00 PM",
+date:"30 July 2026",
+seat:"B-14",
+host:"ICC"
+},
+
+kabaddi:{
+title:"Pro Kabaddi League",
+price:"₹900",
+location:"Hyderabad Arena",
+time:"6:00 PM",
+date:"12 Aug 2026",
+seat:"C-08",
+host:"PKL"
+},
+
+footballfinal:{
+title:"ISL Football Final",
+price:"₹1800",
+location:"Mumbai Football Arena",
+time:"8:00 PM",
+date:"5 Aug 2026",
+seat:"VIP-05",
+host:"ISL"
+},
+
+footballfinal2:{
+title:"Championship Football Match",
+price:"₹1600",
+location:"Delhi Stadium",
+time:"7:00 PM",
+date:"15 Aug 2026",
+seat:"D-12",
+host:"Football Federation"
+}
+
+},
+
+event: {
+
+foodcarnival:{
+title:"Food Carnival",
+price:"₹500",
+location:"Delhi Exhibition Grounds",
+time:"4:00 PM",
+date:"2 Sept 2026",
+seat:"General Entry",
+host:"Foodies Union"
+},
+
+artexpo:{
+title:"Art Expo",
+price:"₹700",
+location:"Jaipur Art Gallery",
+time:"1:00 PM",
+date:"10 Sept 2026",
+seat:"Gallery Pass",
+host:"Art Society"
+},
+
+comedynight:{
+title:"Comedy Night",
+price:"₹800",
+location:"Pune Auditorium",
+time:"8:00 PM",
+date:"28 Aug 2026",
+seat:"Row B - 15",
+host:"Laugh Club"
+}
+
+}
+
+};
+
+const item = data[type]?.[id];
+
+if(item){
+
+document.getElementById("content").innerHTML = `
+
+<h1>${item.title}</h1>
+
+<div class="details">
+
+📅 <b>Date:</b> ${item.date}<br>
+
+⏰ <b>Time:</b> ${item.time}<br>
+
+📍 <b>Location:</b> ${item.location}<br>
+
+🎤 <b>Host:</b> ${item.host}<br>
+
+🎟 <b>Seat:</b> ${item.seat}<br>
+
+💰 <b>Price:</b> ${item.price}
+
+</div>
+
+<button class="book-btn">
+Confirm Booking
+</button>
+
+`;
+
+}else{
+
+document.getElementById("content").innerHTML = `
+
+<h1>Details Not Found</h1>
+
+<p>Please check the event link.</p>
+
+`;
+
+}
+
+</script>
+
+</body>
+</html>

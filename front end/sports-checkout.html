@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Match Day Seating & Secure Checkout</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        :root {
+            --bg-color: #060608;
+            --card-bg: #111115;
+            --pitch-color: #14321a;
+            --pitch-line: #3b7a42;
+            --text-main: #f1f1f5;
+            --text-muted: #767680;
+            --accent-red: #5c0606;
+            --bright-red: #e63946;
+            --corporate-color: #a200ff; 
+            --premium-color: #ffb703;
+            --fan-color: #2cc771; 
+            --gateway-color: #fb8500;
+            --booked-color: #ef4444;   
+            --selected-color: #00f5d4; 
+        }
+
+        /* 360° Circular Stadium Arena Map Configurations */
+        .stadium-container {
+            position: relative;
+            width: 540px;
+            height: 540px;
+            background: #0b0b0e;
+            border-radius: 50%;
+            border: 2px solid rgba(230, 57, 70, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.9), 0 15px 35px rgba(0,0,0,0.6);
+        }
+
+        .pitch-circle {
+            width: 250px;
+            height: 260px;
+            background-color: var(--pitch-color);
+            border: 3px solid #f1f1f5; 
+            border-radius: 50%;
+            position: absolute;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6), inset 0 0 35px rgba(0,0,0,0.4);
+            pointer-events: none;
+        }
+
+        .inner-ring {
+            width: 150px;
+            height: 150px;
+            border: 1.5px dashed rgba(241, 241, 245, 0.25);
+            border-radius: 50%;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wicket-strip {
+            width: 20px;
+            height: 60px;
+            background: #dfbc91;
+            border: 1px solid #bfa07a;
+        }
+
+        .seating-arena {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .seat {
+            position: absolute;
+            width: 10px;
+            height: 11px;
+            border-radius: 50%;
+            cursor: pointer;
+            pointer-events: auto;
+            transform: translate(-50%, -50%);
+            box-sizing: border-box;
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.15s;
+        }
+
+        .seat.premium { background-color: var(--premium-color); border: 1px solid #cc9200; }
+        .seat.fan { background-color: var(--fan-color); border: 1px solid #1e8a4e; }
+        .seat.booked { background-color: var(--booked-color) !important; border: 1px solid #7a1d1d !important; cursor: not-allowed; }
+
+        .corporate-chamber-wrapper {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            pointer-events: auto;
+            z-index: 5;
+        }
+
+        .corporate-chamber {
+            width: 42px;
+            height: 20px;
+            border-radius: 4px;
+            background: linear-gradient(135deg, var(--corporate-color), #6700c2);
+            border: 1.5px solid #d899ff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(162, 0, 255, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 8px;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .suite-overlay {
+            position: absolute;
+            bottom: 26px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background: #120d1e;
+            border: 1px solid var(--corporate-color);
+            border-radius: 8px;
+            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+            z-index: 100;
+        }
+
+        .corporate-chamber-wrapper.active .suite-overlay {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateX(-50%) scale(1);
+        }
+
+        .suite-seat {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--corporate-color);
+            border: 1px solid #d899ff;
+            cursor: pointer;
+        }
+
+        .suite-seat.booked { background-color: var(--booked-color) !important; border-color: #7a1d1d !important; cursor: not-allowed; }
+        .seat.selected, .suite-seat.selected { background-color: var(--selected-color) !important; border: 1.5px solid #ffffff !important; box-shadow: 0 0 12px var(--selected-color); z-index: 5; }
+        .seat:hover { transform: translate(-50%, -50%) scale(1.4); z-index: 10; }
+        .seat.booked:hover { transform: translate(-50%, -50%) scale(1); box-shadow: none; }
+
+        .gateway {
+            position: absolute;
+            background: #141419;
+            color: var(--gateway-color);
+            border: 1px solid var(--gateway-color);
+            font-weight: bold;
+            font-size: 9px;
+            padding: 3px 8px;
+            border-radius: 20px;
+            z-index: 5;
+        }
+        .gate-n { top: -12px; }
+        .gate-s { bottom: -12px; }
+        .gate-e { right: -20px; }
+        .gate-w { left: -20px; }
+
+        .selection-list-box::-webkit-scrollbar { width: 4px; }
+        .selection-list-box::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-[#060608] via-[#0d0e12] to-[#1a2e1b] min-h-screen py-10 px-4 sm:px-6 lg:px-8 text-slate-100">
+
+    <div class="max-w-7xl mx-auto bg-[#111216]/95 backdrop-blur-xl rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden border border-white/5 border-t-4 border-t-[#e63946]">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12">
+            
+            <div class="p-6 lg:col-span-8 space-y-6">
+                <div class="flex justify-between items-center border-b border-white/5 pb-4">
+                    <h1 class="text-xl font-extrabold text-white flex items-center gap-3 relative pl-4 before:content-[''] before:absolute before:left-0 before:top-1.5 before:h-5 before:w-[4px] before:bg-[#e63946] before:rounded-sm">
+                        Stadium Seating Arena
+                    </h1>
+                    <div class="text-xs text-slate-400 bg-black/50 px-3 py-1.5 rounded-full border border-white/5 shadow-inner">
+                        Session Lock: <span id="timer" class="font-bold text-[#e63946]">15:00</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6 justify-center items-center bg-black/20 p-4 rounded-xl border border-white/5">
+                    <div class="flex flex-row md:flex-col gap-3 justify-center bg-[#16171d] p-4 rounded-xl border border-white/5 min-w-[210px]">
+                        <div class="flex items-center text-xs text-slate-300">
+                            <div class="w-4 h-4 rounded-full mr-3 border border(#d899ff)" style="background-color: var(--corporate-color);"></div> Corporate (Box)
+                        </div>
+                        <div class="flex items-center text-xs text-slate-300">
+                            <div class="w-4 h-4 rounded-full mr-3 border border-[#cc9200]" style="background-color: var(--premium-color);"></div> Premium (₹12,500)
+                        </div>
+                        <div class="flex items-center text-xs text-slate-300">
+                            <div class="w-4 h-4 rounded-full mr-3 border border-[#1e8a4e]" style="background-color: var(--fan-color);"></div> Fan Tier (₹4,500)
+                        </div>
+                        <div class="flex items-center text-xs text-slate-300">
+                            <div class="w-4 h-4 rounded-full mr-3 border border-[#7a1d1d]" style="background-color: var(--booked-color);"></div> Reserved
+                        </div>
+                    </div>
+
+                    <div class="stadium-container" id="stadiumContainer">
+                        <div class="gateway gate-n">GATE 1</div>
+                        <div class="gateway gate-e">GATE 2</div>
+                        <div class="gateway gate-s">GATE 3</div>
+                        <div class="gateway gate-w">GATE 4</div>
+
+                        <div class="pitch-circle">
+                            <div class="inner-ring">
+                                <div class="wicket-strip"></div>
+                            </div>
+                        </div>
+                        <div class="seating-arena" id="seatingArena"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 lg:col-span-4 bg-black/30 border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col justify-between space-y-6">
+                <form id="checkoutForm" class="space-y-5">
+                    <div class="bg-gradient-to-r from-[#1c0408] to-[#111216] border border-[#e63946]/20 rounded-xl p-4 flex items-stretch">
+                        <div class="bg-black/40 p-3 flex flex-col justify-center items-center text-center border-r border-slate-900 min-w-[85px] rounded-l-lg">
+                            <span class="text-[9px] tracking-widest text-rose-400 uppercase font-extrabold">Match Day</span>
+                            <span class="text-lg font-black leading-none uppercase my-1 text-white">NOV 15</span>
+                            <span class="text-[9px] text-rose-400/80 font-bold">2026</span>
+                        </div>
+                        <div class="p-4 flex flex-col justify-center flex-1">
+                            <h3 class="text-sm font-black uppercase tracking-wide text-white leading-snug">T20 International Championship</h3>
+                            <span class="text-[9px] tracking-wider text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded font-bold w-max mt-2">7:00 PM IST</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 bg-white/5 p-4 rounded-xl border border-white/5">
+                        <h2 class="text-sm font-bold text-[#e63946] uppercase tracking-wider border-b border-white/5 pb-2">Billing Details</h2>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-1">First Name *</label>
+                                <input type="text" id="firstName" placeholder="John" required class="w-full bg-[#060608] border border-slate-800 rounded-lg p-2.5 text-xs text-white outline-none focus:border-[#e63946] transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-1">Last Name *</label>
+                                <input type="text" id="lastName" placeholder="Doe" required class="w-full bg-[#060608] border border-slate-800 rounded-lg p-2.5 text-xs text-white outline-none focus:border-[#e63946] transition-all">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-1">Email *</label>
+                            <input type="email" id="emailAddress" placeholder="john@example.com" required class="w-full bg-[#060608] border border-slate-800 rounded-lg p-2.5 text-xs text-white outline-none focus:border-[#e63946] transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-1">Phone Number *</label>
+                            <input type="tel" id="phoneNumber" placeholder="9876543210" pattern="[0-9]{10}" maxlength="10" required class="w-full bg-[#060608] border border-slate-800 rounded-lg p-2.5 text-xs text-white outline-none focus:border-[#e63946] transition-all">
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 bg-white/5 p-4 rounded-xl border border-white/5">
+                        <h2 class="text-sm font-bold text-white tracking-wide border-b border-white/5 pb-2">Payment Option</h2>
+                        <div class="flex flex-col gap-2">
+                            <label class="flex items-center justify-between p-3 border border-slate-800 bg-black/40 rounded-xl cursor-pointer hover:bg-white/5 transition-all has-[:checked]:border-[#e63946] has-[:checked]:bg-[#e63946]/10">
+                                <div class="flex items-center">
+                                    <input type="radio" name="paymentGateway" value="card" checked class="h-4 w-4 accent-[#e63946]">
+                                    <span class="ml-3 font-semibold text-slate-200 text-xs">Credit or Debit Card</span>
+                                </div>
+                                <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+                                </svg>
+                            </label>
+
+                            <label class="flex items-center justify-between p-3 border border-slate-800 bg-black/40 rounded-xl cursor-pointer hover:bg-white/5 transition-all has-[:checked]:border-[#e63946] has-[:checked]:bg-[#e63946]/10">
+                                <div class="flex items-center">
+                                    <input type="radio" name="paymentGateway" value="razorpay" class="h-4 w-4 accent-[#e63946]">
+                                    <span class="ml-3 font-semibold text-slate-200 text-xs">Razorpay Secure Checkout</span>
+                                </div>
+                                <div class="bg-[#0b132a] text-[#52b69a] px-2 py-0.5 rounded font-extrabold text-[10px] tracking-tight border border-[#52b69a]/20">Razorpay</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 bg-white/5 border border-white/5 rounded-xl p-4 shadow-inner">
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider border-b border-white/5 pb-1.5">Order Invoice</h3>
+                        <div class="text-[11px] text-slate-400 tracking-wider uppercase">Active Selection:</div>
+                        <div class="selection-list-box max-h-[100px] overflow-y-auto bg-[#09090b] border border-slate-900 rounded-lg p-2.5 flex flex-col gap-2" id="selectionListBox">
+                            <div class="text-xs text-slate-600 text-center py-4">Select tickets from map</div>
+                        </div>
+
+                        <div class="flex justify-between text-xs border-t border-dashed border-white/5 pt-2">
+                            <span class="text-slate-400">Convenience Fees</span>
+                            <span class="font-semibold text-slate-200">₹<span id="summaryFees">0</span></span>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-white/5">
+                            <span class="text-xs font-bold text-white">Grand Total</span>
+                            <span class="text-xl font-black text-[#00f5d4]">₹<span id="summaryTotal">0</span></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-[#960010] to-[#e63946] hover:from-[#e63946] hover:to-[#ff4d5e] text-white font-black py-3 px-4 rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer text-center text-xs tracking-wider uppercase">
+                        Secure Purchase Order
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const FLAT_CONVENIENCE_FEE_PER_TICKET = 120;
+
+        const seatTiers = {
+            corporate: { label: 'Corporate Suite', price: 35000 },
+            premium: { label: 'Premium', price: 12500, cssClass: 'premium' },
+            fan: { label: 'Fan Tier', price: 4500, cssClass: 'fan' }
+        };
+
+        const totalRows = 7;
+        const baseRadius = 180; 
+        const rowSpacing = 13;  
+        const centerX = 270;   
+        const centerY = 270;
+
+        const gateAngles = [0, Math.PI / 2, Math.PI, -Math.PI / 2]; 
+        const gateAngleSpan = 0.16; 
+
+        let selectionRegistry = {};
+        let selectedSeatsCount = 0;
+        let totalPrice = 0;
+
+        // Initialize Seating Blueprint Builds Loop
+        function generateRadialStadium() {
+            const arena = document.getElementById('seatingArena');
+
+            const corporatePlacements = [
+                { angle: Math.PI / 4, name: 'TATA' },     
+                { angle: (3 * Math.PI) / 4, name: 'AIG' }, 
+                { angle: -(3 * Math.PI) / 4, name: 'JIO' },
+                { angle: -Math.PI / 4, name: 'CRED' }     
+            ];
+
+            corporatePlacements.forEach((box) => {
+                const boxRadius = baseRadius - 26; 
+                const x = centerX + boxRadius * Math.cos(box.angle);
+                const y = centerY + boxRadius * Math.sin(box.angle);
+
+                const wrapper = document.createElement('div');
+                wrapper.classList.add('corporate-chamber-wrapper');
+                wrapper.style.left = `${x}px`;
+                wrapper.style.top = `${y}px`;
+
+                const boxElement = document.createElement('div');
+                boxElement.classList.add('corporate-chamber');
+                boxElement.innerText = box.name;
+                
+                boxElement.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.corporate-chamber-wrapper').forEach(w => {
+                        if (wrapper !== w) w.classList.remove('active');
+                    });
+                    wrapper.classList.toggle('active');
+                });
+
+                const overlay = document.createElement('div');
+                overlay.classList.add('suite-overlay');
+
+                for (let i = 1; i <= 10; i++) {
+                    const suiteSeat = document.createElement('div');
+                    suiteSeat.classList.add('suite-seat');
+                    suiteSeat.id = `corp-${box.name}-${i}`;
+                    suiteSeat.dataset.price = seatTiers.corporate.price;
+                    suiteSeat.dataset.tier = `${box.name} Suite`;
+                    suiteSeat.dataset.row = `Box`;
+                    suiteSeat.dataset.seat = i;
+
+                    if (Math.random() < 0.3) suiteSeat.classList.add('booked');
+
+                    suiteSeat.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        toggleSeatSelection(suiteSeat);
+                    });
+                    overlay.appendChild(suiteSeat);
+                }
+
+                wrapper.appendChild(boxElement);
+                wrapper.appendChild(overlay);
+                arena.appendChild(wrapper);
+            });
+
+            for (let row = 0; row < totalRows; row++) {
+                const currentRadius = baseRadius + (row * rowSpacing);
+                const totalSeatsInRow = Math.floor(2 * Math.PI * currentRadius / 14);
+                const tier = (row < 3) ? seatTiers.premium : seatTiers.fan;
+
+                for (let s = 0; s < totalSeatsInRow; s++) {
+                    const angle = (s / totalSeatsInRow) * 2 * Math.PI;
+                    let normalizedAngle = angle;
+                    if (normalizedAngle > Math.PI) normalizedAngle -= 2 * Math.PI;
+
+                    let isInsideGateway = false;
+                    for (let g = 0; g < gateAngles.length; g++) {
+                        let angleDiff = Math.abs(normalizedAngle - gateAngles[g]);
+                        if (angleDiff > Math.PI) angleDiff = 2 * Math.PI - angleDiff;
+                        if (angleDiff < gateAngleSpan) {
+                            isInsideGateway = true;
+                            break;
+                        }
+                    }
+
+                    if (isInsideGateway) continue;
+
+                    const x = centerX + currentRadius * Math.cos(angle);
+                    const y = centerY + currentRadius * Math.sin(angle);
+
+                    const seatElement = document.createElement('div');
+                    seatElement.classList.add('seat', tier.cssClass);
+                    seatElement.id = `radial-${row+1}-${s+1}`;
+                    seatElement.style.left = `${x}px`;
+                    seatElement.style.top = `${y}px`;
+                    seatElement.dataset.price = tier.price;
+                    seatElement.dataset.tier = tier.label;
+                    seatElement.dataset.row = row + 1;
+                    seatElement.dataset.seat = s + 1;
+
+                    if (Math.random() < 0.25) seatElement.classList.add('booked');
+
+                    seatElement.addEventListener('click', () => toggleSeatSelection(seatElement));
+                    arena.appendChild(seatElement);
+                }
+            }
+        }
+
+        function toggleSeatSelection(seat) {
+            if (seat.classList.contains('booked')) {
+                alert('This specific arena zone is already reserved.');
+                return;
+            }
+
+            const cost = parseInt(seat.dataset.price);
+            const id = seat.id;
+
+            if (seat.classList.contains('selected')) {
+                seat.classList.remove('selected');
+                delete selectionRegistry[id];
+                selectedSeatsCount--;
+                totalPrice -= cost;
+            } else {
+                seat.classList.add('selected');
+                selectionRegistry[id] = {
+                    tier: seat.dataset.tier,
+                    row: seat.dataset.row,
+                    seatNum: seat.dataset.seat,
+                    price: cost
+                };
+                selectedSeatsCount++;
+                totalPrice += cost;
+            }
+
+            calculateCheckoutReceipt();
+        }
+
+        function calculateCheckoutReceipt() {
+            const fees = selectedSeatsCount * FLAT_CONVENIENCE_FEE_PER_TICKET;
+            const absoluteTotal = totalPrice + fees;
+
+            document.getElementById('summaryFees').innerText = fees.toLocaleString('en-IN');
+            document.getElementById('summaryTotal').innerText = absoluteTotal.toLocaleString('en-IN');
+            
+            renderRosterDetails();
+        }
+
+        function renderRosterDetails() {
+            const container = document.getElementById('selectionListBox');
+            container.innerHTML = ''; 
+
+            const activeKeys = Object.keys(selectionRegistry);
+
+            if (activeKeys.length === 0) {
+                container.innerHTML = `<div class="text-xs text-slate-600 text-center py-4">Select tickets from map</div>`;
+                return;
+            }
+
+            activeKeys.forEach(key => {
+                const item = selectionRegistry[key];
+                const rowLabel = item.row === 'Box' ? '' : `Row ${item.row}, `;
+                
+                const element = document.createElement('div');
+                element.classList.add('selected-seat-item');
+                element.innerHTML = `
+                    <span class="font-medium text-slate-200">${item.tier}</span>
+                    <span class="seat-meta">${rowLabel}Seat ${item.seatNum}</span>
+                `;
+                container.appendChild(element);
+            });
+        }
+
+        document.getElementById('stadiumContainer').addEventListener('click', () => {
+            document.querySelectorAll('.corporate-chamber-wrapper').forEach(w => w.classList.remove('active'));
+        });
+
+        function startTimer(duration, display) {
+            let timer = duration, minutes, seconds;
+            setInterval(() => {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    timer = duration;
+                    alert("Session expired! Re-evaluating live allocation data options.");
+                    location.reload();
+                }
+            }, 1000);
+        }
+
+        window.onload = function () {
+            startTimer(900, document.querySelector('#timer'));
+        };
+
+        document.getElementById("checkoutForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            if (selectedSeatsCount === 0) {
+                alert('Please pick at least one ticket before generating an invoice.');
+                return;
+            }
+
+            const selectedPayment = document.querySelector('input[name="paymentGateway"]:checked').value;
+
+            if (selectedPayment === "razorpay") {
+                const totalAmountText = document.getElementById('summaryTotal').textContent.replace(/,/g, '');
+                const totalAmount = parseFloat(totalAmountText) || 0;
+                
+                const clientFirst = document.getElementById('firstName').value;
+                const clientLast = document.getElementById('lastName').value;
+                const clientEmail = document.getElementById('emailAddress').value;
+                const clientPhone = document.getElementById('phoneNumber').value;
+
+                var options = {
+                    "key": "YOUR_RAZORPAY_KEY_ID", 
+                    "amount": totalAmount * 100,  
+                    "currency": "INR",
+                    "name": "Premium Arena Ticketing",
+                    "description": `Championship Seating Booking - ${selectedSeatsCount} Allocation Passes`,
+                    "image": "https://cdn.razorpay.com/logos/F9Yhfb7ZXjXmIQ_medium.jpg",
+                    "handler": function (response){
+                        alert("Transaction Successful! Booking Verification ID: " + response.razorpay_payment_id);
+                        window.location.href = "success.html?payment_id=" + response.razorpay_payment_id;
+                    },
+                    "prefill": {
+                        "name": clientFirst + " " + clientLast,
+                        "email": clientEmail,
+                        "contact": clientPhone
+                    },
+                    "theme": {
+                        "color": "#e63946"
+                    }
+                };
+
+                var rzp1 = new Razorpay(options);
+                rzp1.on('payment.failed', function (response){
+                    alert("Payment Verification Failed: " + response.error.description);
+                });
+                rzp1.open();
+            } else {
+                // Route for Standard Credit or Debit card option
+                window.location.href = "payment.html";
+            }
+        });
+
+        generateRadialStadium();
+    </script>
+</body>
+</html>

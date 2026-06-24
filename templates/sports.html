@@ -139,105 +139,42 @@ body{
 <div class="section-title">🔥 Live Matches</div>
 <div class="row g-4">
 
-<!-- 1 -->
-<div class="col-md-3">
-<div class="card-box">
-<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwZRTFyymPQXBsVXXD0WvmYCkr5QMJoWtVoQ&s">
-<a href="javascript:void(0)"
-class="wishlist"
-onclick="addToWishlist(
-'IPL Final',
-'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwZRTFyymPQXBsVXXD0WvmYCkr5QMJoWtVoQ&s',
-'📅 22 July 2026',
-'⏰ 7:30 PM',
-'📍 Wankhede Stadium',
-'🏏 Cricket'
-)">❤️</a>
-<div class="card-body">
-<h4>IPL Final</h4>
-<div class="meta">
-📅 22 July 2026<br>
-⏰ 7:30 PM<br>
-📍 Wankhede Stadium<br>
-🏏 Cricket
-</div>
-<a href="{% url 'sport_ticket' %}?event=iplfinal" class="btn-book">Book Now</a>
-</div></div></div>
 
-<!-- 2 -->
-<div class="col-md-3">
-<div class="card-box">
-<img src="https://images.mykhel.com/img/2025/10/mixcollage-19-oct-2025-08-04-am-2739-1760841330.jpg">
-<a href="javascript:void(0)"
-class="wishlist"
-onclick="addToWishlist(
-'India vs Australia',
-'https://images.mykhel.com/img/2025/10/mixcollage-19-oct-2025-08-04-am-2739-1760841330.jpg',
-'📅 30 July 2026',
-'⏰ 2:00 PM',
-'📍 Eden Gardens',
-'🏏 Cricket'
-)">❤️</a>
-<div class="card-body">
-<h4>India vs Australia</h4>
-<div class="meta">
-📅 30 July 2026<br>
-⏰ 2:00 PM<br>
-📍 Eden Gardens<br>
-🏏 Cricket
-</div>
-<a href="{% url 'sport_ticket' %}?event=indiaaus" class="btn-book">Book Now</a>
-</div></div></div>
 
-<!-- 3 -->
-<div class="col-md-3">
-<div class="card-box">
-<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXZ1uLbV1ma5Qb7iOsfh_MhlU-t-aa2MIMzg&s">
-<a href="javascript:void(0)"
-class="wishlist"
-onclick="addToWishlist(
-'Formula 1 Grand Prix',
-'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXZ1uLbV1ma5Qb7iOsfh_MhlU-t-aa2MIMzg&s',
-'📅 12 Aug 2026',
-'⏰ 6:00 PM',
-'📍 Buddh Circuit',
-'🏎 Racing'
-)">❤️</a>
-<div class="card-body">
-<h4>Formula 1 Grand Prix</h4>
-<div class="meta">
-📅 12 Aug 2026<br>
-⏰ 6:00 PM<br>
-📍 Buddh Circuit<br>
-🏎 Racing
-</div>
-<a href="{% url 'sport_ticket' %}?event=formula1" class="btn-book">Book Now</a>
-</div></div></div>
+{% for sport in sports %}
 
-<!-- 4 -->
 <div class="col-md-3">
 <div class="card-box">
-<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjkzLAT5sXqJt7DKohHe-6yf0Y958-89zv5Q&s">
+
+<img src="{{ sport.image }}">
+
 <a href="javascript:void(0)"
-class="wishlist"
-onclick="addToWishlist(
-'ISL Final',
-'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjkzLAT5sXqJt7DKohHe-6yf0Y958-89zv5Q&s',
-'📅 5 Aug 2026',
-'⏰ 8:00 PM',
-'📍 DY Patil Stadium',
-'⚽ Football'
-)">❤️</a>
+class="wishlist">
+❤️
+</a>
+
 <div class="card-body">
-<h4>ISL Final</h4>
+
+<h4>{{ sport.title }}</h4>
+
 <div class="meta">
-📅 5 Aug 2026<br>
-⏰ 8:00 PM<br>
-📍 DY Patil Stadium<br>
-⚽ Football
+📅 {{ sport.event_date }}<br>
+⏰ {{ sport.event_time }}<br>
+📍 {{ sport.venue }}<br>
+🏏 Sports Event
 </div>
-<a href="{% url 'sport_ticket' %}?event=isl" class="btn-book">Book Now</a>
-</div></div></div>
+
+<a href="{% url 'sport_ticket' %}?event={{ sport.id }}"
+class="btn-book">
+Book Now
+</a>
+
+</div>
+</div>
+</div>
+
+{% endfor %}
+
 
 </div>
 

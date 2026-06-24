@@ -161,140 +161,40 @@ font-weight:600;
 
 <div class="grid">
 
-<div class="card">
-    <div class="wishlist" onclick="addToWishlist(this)">
-        ❤️
-    </div>
-<div class="poster">
-<img src="http://images.news18.com/ibnlive/uploads/2025/03/MixCollage-27-Mar-2025-04-27-PM-7101-2025-03-d0d8043335f19225f216cde07187828f.jpg">
-</div>
-<div class="content">
-<div class="title">Arijit Singh Live</div>
-<div class="location">📍 Hyderabad</div>
-<div class="date">📅 15 Aug 2026</div>
-<div class="price">₹1999 onwards</div>
-<a class="btn-book" href="{% url 'concert_details' %}?concert=arijit">Book Now</a>
-</div>
-</div>
+{% for concert in concerts %}
 
 <div class="card">
-    <div class="wishlist" onclick="addToWishlist(this)">
-        ❤️
+
+    <div class="poster">
+        <img src="{{ concert.image }}">
     </div>
-<div class="poster">
-<img src="https://th-i.thgim.com/public/entertainment/movies/r9j718/article70636445.ece/alternates/FREE_1200/DSC_2813.jpg">
-</div>
-<div class="content">
-<div class="title">A.R. Rahman Live</div>
-<div class="location">📍 Bangalore</div>
-<div class="date">📅 28 Aug 2026</div>
-<div class="price">₹2499 onwards</div>
-<a class="btn-book" href="{% url 'concert_details' %}?concert=rahman">Book Now</a>
-</div>
-</div>
 
-<div class="card">
-    <div class="wishlist" onclick="addToWishlist(this)">
-        ❤️
+    <div class="content">
+
+        <div class="title">{{ concert.title }}</div>
+
+        <div class="location">
+            📍 {{ concert.location }}
+        </div>
+
+        <div class="date">
+            📅 {{ concert.concert_date }}
+        </div>
+
+        <div class="price">
+            ₹{{ concert.price }} onwards
+        </div>
+
+        <a class="btn-book"
+           href="{% url 'concert_details' %}?concert={{ concert.id }}">
+            Book Now
+        </a>
+
     </div>
-<div class="poster">
-<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlzR5Q4mm41slyohmW9ZFiziOfblfVxzJ5oA&s">
-</div>
-<div class="content">
-<div class="title">Diljit Dosanjh Tour</div>
-<div class="location">📍 Mumbai</div>
-<div class="date">📅 05 Sept 2026</div>
-<div class="price">₹2999 onwards</div>
-<a class="btn-book" href="{% url 'concert_details' %}?concert=diljit">Book Now</a>
-</div>
-</div>
-
-<div class="card">
-    <div class="wishlist" onclick="addToWishlist(this)">
-        ❤️
-    </div>
-<div class="poster">
-<img src="https://s.yimg.com/os/en/mmail.com.my/4680cd388bb0fb5972f21af875544b70">
-</div>
-<div class="content">
-<div class="title">Anirudh Live</div>
-<div class="location">📍 Hyderabad</div>
-<div class="date">📅 25 Sept 2026</div>
-<div class="price">₹1999 onwards</div>
-<a class="btn-book" href="{% url 'concert_details' %}?concert=anirudh">Book Now</a>
-</div>
-</div>
 
 </div>
 
-<!-- ================= TRENDING ================= -->
-<h2 class="section-heading">🔥 Trending Concerts</h2>
-
-<div class="grid">
-
-<div class="card">
-    <div class="wishlist" onclick="addToWishlist(this)">
-        ❤️
-    </div>
-<div class="poster">
-<img src="https://redcherryentertainment.com/wp-content/uploads/2022/07/WhatsApp-Image-2022-07-02-at-12.26.28-PM-16-2.jpeg">
-</div>
-<div class="content">
-<div class="title">Shreya Ghoshal Live</div>
-<div class="location">📍 Chennai</div>
-<div class="date">📅 18 Sept 2026</div>
-<div class="price">₹1499 onwards</div>
-<a class="btn-book" href="{% url 'concert_details' %}?concert=shreya">Book Now</a>
-</div>
-</div>
-
-<div class="card">
-    <div class="wishlist" onclick="addToWishlist(this)">
-        ❤️
-    </div>
-<div class="poster">
-<img src="https://th-i.thgim.com/public/entertainment/movies/pjptg9/article69872846.ece/alternates/LANDSCAPE_1200/Sonu%20Nigam%20celebrates%20the%20seven%20colours%20of%20love%20with%20his%20%E2%80%98Satrangi%20Re%20India%20Tour%E2%80%99%20launching%20his%20heartfelt%20new%20single%20%E2%80%98Kahani%20Meri%E2%80%99%20today.jpg">
-</div>
-<div class="content">
-<div class="title">Sonu Nigam Live</div>
-<div class="location">📍 Pune</div>
-<div class="date">📅 10 Oct 2026</div>
-<div class="price">₹1799 onwards</div>
-<a class="btn-book" href="{% url 'concert_details' %}?concert=sonu">Book Now</a>
-</div>
-</div>
-
-<div class="card">
-    <div class="wishlist" onclick="addToWishlist(this)">
-        ❤️
-    </div>
-<div class="poster">
-<img src="http://i.ytimg.com/vi/w0td7df2ojA/maxresdefault.jpg">
-</div>
-<div class="content">
-<div class="title">Neha Kakkar Live</div>
-<div class="location">📍 Delhi</div>
-<div class="date">📅 12 Oct 2026</div>
-<div class="price">₹1499 onwards</div>
-<a class="btn-book" href="{% url 'concert_details' %}?concert=neha">Book Now</a>
-</div>
-</div>
-
-<div class="card">
-    <div class="wishlist" onclick="addToWishlist(this)">
-        ❤️
-    </div>
-<div class="poster">
-<img src="http://c.saavncdn.com/756/Hits-Of-Jubin-Nautiyal-Hindi-2020-20250916151003-500x500.jpg">
-</div>
-<div class="content">
-<div class="title">Jubin Nautiyal Live</div>
-<div class="location">📍 Malaysia</div>
-<div class="date">📅 20 Oct 2026</div>
-<div class="price">₹1599 onwards</div>
-<a class="btn-book" href="{% url 'concert_details' %}?concert=jubin">Book Now</a>
-</div>
-</div>
+{% endfor %}
 
 </div>
 

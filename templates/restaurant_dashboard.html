@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenith Restaurant - Ultimate Admin Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --zenith-red: #ff2e44; --bg: #060608; --card: #12121a; --border: #1f1f27; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: white; overflow: hidden; }
+        
+        /* Sidebar */
+        .sidebar { background-color: #0f0f12; width: 260px; height: 100vh; position: fixed; border-right: 1px solid var(--border); z-index: 100; }
+        .nav-item { cursor: pointer; transition: 0.2s; border-left: 4px solid transparent; color: #9ca3af; font-size: 13px; }
+        .nav-item:hover { color: white; background: rgba(255,255,255,0.05); }
+        .nav-item.active { background: linear-gradient(90deg, #7c1a25 0%, #3a1014 100%); border-left: 4px solid var(--zenith-red); color: white; }
+
+        /* Content Area */
+        .main-content { margin-left: 260px; height: 100vh; overflow-y: auto; padding: 2rem; background: radial-gradient(circle at top right, #1a1012, #060608); }
+        .card { background-color: var(--card); border: 1px solid var(--border); border-radius: 1rem; }
+
+        /* Tables & UI */
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; color: #6b7280; font-size: 11px; padding: 16px; border-bottom: 1px solid var(--border); text-transform: uppercase; font-weight: 700; }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .status-pill { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+        
+        /* Page Views */
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.4s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Modals */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .modal.active { display: flex; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+         #grid-reviews { margin-top: 10px; }
+    
+    .promo-action-btn {
+        background: transparent;
+        border: none;
+        color: #6b7280;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .promo-action-btn:hover { color: white; }
+
+    #table-promos { width: 100%; border-collapse: collapse; }
+    #table-promos th { text-align: left; padding: 12px; color: #4b5563; font-size: 11px; text-transform: uppercase; border-bottom: 1px solid #1f2937; }
+    #table-promos td { padding: 16px 12px; border-bottom: 1px solid #111827; color: #9ca3af; font-size: 13px; }
+    /* Notification Dropdown Styling */
+#notificationDropdown {
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.9);
+}
+
+.notif-item {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.notif-item:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.notif-icon-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+#profileDropdown {
+    transform-origin: top right;
+    animation: profileDrop 0.2s ease-out;
+}
+
+@keyframes profileDrop {
+    from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Ensure the chevron rotates nicely */
+#profile-chevron {
+    transition: transform 0.3s ease;
+}
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar flex flex-col p-6">
+        <div class="flex items-center gap-3 mb-8">
+            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg"><i class="fa-solid fa-utensils text-[#ff2e44] text-xl"></i></div>
+            <div class="flex flex-col"><h1 class="text-2xl font-bold text-[#ff2e44] leading-none">Zenith</h1><span class="text-[8px] font-bold text-white tracking-[0.35em] uppercase mt-1">Restaurant</span></div>
+        </div>
+
+        <nav class="space-y-0.5 flex-1 overflow-y-auto" id="sidebar-nav">
+            <div onclick="router('dashboard')" class="nav-item active flex items-center gap-4 px-4 py-3 rounded-lg" data-target="dashboard"><i class="fa-solid fa-house w-4"></i> Dashboard</div>
+            <div onclick="router('my-restaurant')" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg" data-target="my-restaurant"><i class="fa-solid fa-shop w-4"></i> My Restaurant</div>
+            <div onclick="router('menu')" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg" data-target="menu"><i class="fa-solid fa-utensils w-4"></i> Menu Management</div>
+            <div onclick="router('reservations')" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg" data-target="reservations"><i class="fa-solid fa-calendar-check w-4"></i> Reservations</div>
+            <div onclick="router('orders')" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg" data-target="orders"><i class="fa-solid fa-cart-shopping w-4"></i> Orders</div>
+            <div onclick="router('customers')" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg" data-target="customers"><i class="fa-solid fa-users w-4"></i> Customers</div>
+            <div onclick="router('reviews')" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg" data-target="reviews"><i class="fa-solid fa-star w-4"></i> Reviews</div>
+            <div onclick="router('promotions')" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg" data-target="promotions"><i class="fa-solid fa-bullhorn w-4"></i> Promotions</div>
+            <div onclick="router('analytics')" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg" data-target="analytics"><i class="fa-solid fa-chart-line w-4"></i> Analytics</div>
+            <div onclick="router('earnings')" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg" data-target="earnings"><i class="fa-solid fa-wallet w-4"></i> Earnings</div>
+            <div onclick="router('settings')" class="nav-item flex items-center gap-4 px-4 py-3 rounded-lg" data-target="settings"><i class="fa-solid fa-gear w-4"></i> Settings</div>
+        </nav>
+
+        <div class="mt-6 p-4 rounded-xl bg-gradient-to-br from-[#4a1014] to-[#1a080a] border border-[#4a1014]">
+            <i class="fa-solid fa-crown text-yellow-500 mb-2"></i>
+            <h3 class="font-bold text-xs">Upgrade to Premium</h3>
+            <p class="text-[9px] text-gray-400 mb-3 leading-tight">Unlock advanced reporting and multi-branch support.</p>
+            <button onclick="alert('Redirecting to Checkout...')" class="w-full bg-[#ff2e44] hover:bg-red-700 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider">Upgrade Now</button>
+        </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <main class="main-content">
+        <!-- GLOBAL HEADER -->
+        <header class="flex justify-between items-center mb-8">
+            <div><h2 id="view-title" class="text-2xl font-bold">Dashboard</h2><p id="view-subtitle" class="text-gray-400 text-sm">Welcome back, John Doe!</p></div>
+            <div class="flex items-center gap-6">
+                <div class="relative"><input type="text" id="global-search" oninput="liveSearch(this.value)" placeholder="Search current view..." class="bg-[#12121a] border border-[#1f1f27] rounded-lg px-4 py-2 text-sm w-64 focus:outline-none focus:border-[#ff2e44] transition"><i class="fa-solid fa-magnifying-glass absolute right-3 top-3 text-gray-500 text-xs"></i></div>
+       
+    <div class="relative">
+    <!-- Bell Icon Trigger -->
+    <div onclick="toggleNotificationDropdown(event)" class="cursor-pointer">
+        <i class="fa-solid fa-bell text-xl text-gray-400 hover:text-white transition"></i>
+        <span class="absolute -top-1 -right-1 bg-[#ff2e44] text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+            5
+        </span>
+    </div>
+
+    <!-- THE DROPDOWN PANEL -->
+    <div id="notificationDropdown" class="hidden absolute right-0 top-10 w-80 bg-[#12121a] border border-[#1f1f27] rounded-xl z-[250]">
+        <div class="p-4 border-b border-[#1f1f27] flex justify-between items-center">
+            <h3 class="font-bold text-sm text-white">Notifications</h3>
+            <span class="text-[10px] text-gray-500 hover:text-[#ff2e44] cursor-pointer font-bold uppercase">Clear All</span>
+        </div>
+        <div id="notif-content">
+            <!-- Notifications will be injected here -->
+        </div>
+        <div class="p-3 text-center border-t border-[#1f1f27]">
+            <button class="text-[10px] font-bold text-gray-500 hover:text-white uppercase tracking-widest">View All Activity</button>
+        </div>
+    </div>
+</div>
+<div class="relative">
+    <!-- Profile Trigger -->
+    <div onclick="toggleProfileDropdown(event)" class="flex items-center gap-3 border-l border-[#1f1f27] pl-6 cursor-pointer group">
+        <img id="header-avatar" src="https://i.pravatar.cc/150?u=admin" class="w-10 h-10 rounded-full border border-[#1f1f27] object-cover">
+        <div class="text-sm font-bold">
+            <span id="header-name">John Doe</span>
+            <p class="text-xs text-gray-400 font-normal">Owner</p>
+        </div>
+        <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 group-hover:text-white transition-transform duration-200" id="profile-chevron"></i>
+    </div>
+
+    <!-- PROFILE DROPDOWN MENU -->
+    <div id="profileDropdown" class="hidden absolute right-0 top-12 w-56 bg-[#12121a] border border-[#1f1f27] rounded-xl shadow-2xl z-[300] overflow-hidden">
+        <div class="p-4 border-b border-[#1f1f27] bg-white/5">
+            <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Account Info</p>
+            <p id="dropdown-email" class="text-xs text-gray-300 truncate font-medium">john.doe@gmail.com</p>
+        </div>
+        <div class="p-2">
+            <button onclick="router('settings')" class="w-full text-left px-4 py-2.5 text-xs text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition flex items-center gap-3">
+                <i class="fa-solid fa-user-gear w-4"></i> Profile Settings
+            </button>
+            <button onclick="router('earnings')" class="w-full text-left px-4 py-2.5 text-xs text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition flex items-center gap-3">
+                <i class="fa-solid fa-wallet w-4"></i> My Earnings
+            </button>
+            <div class="h-[1px] bg-[#1f1f27] my-1 mx-2"></div>
+            <button onclick="handleLogout()" class="w-full text-left px-4 py-2.5 text-xs text-red-500 hover:bg-red-500/10 rounded-lg transition flex items-center gap-3 font-bold">
+                <i class="fa-solid fa-right-from-bracket w-4"></i> Sign Out
+            </button>
+        </div>
+    </div>
+</div>
+        </header>
+
+        <!-- 1. DASHBOARD VIEW -->
+        <section id="view-dashboard" class="view-section active">
+            <div class="grid grid-cols-4 gap-6 mb-8">
+
+    <!-- Revenue -->
+    <div onclick="router('earnings')"
+         class="card p-5 cursor-pointer hover:scale-105 transition duration-300">
+        <p class="text-xs text-gray-400 mb-1">Total Revenue</p>
+        <h4 class="text-2xl font-bold">₹42,350</h4>
+        <span class="text-[10px] text-green-500 font-bold">+18% this month</span>
+    </div>
+
+    <!-- Reservations -->
+    <div onclick="router('reservations')"
+         class="card p-5 cursor-pointer hover:scale-105 transition duration-300">
+        <p class="text-xs text-gray-400 mb-1">Total Reservations</p>
+        <h4 class="text-2xl font-bold">56</h4>
+        <span class="text-[10px] text-green-500 font-bold">+12%</span>
+    </div>
+
+    <!-- Orders -->
+    <div onclick="router('orders')"
+         class="card p-5 cursor-pointer hover:scale-105 transition duration-300">
+        <p class="text-xs text-gray-400 mb-1">Total Orders</p>
+        <h4 class="text-2xl font-bold">1,245</h4>
+        <span class="text-[10px] text-blue-400 font-bold">Live Data</span>
+    </div>
+
+    <!-- Reviews -->
+    <div onclick="router('reviews')"
+         class="card p-5 cursor-pointer hover:scale-105 transition duration-300">
+        <p class="text-xs text-gray-400 mb-1">Average Rating</p>
+        <h4 class="text-2xl font-bold">4.8</h4>
+        <span class="text-[10px] text-yellow-500 font-bold">128 Reviews</span>
+    </div>
+
+</div>
+            <div class="grid grid-cols-3 gap-6 mb-8">
+
+    <!-- Revenue Overview -->
+    <div onclick="router('analytics')"
+         class="card p-6 col-span-2 cursor-pointer hover:border hover:border-[#ff2e44] transition duration-300">
+        <h3 class="font-bold mb-4">Revenue Overview</h3>
+        <div class="h-64">
+            <canvas id="dashLineChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Reservations -->
+    <div onclick="router('reservations')"
+         class="card p-6 cursor-pointer hover:border hover:border-[#ff2e44] transition duration-300">
+        <h3 class="font-bold mb-4">Reservations</h3>
+        <div class="space-y-4" id="dash-res-list"></div>
+    </div>
+
+</div>
+
+<div class="grid grid-cols-3 gap-6">
+
+    <!-- Top Selling Dishes -->
+    <div onclick="router('menu')"
+         class="card p-6 cursor-pointer hover:border hover:border-[#ff2e44] transition duration-300">
+        <h3 class="font-bold mb-4">Top Selling Dishes</h3>
+        <div class="space-y-5" id="dash-top-dishes"></div>
+    </div>
+
+    <!-- Order Statistics -->
+    <div onclick="router('orders')"
+         class="card p-6 flex flex-col items-center cursor-pointer hover:border hover:border-[#ff2e44] transition duration-300">
+        <h3 class="font-bold self-start mb-4">Order Statistics</h3>
+
+        <div class="w-40 h-40">
+            <canvas id="dashDonutChart"></canvas>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mt-6 text-[10px] w-full">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                Delivered 60%
+            </div>
+
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                Preparing 25%
+            </div>
+            <div class="flex items-center gap-2">
+    <span class="w-2 h-2 rounded-full bg-red-500"></span>
+    Pending 15%
+</div>
+        </div>
+    </div>
+
+    <!-- Recent Reviews -->
+    <div onclick="router('reviews')"
+         class="card p-6 cursor-pointer hover:border hover:border-[#ff2e44] transition duration-300">
+        <h3 class="font-bold mb-4">Recent Reviews</h3>
+        <div class="space-y-4" id="dash-reviews"></div>
+    </div>
+
+</div>
+        </section>
+
+       
+        <!-- 2. MY RESTAURANT VIEW -->
+<section id="view-my-restaurant" class="view-section">
+    <!-- Tab Navigation -->
+    <div class="flex gap-4 mb-8">
+        <button onclick="showRestaurantTab('info', this)"
+            class="restaurant-tab bg-[#ff2e44] text-white text-[11px] px-6 py-2 rounded-full font-bold uppercase">
+            Basic Info
+        </button>
+
+        <button onclick="showRestaurantTab('gallery', this)"
+            class="restaurant-tab text-gray-500 text-[11px] px-6 py-2 font-bold hover:text-white transition uppercase">
+            Gallery
+        </button>
+
+        <button onclick="showRestaurantTab('hours', this)"
+            class="restaurant-tab text-gray-500 text-[11px] px-6 py-2 font-bold hover:text-white transition uppercase">
+            Opening Hours
+        </button>
+    </div>
+
+    <!-- Hidden File Input for uploads -->
+    <input type="file" id="restaurant-file-input" class="hidden" accept="image/*" onchange="handleFileSelect(event)">
+
+    <!-- BASIC INFO TAB -->
+<div id="restaurant-info-tab" class="grid grid-cols-3 gap-6">
+    <div class="col-span-2 card p-8">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="font-bold text-lg">Restaurant Information</h3>
+        <button id="edit-info-btn" onclick="toggleEditInfo()" class="bg-[#ff2e44] text-white px-6 py-2 rounded-lg text-xs font-bold uppercase shadow-lg shadow-red-900/30">
+            Edit Information
+        </button>
+    </div>
+    
+    <div class="relative w-full h-56 rounded-xl overflow-hidden mb-8 group cursor-pointer" onclick="triggerFileUpload('rest-cover')">
+        <!-- FIXED: Replaced with a guaranteed working Unsplash URL -->
+        <img id="rest-cover" 
+             src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&q=80&w=1200" 
+             class="w-full h-full object-cover brightness-75 group-hover:brightness-50 transition duration-300">
+        
+        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+            <i class="fa-solid fa-camera text-4xl text-white"></i>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-y-10 gap-x-8" id="info-fields-container">
+        <div>
+            <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Restaurant Name</p>
+            <p class="font-semibold text-gray-200 editable" data-key="name">Zenith Restaurant</p>
+        </div>
+        <div>
+            <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Cuisine Type</p>
+            <p class="font-semibold text-gray-200 editable" data-key="cuisine">Multi-Cuisine</p>
+        </div>
+        <div>
+            <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Email</p>
+            <p class="font-semibold text-gray-200 editable" data-key="email">zenithrestaurant@gmail.com</p>
+        </div>
+        <div>
+            <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Phone</p>
+            <p class="font-semibold text-gray-200 editable" data-key="phone">+91 98765 43210</p>
+        </div>
+        <div class="col-span-2">
+            <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Description</p>
+            <p class="text-sm text-gray-400 leading-relaxed italic editable-area" data-key="desc">"Zenith Restaurant offers a perfect blend of classic and contemporary dishes made with the finest ingredients from around the world."</p>
+        </div>
+    </div>
+</div>
+
+    <div class="space-y-6">
+        <div class="card p-8 flex flex-col items-center">
+            <h3 class="font-bold self-start mb-6">Restaurant Logo</h3>
+            <div class="w-32 h-32 rounded-full border-4 border-[#1f1f27] flex items-center justify-center mb-6 bg-[#0a0a0f] p-4 shadow-2xl overflow-hidden">
+                <!-- FIXED: Removed 'hidden' class and added a valid placeholder logo URL -->
+                <img id="rest-logo-img" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" class="w-full h-full object-cover rounded-full">
+                <i id="rest-logo-icon" class="fa-solid fa-utensils text-[#ff2e44] text-5xl hidden"></i>
+            </div>
+            <button onclick="triggerFileUpload('rest-logo')" class="text-[#ff2e44] text-[10px] font-bold uppercase tracking-widest border border-[#ff2e44] px-6 py-2 rounded-lg hover:bg-[#ff2e44] hover:text-white transition">
+                <i class="fa-solid fa-camera mr-2"></i> Change Logo
+            </button>
+            <div class="mt-10 w-full pt-6 border-t border-[#1f1f27] space-y-4">
+                <div class="flex justify-between text-xs"><span>Established</span><span class="font-bold">Jan 2020</span></div>
+                <div class="flex justify-between text-xs"><span>Owner</span><span class="font-bold">John Doe</span></div>
+                <div class="flex justify-between text-xs"><span>Staff</span><span class="font-bold">36 Members</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GALLERY TAB -->
+<div id="restaurant-gallery-tab" class="hidden">
+    <div class="card p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="font-bold text-lg">Restaurant Gallery</h3>
+            <button onclick="triggerFileUpload('gallery')" class="bg-[#ff2e44] px-5 py-2 rounded-lg text-xs font-bold">
+                + Upload Photos
+            </button>
+        </div>
+        <div class="grid grid-cols-3 gap-4" id="gallery-grid">
+            <!-- FIXED: Corrected formatting for all gallery photos -->
+            <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="h-52 w-full object-cover rounded-xl hover:scale-105 transition cursor-pointer">
+            <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="h-52 w-full object-cover rounded-xl hover:scale-105 transition cursor-pointer">
+        </div>
+    </div>
+</div>
+    <!-- HOURS TAB -->
+    <div id="restaurant-hours-tab" class="hidden">
+        <div class="card p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-lg">Opening Hours</h3>
+                <button id="save-hours-btn" onclick="toggleEditHours()" class="bg-[#ff2e44] px-5 py-2 rounded-lg text-xs font-bold">
+                    Edit Hours
+                </button>
+            </div>
+            <div class="space-y-4" id="hours-list">
+                <!-- Day item template -->
+                <div class="flex justify-between border-b border-[#1f1f27] pb-3 day-row">
+                    <span class="day-name">Monday</span>
+                    <span class="day-time font-semibold text-gray-300">09:00 AM - 11:00 PM</span>
+                </div>
+                <div class="flex justify-between border-b border-[#1f1f27] pb-3 day-row">
+                    <span class="day-name">Tuesday</span>
+                    <span class="day-time font-semibold text-gray-300">09:00 AM - 11:00 PM</span>
+                </div>
+                <div class="flex justify-between border-b border-[#1f1f27] pb-3 day-row">
+                    <span class="day-name">Wednesday</span>
+                    <span class="day-time font-semibold text-gray-300">09:00 AM - 11:00 PM</span>
+                </div>
+                <div class="flex justify-between border-b border-[#1f1f27] pb-3 day-row">
+                    <span class="day-name">Thursday</span>
+                    <span class="day-time font-semibold text-gray-300">09:00 AM - 11:00 PM</span>
+                </div>
+                <div class="flex justify-between border-b border-[#1f1f27] pb-3 day-row">
+                    <span class="day-name">Friday</span>
+                    <span class="day-time font-semibold text-gray-300">09:00 AM - 12:00 AM</span>
+                </div>
+                <div class="flex justify-between border-b border-[#1f1f27] pb-3 day-row">
+                    <span class="day-name">Saturday</span>
+                    <span class="day-time font-semibold text-gray-300">09:00 AM - 12:00 AM</span>
+                </div>
+                <div class="flex justify-between day-row">
+                    <span class="day-name">Sunday</span>
+                    <span class="day-time font-semibold text-gray-300">10:00 AM - 10:00 PM</span>
+                </div>
+            </div>
+        </div>
+    </div>
+        </section>
+
+        <!-- 3. MENU MANAGEMENT VIEW -->
+<section id="view-menu" class="view-section">
+    <div class="flex justify-between items-center mb-6">
+        <div class="flex gap-2">
+            <button onclick="filterTable('menu', 'All')" class="bg-[#ff2e44] text-[11px] px-5 py-1.5 rounded-full font-bold">All Items</button>
+            <button onclick="filterTable('menu', 'Pizza')" class="text-gray-500 text-[11px] px-5 py-1.5 font-bold hover:text-white transition">Pizza</button>
+            <button onclick="filterTable('menu', 'Main')" class="text-gray-500 text-[11px] px-5 py-1.5 font-bold hover:text-white transition">Main Course</button>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="alert('Menu Exported as PDF')" class="bg-[#12121a] border border-[#1f1f27] text-gray-400 px-4 py-2 rounded-lg text-[11px] font-bold"><i class="fa-solid fa-file-export mr-2"></i> Export Menu</button>
+            <button onclick="toggleModal('modal-add-item')" class="bg-[#ff2e44] text-white px-6 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider shadow-lg shadow-red-900/30">+ Add New Item</button>
+        </div>
+    </div>
+    <div class="card overflow-hidden">
+        <table id="table-menu" class="w-full text-left">
+            <thead>
+                <tr class="text-gray-500 text-[10px] uppercase tracking-wider border-b border-[#1f1f27]">
+                    <th class="p-4">Item</th>
+                    <th class="p-4">Category</th>
+                    <th class="p-4">Price</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-menu"></tbody>
+        </table>
+        <div class="p-4 border-t border-[#1f1f27] text-xs text-gray-500" id="menu-footer"></div>
+    </div>
+
+    <!-- EDIT MODAL (Paste this inside Section 3) -->
+    <div id="modal-edit-item" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center z-50">
+        <div class="bg-[#12121a] border border-[#1f1f27] w-full max-w-md p-8 rounded-2xl shadow-2xl">
+            <h3 class="text-xl font-bold mb-6 text-white">Edit Menu Item</h3>
+            <input type="hidden" id="edit-item-id">
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] text-gray-500 font-bold uppercase">Item Name</label>
+                    <input type="text" id="edit-item-name" class="w-full bg-[#0a0a0f] border border-[#1f1f27] rounded-lg px-4 py-2.5 text-sm mt-1 focus:border-[#ff2e44] outline-none text-white">
+                </div>
+                <div>
+                    <label class="text-[10px] text-gray-500 font-bold uppercase">Category</label>
+                    <input type="text" id="edit-item-cat" class="w-full bg-[#0a0a0f] border border-[#1f1f27] rounded-lg px-4 py-2.5 text-sm mt-1 focus:border-[#ff2e44] outline-none text-white">
+                </div>
+                <div>
+                    <label class="text-[10px] text-gray-500 font-bold uppercase">Price (₹)</label>
+                    <input type="number" id="edit-item-price" class="w-full bg-[#0a0a0f] border border-[#1f1f27] rounded-lg px-4 py-2.5 text-sm mt-1 focus:border-[#ff2e44] outline-none text-white">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-8">
+                <button onclick="document.getElementById('modal-edit-item').classList.add('hidden')" class="flex-1 bg-[#1f1f27] text-gray-400 py-3 rounded-lg font-bold text-xs uppercase transition">Cancel</button>
+                <button onclick="saveEditItem()" class="flex-1 bg-[#ff2e44] text-white py-3 rounded-lg font-bold text-xs uppercase shadow-lg shadow-red-900/30 transition">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</section>
+        <!-- 4. RESERVATIONS VIEW -->
+<!-- 4. RESERVATIONS VIEW -->
+<section id="view-reservations" class="view-section">
+    <div class="flex gap-2 mb-6">
+        <button onclick="filterTable('res', 'All', this)" class="bg-[#ff2e44] text-white text-[11px] px-6 py-2 rounded-full font-bold uppercase">All Reservations</button>
+        <button onclick="filterTable('res', 'Confirmed', this)" class="text-gray-500 text-[11px] px-6 py-2 font-bold uppercase hover:text-white transition">Confirmed</button>
+        <button onclick="filterTable('res', 'Pending', this)" class="text-gray-500 text-[11px] px-6 py-2 font-bold uppercase hover:text-white transition">Pending</button>
+        <!-- NEW CANCELLED BUTTON -->
+        <button onclick="filterTable('res', 'Cancelled', this)" class="text-gray-500 text-[11px] px-6 py-2 font-bold uppercase hover:text-white transition">Cancelled</button>
+    </div>
+    <div class="card overflow-hidden">
+        <table id="table-res">
+            <thead><tr><th>Customer</th><th>Date & Time</th><th>People</th><th>Contact</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="tbody-res"></tbody>
+        </table>
+    </div>
+</section>
+
+        <!-- 5. ORDERS VIEW -->
+<section id="view-orders" class="view-section">
+    <div class="flex justify-between mb-6">
+        <div class="flex gap-2">
+            <!-- Buttons pass 'orders', their name, and 'this' -->
+            <button onclick="filterTable('orders', 'All', this)" class="bg-[#ff2e44] text-white text-[11px] px-6 py-2 rounded-full font-bold uppercase">All Orders</button>
+            <button onclick="filterTable('orders', 'Dine-in', this)" class="text-gray-500 text-[11px] px-6 py-2 font-bold uppercase hover:text-white transition">Dine-in</button>
+            <button onclick="filterTable('orders', 'Takeaway', this)" class="text-gray-500 text-[11px] px-6 py-2 font-bold uppercase hover:text-white transition">Takeaway</button>
+        </div>
+        
+        <!-- Dropdown calls 'current' so it reapplies the existing category filter with the new date -->
+        <select id="order-date-filter" onchange="filterTable('orders', 'current')" class="bg-[#12121a] border border-[#1f1f27] text-xs px-4 rounded-lg outline-none text-gray-400">
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="7">Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="365">Past Year</option>
+        </select>
+    </div>
+    <div class="card overflow-hidden">
+        <table id="table-orders">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-orders"></tbody>
+        </table>
+    </div>
+</section>
+        <!-- 6. CUSTOMERS VIEW -->
+        <section id="view-customers" class="view-section">
+            <div class="card overflow-hidden">
+                <table id="table-customers">
+                    <thead><tr><th>Customer</th><th>Email</th><th>Phone</th><th>Total Orders</th><th>Total Spent</th><th>Actions</th></tr></thead>
+                    <tbody id="tbody-customers"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 7. REVIEWS VIEW -->
+        <section id="view-reviews" class="view-section">
+            <div class="flex gap-4 mb-8">
+                <button class="bg-[#ff2e44] text-[11px] px-6 py-2 rounded-full font-bold">All Reviews</button>
+                <button class="text-gray-500 text-[11px] px-6 py-2 hover:text-white transition">Positive</button>
+                <button class="text-gray-500 text-[11px] px-6 py-2 hover:text-white transition">Negative</button>
+            </div>
+            <div class="grid grid-cols-2 gap-6" id="grid-reviews"></div>
+        </section>
+
+        <!-- 8. PROMOTIONS VIEW -->
+<section id="view-promotions" class="view-section">
+    <div class="flex justify-between mb-8">
+        <h3 class="font-bold text-xl">Active Promotions</h3>
+        <!-- Changed onclick to open the new Modal -->
+        <button onclick="toggleModal('modal-add-promo')" class="bg-[#ff2e44] text-white px-6 py-2 rounded-lg text-xs font-bold uppercase shadow-lg shadow-red-900/30 hover:scale-105 transition">
+            + Create New Promotion
+        </button>
+    </div>
+    <div class="card overflow-hidden">
+        <table id="table-promos">
+            <thead>
+                <tr>
+                    <th>Promotion</th>
+                    <th>Type</th>
+                    <th>Discount</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-promos">
+                <!-- Content injected by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</section>
+        <!-- 9. ANALYTICS VIEW -->
+        <section id="view-analytics" class="view-section">
+            <div class="grid grid-cols-4 gap-6 mb-8">
+                <div class="card p-5"><p class="text-xs text-gray-500 uppercase font-bold mb-2 tracking-tighter">Total Revenue</p><div class="flex justify-between items-end"><h4 class="text-2xl font-bold">₹42,350</h4><span class="text-[10px] text-green-500 font-bold">+18%</span></div></div>
+                <div class="card p-5"><p class="text-xs text-gray-500 uppercase font-bold mb-2 tracking-tighter">Total Orders</p><div class="flex justify-between items-end"><h4 class="text-2xl font-bold">236</h4><span class="text-[10px] text-green-500 font-bold">+10%</span></div></div>
+                <div class="card p-5"><p class="text-xs text-gray-500 uppercase font-bold mb-2 tracking-tighter">Total Customers</p><div class="flex justify-between items-end"><h4 class="text-2xl font-bold">186</h4><span class="text-[10px] text-green-500 font-bold">+12%</span></div></div>
+                <div class="card p-5"><p class="text-xs text-gray-500 uppercase font-bold mb-2 tracking-tighter">New Customers</p><div class="flex justify-between items-end"><h4 class="text-2xl font-bold">28</h4><span class="text-[10px] text-green-500 font-bold">+5%</span></div></div>
+            </div>
+            <div class="grid grid-cols-2 gap-6">
+                <div class="card p-6"><h3 class="font-bold mb-8 uppercase text-xs tracking-widest text-gray-500">Revenue Overview</h3><div class="h-64"><canvas id="analyticsRevenueChart"></canvas></div></div>
+                <div class="card p-6"><h3 class="font-bold mb-8 uppercase text-xs tracking-widest text-gray-500">Orders Overview</h3><div class="h-64"><canvas id="analyticsDonutChart"></canvas></div></div>
+            </div>
+        </section>
+
+        <!-- 10. EARNINGS VIEW -->
+        <section id="view-earnings" class="view-section">
+            <div class="grid grid-cols-4 gap-6 mb-8">
+                <div class="card p-5"><p class="text-xs text-gray-500 uppercase font-bold mb-1">Total Earnings</p><h4 class="text-2xl font-bold">₹42,350</h4><span class="text-[10px] text-green-500">+18%</span></div>
+                <div class="card p-5"><p class="text-xs text-gray-500 uppercase font-bold mb-1">Net Earnings</p><h4 class="text-2xl font-bold">₹38,120</h4><span class="text-[10px] text-green-500">+16%</span></div>
+                <div class="card p-5"><p class="text-xs text-gray-500 uppercase font-bold mb-1">Total Expenses</p><h4 class="text-2xl font-bold">₹4,230</h4><span class="text-[10px] text-red-500">-8%</span></div>
+                <div class="card p-5"><p class="text-xs text-gray-500 uppercase font-bold mb-1">Pending Payout</p><h4 class="text-2xl font-bold">₹2,450</h4><span class="text-[10px] text-red-500">-5%</span></div>
+            </div>
+            <div class="card overflow-hidden">
+                <table>
+                    <thead><tr><th>Transaction</th><th>Type</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
+                    <tbody id="tbody-earnings"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 11. SETTINGS VIEW -->
+<section id="view-settings" class="view-section">
+    <div class="grid grid-cols-4 gap-8">
+        <!-- Sidebar Navigation -->
+        <div class="card p-2 h-fit space-y-1">
+            <div id="tab-link-profile" onclick="switchSettingsTab('profile', this)" class="settings-tab active nav-item px-4 py-3 rounded-lg text-xs font-bold border-l-4 border-[#ff2e44] text-white">
+                <i class="fa-solid fa-user mr-3"></i> Profile Settings
+            </div>
+            <div id="tab-link-security" onclick="switchSettingsTab('security', this)" class="settings-tab text-gray-500 px-4 py-3 rounded-lg text-xs font-bold hover:bg-white/5 cursor-pointer border-l-4 border-transparent transition">
+                <i class="fa-solid fa-shield-halved mr-3"></i> Security Settings
+            </div>
+            <div id="tab-link-notif" onclick="switchSettingsTab('notif', this)" class="settings-tab text-gray-500 px-4 py-3 rounded-lg text-xs font-bold hover:bg-white/5 cursor-pointer border-l-4 border-transparent transition">
+                <i class="fa-solid fa-bell mr-3"></i> Notifications
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="col-span-3 card p-8 min-h-[500px]">
+            
+            <!-- SUB-SECTION: PROFILE -->
+            <div id="content-settings-profile">
+                <h3 class="font-bold mb-10 text-lg">Profile Settings</h3>
+                <div class="flex items-center gap-10 mb-10">
+                    <div class="w-24 h-24 rounded-full border-4 border-[#1f1f27] bg-gray-800 flex items-center justify-center overflow-hidden">
+                        <img id="settings-avatar-preview" src="https://i.pravatar.cc/150?u=admin" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex gap-4">
+                        <button onclick="triggerAvatarUpload()" class="bg-[#ff2e44] text-white px-6 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 transition">Change Picture</button>
+                        <button onclick="resetAvatar()" class="bg-gray-800 text-gray-300 px-6 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:text-white transition">Remove</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-8 mb-10">
+                    <div>
+                        <label class="text-[10px] text-gray-500 font-bold uppercase block mb-2">Full Name</label>
+                        <input type="text" id="set-full-name" value="John Doe" class="w-full bg-[#060608] border border-[#1f1f27] p-3 rounded-lg text-sm outline-none focus:border-[#ff2e44] text-white transition">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-500 font-bold uppercase block mb-2">Email Address</label>
+                        <input type="email" id="set-email-addr" value="john.doe@gmail.com" class="w-full bg-[#060608] border border-[#1f1f27] p-3 rounded-lg text-sm outline-none focus:border-[#ff2e44] text-white transition">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-500 font-bold uppercase block mb-2">Phone Number</label>
+                        <input type="text" id="set-phone-num" value="+91 98765 43210" class="w-full bg-[#060608] border border-[#1f1f27] p-3 rounded-lg text-sm outline-none focus:border-[#ff2e44] text-white transition">
+                    </div>
+                </div>
+                <button onclick="saveProfileChanges()" class="bg-[#ff2e44] text-white px-10 py-3 rounded-lg text-xs font-bold uppercase tracking-widest shadow-lg shadow-red-900/30 hover:scale-105 transition">Save Changes</button>
+            </div>
+
+            <!-- SUB-SECTION: SECURITY -->
+            <div id="content-settings-security" class="hidden">
+                <h3 class="font-bold mb-10 text-lg">Security Settings</h3>
+                <div class="max-w-md space-y-6">
+                    <div>
+                        <label class="text-[10px] text-gray-500 font-bold uppercase block mb-2">Current Password</label>
+                        <input type="password" class="w-full bg-[#060608] border border-[#1f1f27] p-3 rounded-lg text-sm outline-none text-white focus:border-[#ff2e44]">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-500 font-bold uppercase block mb-2">New Password</label>
+                        <input type="password" class="w-full bg-[#060608] border border-[#1f1f27] p-3 rounded-lg text-sm outline-none text-white focus:border-[#ff2e44]">
+                    </div>
+                    <button onclick="alert('Password Updated Successfully!')" class="bg-[#ff2e44] text-white px-8 py-3 rounded-lg text-xs font-bold uppercase">Update Password</button>
+                </div>
+            </div>
+
+            <!-- SUB-SECTION: NOTIFICATIONS -->
+            <div id="content-settings-notif" class="hidden">
+                <h3 class="font-bold mb-10 text-lg">Notification Preferences</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                        <div><p class="text-sm font-bold">Email Notifications</p><p class="text-[10px] text-gray-500">Get order updates via email.</p></div>
+                        <input type="checkbox" checked class="accent-[#ff2e44]">
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                        <div><p class="text-sm font-bold">Browser Alerts</p><p class="text-[10px] text-gray-500">Live notifications for new orders.</p></div>
+                        <input type="checkbox" checked class="accent-[#ff2e44]">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Hidden File Input for Avatar -->
+<input type="file" id="avatar-input" class="hidden" accept="image/*" onchange="handleAvatarChange(event)"></main>
+
+    <!-- HIDDEN INPUTS & MODALS -->
+    <input type="file" id="file-input" class="hidden" onchange="alert('File selected: ' + this.files[0].name)">
+    
+    <div id="modal-add-item" class="modal">
+        <div class="card w-[450px] p-8 shadow-2xl">
+            <div class="flex justify-between items-center mb-8"><h3 class="font-bold text-xl">Add New Dish</h3><i class="fa-solid fa-xmark cursor-pointer" onclick="toggleModal('modal-add-item')"></i></div>
+            <div class="space-y-5">
+                <div><label class="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Item Name</label><input id="inp-item-name" type="text" class="w-full bg-black border border-gray-800 p-3 rounded-lg text-sm focus:border-[#ff2e44] outline-none"></div>
+                <div><label class="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Category</label><select id="inp-item-cat" class="w-full bg-black border border-gray-800 p-3 rounded-lg text-sm"><option>Pizza</option><option>Main Course</option><option>Desserts</option></select></div>
+                <div><label class="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Price (₹)</label><input id="inp-item-price" type="number" class="w-full bg-black border border-gray-800 p-3 rounded-lg text-sm"></div>
+                <button onclick="addItem()" class="w-full bg-[#ff2e44] py-3 rounded-lg font-bold text-sm uppercase mt-4">Save Item</button>
+            </div>
+        </div>
+    </div>
+<!-- PROMOTION MODAL -->
+<div id="modal-add-promo" class="modal">
+    <div class="card w-[450px] p-8 shadow-2xl">
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="font-bold text-xl">New Promotion</h3>
+            <i class="fa-solid fa-xmark cursor-pointer text-gray-500 hover:text-white" onclick="toggleModal('modal-add-promo')"></i>
+        </div>
+        <div class="space-y-5">
+            <div>
+                <label class="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Promo Name</label>
+                <input id="p-name" type="text" placeholder="e.g. Summer Sale" class="w-full bg-black border border-gray-800 p-3 rounded-lg text-sm focus:border-[#ff2e44] outline-none text-white">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Type</label>
+                    <select id="p-type" class="w-full bg-black border border-gray-800 p-3 rounded-lg text-sm text-white">
+                        <option>Percentage</option>
+                        <option>Flat Discount</option>
+                        <option>BOGO</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Value</label>
+                    <input id="p-val" type="text" placeholder="20% or ₹100" class="w-full bg-black border border-gray-800 p-3 rounded-lg text-sm text-white">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 mb-1 block">End Date</label>
+                    <input id="p-end" type="date" class="w-full bg-black border border-gray-800 p-3 rounded-lg text-sm text-white">
+                </div>
+            </div>
+            <button onclick="saveNewPromo()" class="w-full bg-[#ff2e44] py-3 rounded-lg font-bold text-sm uppercase mt-4 shadow-lg shadow-red-900/40">Launch Promotion</button>
+        </div>
+    </div>
+</div>
+   <script>
+    // --- DATA LAYER ---
+    let menuItems = [
+        { id: 1, name: 'Margherita Pizza', cat: 'Pizza', price: 299, status: 'Active' },
+        { id: 2, name: 'Paneer Butter Masala', cat: 'Main', price: 349, status: 'Active' },
+        { id: 3, name: 'Veg Biryani', cat: 'Main', price: 249, status: 'Active' },
+        { id: 4, name: 'Caesar Salad', cat: 'Salad', price: 149, status: 'Active' },
+        { id: 5, name: 'Chocolate Lava Cake', cat: 'Dessert', price: 150, status: 'Active' },
+        { id: 6, name: 'Lemonade', cat: 'Beverage', price: 99, status: 'Active' }
+    ];
+
+    const reservations = [
+        { name: 'Rahul Sharma', time: 'May 17, 7:30 PM', guests: 4, contact: '+91 98765 43210', status: 'Confirmed' },
+        { name: 'Priya Mehta', time: 'May 12, 8:00 PM', guests: 2, contact: '+91 01234 56789', status: 'Confirmed' },
+        { name: 'Ankit Verma', time: 'May 12, 8:30 PM', guests: 6, contact: '+91 99887 76655', status: 'Pending' },
+        { name: 'Sneha Kapoor', time: 'May 12, 7:30 PM', guests: 3, contact: '+91 88888 12345', status: 'Confirmed' },
+        { name: 'Vikram Singh', time: 'May 12, 9:00 PM', guests: 5, contact: '+91 77665 44322', status: 'Cancelled' }
+    ];
+
+    // Helper to get consistent date strings
+const getPastDate = (daysAgo) => {
+    const d = new Date();
+    d.setDate(d.getDate() - daysAgo);
+    return d.toISOString().split('T')[0];
+};
+
+const orders = [
+    // --- TODAY (5 ORDERS) ---
+    { id: '#ORD-101', name: 'Rahul Sharma', type: 'Dine-in', amount: '₹1,250', status: 'Completed', time: '12:30 PM', date: getPastDate(0) },
+    { id: '#ORD-102', name: 'Priya Mehta', type: 'Online', amount: '₹850', status: 'Preparing', time: '01:15 PM', date: getPastDate(0) },
+    { id: '#ORD-103', name: 'Amit Kumar', type: 'Takeaway', amount: '₹450', status: 'Ready', time: '02:00 PM', date: getPastDate(0) },
+    { id: '#ORD-104', name: 'Sneha Kapoor', type: 'Dine-in', amount: '₹1,450', status: 'Completed', time: '02:45 PM', date: getPastDate(0) },
+    { id: '#ORD-105', name: 'Vikram Singh', type: 'Takeaway', amount: '₹920', status: 'Preparing', time: '03:30 PM', date: getPastDate(0) },
+
+    // --- YESTERDAY (5 ORDERS) ---
+    { id: '#ORD-096', name: 'Suresh Raina', type: 'Dine-in', amount: '₹2,100', status: 'Completed', time: '07:30 PM', date: getPastDate(1) },
+    { id: '#ORD-097', name: 'Ishita Paul', type: 'Takeaway', amount: '₹320', status: 'Completed', time: '08:15 PM', date: getPastDate(1) },
+    { id: '#ORD-098', name: 'Karan Mehra', type: 'Online', amount: '₹780', status: 'Completed', time: '09:00 PM', date: getPastDate(1) },
+    { id: '#ORD-099', name: 'Deepika Rao', type: 'Dine-in', amount: '₹1,150', status: 'Completed', time: '09:45 PM', date: getPastDate(1) },
+    { id: '#ORD-100', name: 'Rajesh V.', type: 'Takeaway', amount: '₹550', status: 'Completed', time: '10:15 PM', date: getPastDate(1) },
+
+    // --- PAST WEEK (Sample for 7 days filter) ---
+    { id: '#ORD-085', name: 'Arjun Das', type: 'Dine-in', amount: '₹600', status: 'Completed', time: '01:00 PM', date: getPastDate(4) },
+    { id: '#ORD-086', name: 'Meera Seth', type: 'Takeaway', amount: '₹1,800', status: 'Completed', time: '02:30 PM', date: getPastDate(5) }
+];
+
+    const reviews = [
+        { name: 'Arjun Malhotra', stars: 5, text: 'Amazing food and great ambiance!', date: '2 days ago' },
+        { name: 'Neha Iyer', stars: 4, text: 'Good food. Service could be better.', date: '3 days ago' },
+        { name: 'Karan Patel', stars: 5, text: 'Loved the pizza and pasta!', date: '4 days ago' },
+        { name: 'Divya Shah', stars: 4, text: 'Nice place to dine with family.', date: '5 days ago' }
+    ];
+
+    // 1. Live Data Array
+let promotionsList = [
+    { id: 1, name: "Summer Special", type: "Percentage", val: "20%", start: "2024-05-01", end: "2024-05-31", status: "Active" },
+    { id: 2, name: "Weekend Feast", type: "Flat", val: "₹200", start: "2024-06-01", end: "2024-06-03", status: "Active" }
+];
+
+// 2. Function to Render the table (Makes it live)
+function renderPromosLive() {
+    const tbody = document.getElementById('tbody-promos');
+    if (!tbody) return;
+
+    tbody.innerHTML = promotionsList.map(p => `
+        <tr class="hover:bg-white/5 transition">
+            <td class="font-bold text-white">${p.name}</td>
+            <td>${p.type}</td>
+            <td class="text-[#ff2e44] font-bold">${p.val}</td>
+            <td>${p.start}</td>
+            <td>${p.end}</td>
+            <td>
+                <span onclick="togglePromoStatus(${p.id})" class="cursor-pointer status-pill ${p.status === 'Active' ? 'status-confirmed' : 'status-cancelled'}" title="Click to toggle status">
+                    ${p.status}
+                </span>
+            </td>
+            <td>
+                <div class="flex gap-4 text-gray-500">
+                    <i class="fa-solid fa-trash hover:text-red-500 cursor-pointer" onclick="deletePromo(${p.id})"></i>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// 3. ACTION: Delete Promotion
+function deletePromo(id) {
+    if(confirm("Are you sure you want to delete this promotion?")) {
+        promotionsList = promotionsList.filter(p => p.id !== id);
+        renderPromosLive();
+    }
+}
+
+// 4. ACTION: Toggle Status (Active <-> Expired)
+function togglePromoStatus(id) {
+    const promo = promotionsList.find(p => p.id === id);
+    if(promo) {
+        promo.status = promo.status === 'Active' ? 'Expired' : 'Active';
+        renderPromosLive();
+    }
+}
+
+// 5. ACTION: Quick Add (Since you don't have a builder)
+function quickAddPromo() {
+    const name = prompt("Enter Promotion Name:");
+    if (!name) return;
+    const discount = prompt("Enter Discount (e.g. 10% or ₹100):");
+    
+    const newPromo = {
+        id: Date.now(),
+        name: name,
+        type: "Custom",
+        val: discount || "N/A",
+        start: new Date().toISOString().split('T')[0], // Today
+        end: "2024-12-31",
+        status: "Active"
+    };
+
+    promotionsList.push(newPromo);
+    renderPromosLive();
+}
+
+// Initial Call to make sure it loads
+renderPromosLive();
+    // --- CORE LOGIC ---
+    function router(page) {
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('#sidebar-nav .nav-item').forEach(n => n.classList.remove('active'));
+        
+        document.getElementById('view-' + page).classList.add('active');
+        document.querySelector(`[data-target="${page}"]`).classList.add('active');
+
+        const pageData = {
+            dashboard: ['Dashboard', 'Welcome back, Restaurant Owner! 👋'],
+            'my-restaurant': ['My Restaurant', 'Manage your restaurant details.'],
+            menu: ['Menu Management', 'Manage items and categories.'],
+            reservations: ['Reservations', 'Manage all table bookings.'],
+            orders: ['Orders', 'Track live customer orders.'],
+            customers: ['Customers', 'Your loyal customer base.'],
+            reviews: ['Reviews', 'What people are saying.'],
+            promotions: ['Promotions', 'Marketing deals and offers.'],
+            analytics: ['Analytics', 'Deep data-driven insights.'],
+            earnings: ['Earnings', 'Financial transaction log.'],
+            settings: ['Settings', 'Personal profile and security.']
+        };
+        document.getElementById('view-title').innerText = pageData[page][0];
+        document.getElementById('view-subtitle').innerText = pageData[page][1];
+        render();
+    }
+
+    // MODIFIED: Added check for 'hidden' class to make modals actually show/hide
+    function toggleModal(id) { 
+        const modal = document.getElementById(id);
+        modal.classList.toggle('active'); 
+        modal.classList.toggle('hidden'); 
+    }
+
+    function triggerFileUpload() { document.getElementById('file-input').click(); }
+
+    // CRUD: Add
+    function addItem() {
+        const name = document.getElementById('inp-item-name').value;
+        const cat = document.getElementById('inp-item-cat').value;
+        const price = document.getElementById('inp-item-price').value;
+        if(!name || !price) return alert("Fill all fields");
+        menuItems.push({ id: Date.now(), name, cat, price, status: 'Active' });
+        render();
+        toggleModal('modal-add-item');
+        alert('Item Added!');
+    }
+
+    // CRUD: Delete
+    function deleteItem(id) {
+        if(confirm("Are you sure you want to delete this item?")) {
+            menuItems = menuItems.filter(i => i.id !== id);
+            render();
+        }
+    }
+
+    // --- EDIT LOGIC (MADE LIVE) ---
+    function openEditModal(id) {
+        const item = menuItems.find(i => i.id === id);
+        if(item) {
+            // Fill the hidden Edit Modal with existing data
+            document.getElementById('edit-item-id').value = item.id;
+            document.getElementById('edit-item-name').value = item.name;
+            document.getElementById('edit-item-cat').value = item.cat;
+            document.getElementById('edit-item-price').value = item.price;
+            toggleModal('modal-edit-item'); // Show the modal
+        }
+    }
+
+    function saveEditItem() {
+        const id = parseInt(document.getElementById('edit-item-id').value);
+        const index = menuItems.findIndex(i => i.id === id);
+        if(index !== -1) {
+            // Update the data in the array
+            menuItems[index].name = document.getElementById('edit-item-name').value;
+            menuItems[index].cat = document.getElementById('edit-item-cat').value;
+            menuItems[index].price = document.getElementById('edit-item-price').value;
+            
+            render(); // Refresh the table
+            toggleModal('modal-edit-item'); // Close the modal
+        }
+    }
+
+    // Search Logic
+    function liveSearch(val){
+        const term = val.toLowerCase().trim();
+        if(term === ""){ render(); return; }
+        const menuResults = menuItems.filter(item => item.name.toLowerCase().includes(term) || item.cat.toLowerCase().includes(term));
+        if(menuResults.length > 0){ router("menu"); render(menuResults); return; }
+        const reservationResults = reservations.filter(item => item.name.toLowerCase().includes(term) || item.contact.toLowerCase().includes(term));
+        if(reservationResults.length > 0){ router("reservations"); render(null, reservationResults); return; }
+        const orderResults = orders.filter(item => item.name.toLowerCase().includes(term) || item.id.toLowerCase().includes(term) || item.type.toLowerCase().includes(term));
+        if(orderResults.length > 0){ router("orders"); render(null, null, orderResults); return; }
+        const reviewResults = reviews.filter(item => item.name.toLowerCase().includes(term) || item.text.toLowerCase().includes(term));
+        if(reviewResults.length > 0){ router("reviews"); return; }
+        
+        // Navigation shortcuts
+        const pages = ["dashboard", "my-restaurant", "menu", "reservations", "orders", "customers", "reviews", "promotions", "analytics", "earnings", "settings"];
+        pages.forEach(p => { if(term.includes(p)) router(p); });
+    }
+
+    // Filter Logic
+  // Global variable to keep track of the active category filter
+let currentOrderCategory = 'All';
+
+function filterTable(type, cat, btn) {
+    // Handling Menu and Reservations (Existing logic)
+    if (type === 'menu') {
+        let res = [...menuItems];
+        if (cat !== 'All') res = menuItems.filter(i => i.cat.includes(cat));
+        render(res);
+    } 
+    else if (type === 'res') {
+        let resList = [...reservations];
+        if (cat !== 'All') resList = reservations.filter(i => i.status === cat);
+        if (btn) {
+            const siblings = btn.parentElement.querySelectorAll('button');
+            siblings.forEach(b => { b.classList.remove('bg-[#ff2e44]', 'text-white'); b.classList.add('text-gray-500'); });
+            btn.classList.add('bg-[#ff2e44]', 'text-white'); btn.classList.remove('text-gray-500');
+        }
+        render(null, resList);
+    }
+
+    // --- NEW LIVE ORDERS LOGIC ---
+    else if (type === 'orders') {
+        // 1. Update active category
+        if (cat !== 'current') currentOrderCategory = cat;
+
+        // 2. Visual: Update button colors
+        if (btn) {
+            const siblings = btn.parentElement.querySelectorAll('button');
+            siblings.forEach(b => {
+                b.classList.remove('bg-[#ff2e44]', 'text-white');
+                b.classList.add('text-gray-500');
+            });
+            btn.classList.add('bg-[#ff2e44]', 'text-white');
+            btn.classList.remove('text-gray-500');
+        }
+
+        // 3. Get Date Filter value
+        const dateRange = document.getElementById('order-date-filter').value;
+        const todayStr = getPastDate(0);
+        const yesterdayStr = getPastDate(1);
+
+        // 4. Combine Filters
+        let filteredOrders = orders.filter(order => {
+            // Filter by Category (Dine-in / Takeaway / All)
+            const categoryMatch = (currentOrderCategory === 'All' || order.type === currentOrderCategory);
+            
+            // Filter by Date Range
+            let dateMatch = false;
+            if (dateRange === 'today') dateMatch = (order.date === todayStr);
+            else if (dateRange === 'yesterday') dateMatch = (order.date === yesterdayStr);
+            else {
+                // Calculation for 7, 30, or 365 days
+                const diffTime = Math.abs(new Date(todayStr) - new Date(order.date));
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                dateMatch = diffDays <= parseInt(dateRange);
+            }
+
+            return categoryMatch && dateMatch;
+        });
+
+        // 5. Update the Table
+        render(null, null, filteredOrders);
+    }
+}
+
+    // RENDER ENGINE
+    function render(fMenu, fRes, fOrders) {
+        const m = fMenu || menuItems;
+        const r = fRes || reservations;
+        const o = fOrders || orders;
+
+        // Menu Table - Fixed to point correctly to Edit Logic
+        document.getElementById('tbody-menu').innerHTML = m.map(i => `
+            <tr>
+                <td><div class="flex items-center gap-3 font-bold text-gray-200">${i.name}</div></td>
+                <td class="text-gray-500">${i.cat}</td>
+                <td class="font-bold text-gray-200">₹${i.price}</td>
+                <td><span class="status-pill status-active">${i.status}</span></td>
+                <td>
+                    <div class="flex gap-4 text-gray-500">
+                        <i class="fa-solid fa-pen hover:text-blue-400 cursor-pointer" onclick="openEditModal(${i.id})"></i>
+                        <i class="fa-solid fa-trash hover:text-red-500 cursor-pointer" onclick="deleteItem(${i.id})"></i>
+                    </div>
+                </td>
+            </tr>`).join('');
+        
+        document.getElementById('menu-footer').innerText = `Showing 1 to ${m.length} items`;
+
+        // Reservations Table
+        document.getElementById('tbody-res').innerHTML = r.map(i => `<tr><td class="font-bold">${i.name}</td><td class="text-gray-400">${i.time}</td><td>${i.guests}</td><td class="text-gray-500">${i.contact}</td><td><span class="status-pill ${i.status === 'Confirmed' ? 'status-confirmed' : (i.status === 'Pending' ? 'status-pending' : 'status-cancelled')}">${i.status}</span></td><td><div class="flex gap-4 text-gray-400"><i class="fa-solid fa-eye cursor-pointer"></i><i class="fa-solid fa-trash cursor-pointer hover:text-red-500"></i></div></td></tr>`).join('');
+
+        // Orders Table
+        document.getElementById('tbody-orders').innerHTML = o.map(i => `<tr><td class="text-gray-500 font-bold">${i.id}</td><td class="font-bold">${i.name}</td><td>${i.type}</td><td class="font-bold">${i.amount}</td><td><span class="status-pill ${i.status === 'Completed' ? 'status-confirmed' : (i.status === 'Preparing' ? 'status-pending' : 'status-preparing')}">${i.status}</span></td><td>${i.time}</td><td><i class="fa-solid fa-eye text-gray-500 cursor-pointer"></i></td></tr>`).join('');
+
+        // Customers Table
+        document.getElementById('tbody-customers').innerHTML = reservations.map(i => `<tr><td class="font-bold">${i.name}</td><td>cust@email.com</td><td>${i.contact}</td><td>12</td><td class="font-bold">₹12,450</td><td><i class="fa-solid fa-eye text-gray-500 cursor-pointer"></i></td></tr>`).join('');
+
+        // Reviews Grid
+        document.getElementById('grid-reviews').innerHTML = reviews.map(i => `<div class="card p-6 flex gap-6"><div class="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center font-bold text-xs">${i.name[0]}</div><div class="flex-1"><div class="flex justify-between items-center"><h4 class="font-bold">${i.name}</h4><span class="text-[10px] text-gray-500 uppercase">${i.date}</span></div><div class="text-yellow-500 text-[10px] my-1">${'<i class="fa-solid fa-star"></i>'.repeat(i.stars)}</div><p class="text-sm text-gray-400 italic">"${i.text}"</p></div></div>`).join('');
+
+        // Promos Table
+        document.getElementById('tbody-promos').innerHTML = `<tr><td class="font-bold">Summer Special</td><td>Percentage</td><td>20%</td><td>May 1, 2024</td><td>May 31, 2024</td><td><span class="status-pill status-confirmed">Active</span></td><td><i class="fa-solid fa-pen text-gray-500"></i></td></tr>`;
+
+        // Earnings Table
+        document.getElementById('tbody-earnings').innerHTML = o.map(i => `<tr><td class="text-gray-500 font-bold">${i.id}</td><td>Customer Payment</td><td>Earning</td><td class="font-bold text-green-500">${i.amount}</td><td><span class="status-pill status-confirmed">Settled</span></td></tr>`).join('');
+
+        // Dashboard Widgets
+        document.getElementById('dash-res-list').innerHTML = reservations.slice(0,4).map(i => `<div class="flex justify-between items-center bg-white/5 p-3 rounded-lg"><div class="text-xs"><b>${i.name}</b><p class="text-gray-500 font-normal">${i.time}</p></div><span class="status-pill ${i.status === 'Confirmed' ? 'status-confirmed' : 'status-pending'}">${i.status}</span></div>`).join('');
+        document.getElementById('dash-top-dishes').innerHTML = `<div><div class="flex justify-between text-xs mb-1"><span>1. Margherita Pizza</span><span>128 Sold</span></div><div class="w-full bg-[#1f1f27] h-1 rounded-full"><div class="bg-[#ff2e44] h-full w-[80%]"></div></div></div>`;
+        document.getElementById('dash-reviews').innerHTML = reviews.slice(0,2).map(i => `<div class="text-xs text-gray-400 italic">"${i.text}" - <b>${i.name}</b></div>`).join('');
+    }
+
+    // --- CHARTS CONFIG ---
+    const opt = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
+    
+    new Chart(document.getElementById('dashLineChart').getContext('2d'), {
+        type: 'line', 
+        data: { labels: ['M1','M5','M10','M15','M20','M25','M31'], datasets: [{ data: [15,35,25,55,45,65,58], borderColor: '#ff2e44', tension: 0.4, fill: true, backgroundColor: 'rgba(255,46,68,0.1)', pointRadius: 0 }] },
+        options: opt
+    });
+
+    new Chart(document.getElementById('dashDonutChart'), {
+        type: 'doughnut', 
+        data: { datasets: [{ data: [60, 25, 15], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], borderWidth: 0, cutout: '85%' }] },
+        options: opt
+    });
+
+    new Chart(document.getElementById('analyticsRevenueChart'), {
+        type: 'line', 
+        data: { labels: ['May 1','May 10','May 20','May 31'], datasets: [{ data: [10000, 25000, 15000, 42350], borderColor: '#ff2e44', tension: 0.4 }] },
+        options: opt
+    });
+
+    new Chart(document.getElementById('analyticsDonutChart'), {
+        type: 'doughnut', 
+        data: { labels:['Dine-in','Online','Takeaway'], datasets: [{ data: [40, 35, 15, 10], backgroundColor: ['#ff2e44', '#3b82f6', '#10b981', '#f59e0b'], borderWidth: 0, cutout: '75%' }] },
+        options: opt
+    });
+    
+    function openProfile(){ router("settings"); }
+    
+    function toggleNotificationDropdown(event) {
+    event.stopPropagation(); // Prevents immediate closing
+    const dropdown = document.getElementById('notificationDropdown');
+    const isHidden = dropdown.classList.contains('hidden');
+    
+    // Close dropdown if open, or open and populate it
+    if (isHidden) {
+        populateNotifications();
+        dropdown.classList.remove('hidden');
+        // Add a one-time listener to close when clicking anywhere else
+        window.onclick = function() {
+            dropdown.classList.add('hidden');
+            window.onclick = null;
+        };
+    } else {
+        dropdown.classList.add('hidden');
+    }
+}
+
+function populateNotifications() {
+    const container = document.getElementById('notif-content');
+    const notifs = [
+        { title: "New Order!", desc: "Order #ORD-106 just arrived.", time: "2 mins ago", icon: "fa-cart-shopping", color: "bg-blue-500/20 text-blue-400" },
+        { title: "Table Reserved", desc: "Rahul Sharma booked for 7:30 PM.", time: "15 mins ago", icon: "fa-calendar", color: "bg-green-500/20 text-green-400" },
+        { title: "New Review", desc: "A customer left a 5-star rating.", time: "1 hour ago", icon: "fa-star", color: "bg-yellow-500/20 text-yellow-400" },
+        { title: "System Alert", desc: "Printer connection was restored.", time: "3 hours ago", icon: "fa-print", color: "bg-gray-500/20 text-gray-400" },
+        { title: "Promo Expiring", desc: "Summer Special ends in 24 hours.", time: "5 hours ago", icon: "fa-clock", color: "bg-red-500/20 text-red-400" }
+    ];
+
+    container.innerHTML = notifs.map(n => `
+        <div class="notif-item flex gap-4">
+            <div class="notif-icon-circle ${n.color}">
+                <i class="fa-solid ${n.icon}"></i>
+            </div>
+            <div class="flex-1">
+                <div class="flex justify-between items-start mb-0.5">
+                    <p class="text-xs font-bold text-white">${n.title}</p>
+                    <span class="text-[9px] text-gray-600 font-bold">${n.time}</span>
+                </div>
+                <p class="text-[10px] text-gray-400 leading-tight">${n.desc}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+    // --- RESTAURANT TAB LOGIC ---
+    function showRestaurantTab(tab, btn) {
+        document.getElementById('restaurant-info-tab').classList.add('hidden');
+        document.getElementById('restaurant-gallery-tab').classList.add('hidden');
+        document.getElementById('restaurant-hours-tab').classList.add('hidden');
+        document.querySelectorAll('.restaurant-tab').forEach(b => {
+            b.classList.remove('bg-[#ff2e44]', 'text-white');
+            b.classList.add('text-gray-500');
+        });
+        document.getElementById('restaurant-' + tab + '-tab').classList.remove('hidden');
+        btn.classList.add('bg-[#ff2e44]', 'text-white');
+        btn.classList.remove('text-gray-500');
+    }
+
+    // --- RESTAURANT INFO EDITING ---
+    let isEditingInfo = false;
+    function toggleEditInfo() {
+        const btn = document.getElementById('edit-info-btn');
+        const editables = document.querySelectorAll('.editable');
+        const editableArea = document.querySelector('.editable-area');
+        if (!isEditingInfo) {
+            editables.forEach(el => {
+                const val = el.innerText;
+                el.innerHTML = `<input type="text" class="bg-[#0a0a0f] border border-gray-700 text-white text-sm rounded p-1 w-full" value="${val}">`;
+            });
+            const areaVal = editableArea.innerText.replace(/"/g, '');
+            editableArea.innerHTML = `<textarea class="bg-[#0a0a0f] border border-gray-700 text-white text-sm rounded p-2 w-full h-24">${areaVal}</textarea>`;
+            btn.innerText = "Save Information";
+            isEditingInfo = true;
+        } else {
+            editables.forEach(el => {
+                const input = el.querySelector('input');
+                el.innerText = input.value;
+            });
+            const textarea = editableArea.querySelector('textarea');
+            editableArea.innerText = `"${textarea.value}"`;
+            btn.innerText = "Edit Information";
+            isEditingInfo = false;
+        }
+    }
+
+    // --- RESTAURANT HOURS EDITING ---
+    let isEditingHours = false;
+    function toggleEditHours() {
+        const btn = document.getElementById('save-hours-btn');
+        const timeSpans = document.querySelectorAll('.day-time');
+        if (!isEditingHours) {
+            timeSpans.forEach(span => {
+                const val = span.innerText;
+                span.innerHTML = `<input type="text" class="bg-[#0a0a0f] border border-gray-700 text-white text-[10px] rounded p-1" value="${val}">`;
+            });
+            btn.innerText = "Save Hours";
+            isEditingHours = true;
+        } else {
+            timeSpans.forEach(span => {
+                const input = span.querySelector('input');
+                span.innerText = input.value;
+            });
+            btn.innerText = "Edit Hours";
+            isEditingHours = false;
+        }
+    }
+
+    // --- IMAGE UPLOADS ---
+    let uploadTarget = null;
+    function triggerFileUpload(target) {
+        uploadTarget = target;
+        document.getElementById('restaurant-file-input').click();
+    }
+
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imageUrl = e.target.result;
+            if (uploadTarget === 'rest-cover') {
+                document.getElementById('rest-cover').src = imageUrl;
+            } else if (uploadTarget === 'rest-logo') {
+                const logoImg = document.getElementById('rest-logo-img');
+                const logoIcon = document.getElementById('rest-logo-icon');
+                logoImg.src = imageUrl;
+                logoImg.classList.remove('hidden');
+                logoIcon.classList.add('hidden');
+            } else if (uploadTarget === 'gallery') {
+                const newImg = document.createElement('img');
+                newImg.src = imageUrl;
+                newImg.className = "h-52 w-full object-cover rounded-xl hover:scale-105 transition cursor-pointer";
+                document.getElementById('gallery-grid').prepend(newImg);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+// 1. Your Data
+const customerData = [
+    { id: 1, name: "John Doe", email: "john@example.com", phone: "555-0101", orders: 5, spent: "$500" },
+    { id: 2, name: "Jane Smith", email: "jane@example.com", phone: "555-0102", orders: 2, spent: "$150" }
+];
+
+// 2. Function to display the data
+function renderCustomers() {
+    const tbody = document.getElementById('tbody-customers');
+    
+    tbody.innerHTML = customerData.map(customer => `
+        <tr>
+            <td>${customer.name}</td>
+            <td>${customer.email}</td>
+            <td>${customer.phone}</td>
+            <td>${customer.orders}</td>
+            <td>${customer.spent}</td>
+            <td>
+                <button class="edit-btn" data-id="${customer.id}">Edit</button>
+                <button class="delete-btn" data-id="${customer.id}">Delete</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// 3. Event Listener to make buttons "Live"
+document.getElementById('tbody-customers').addEventListener('click', function(e) {
+    const id = e.target.getAttribute('data-id');
+    
+    if (e.target.classList.contains('delete-btn')) {
+        alert('Deleting customer ID: ' + id);
+        // Add your delete logic here
+    }
+    
+    if (e.target.classList.contains('edit-btn')) {
+        alert('Editing customer ID: ' + id);
+        // Add your edit logic here
+    }
+});
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- 1. REVIEWS SECTION LOGIC ---
+    const reviewsData = [
+        { author: "Rahul S.", rating: 5, text: "Excellent service and food!", type: "Positive" },
+        { author: "Sneha K.", rating: 2, text: "Delivery was very late today.", type: "Negative" },
+        { author: "Ankit V.", rating: 4, text: "Great taste, but portion size is small.", type: "Positive" },
+        { author: "Priya M.", rating: 5, text: "Best experience so far!", type: "Positive" }
+    ];
+
+    const reviewGrid = document.getElementById('grid-reviews');
+    const reviewButtons = document.querySelectorAll('#view-reviews .flex button');
+
+    function renderReviews(filter = 'All Reviews') {
+        reviewGrid.innerHTML = ''; // Clear existing
+        const filtered = reviewsData.filter(r => filter === 'All Reviews' || r.type === filter);
+        
+        filtered.forEach(rev => {
+            const card = document.createElement('div');
+            card.className = 'bg-[#121214] p-4 rounded-xl border border-gray-800';
+            card.innerHTML = `
+                <div class="flex justify-between mb-2">
+                    <span class="font-bold text-white">${rev.author}</span>
+                    <span class="text-yellow-500">${'★'.repeat(rev.rating)}</span>
+                </div>
+                <p class="text-gray-400 text-sm">${rev.text}</p>
+                <div class="mt-3 text-[10px] uppercase font-bold ${rev.type === 'Positive' ? 'text-green-500' : 'text-red-500'}">${rev.type}</div>
+            `;
+            reviewGrid.appendChild(card);
+        });
+    }
+
+    // Handle Review Filter Button Clicks
+    reviewButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update UI styles
+            reviewButtons.forEach(b => {
+                b.className = "text-gray-500 text-[11px] px-6 py-2 hover:text-white transition";
+            });
+            btn.className = "bg-[#ff2e44] text-white text-[11px] px-6 py-2 rounded-full font-bold";
+            
+            // Filter logic
+            renderReviews(btn.innerText);
+        });
+    });
+
+
+    // --- 2. PROMOTIONS SECTION LOGIC ---
+    const promosData = [
+        { name: "Weekend Feast", type: "Discount", val: "20% OFF", start: "2023-10-01", end: "2023-10-03", status: "Active" },
+        { name: "First Order", type: "Flat", val: "₹100 OFF", start: "2023-09-01", end: "2023-12-31", status: "Active" },
+        { name: "Flash Sale", type: "BOGO", val: "Buy 1 Get 1", start: "2023-08-01", end: "2023-08-02", status: "Expired" }
+    ];
+
+    const promoBody = document.getElementById('tbody-promos');
+
+    function renderPromos() {
+        promoBody.innerHTML = '';
+        promosData.forEach((promo, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="font-bold text-white">${promo.name}</td>
+                <td>${promo.type}</td>
+                <td class="text-[#ff2e44] font-bold">${promo.val}</td>
+                <td>${promo.start}</td>
+                <td>${promo.end}</td>
+                <td><span class="px-2 py-1 rounded text-[10px] ${promo.status === 'Active' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}">${promo.status}</span></td>
+                <td>
+                    <button class="promo-action-btn" onclick="handlePromoAction('${promo.name}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
+                </td>
+            `;
+            promoBody.appendChild(row);
+        });
+    }
+
+    // Initialize both
+    renderReviews();
+    renderPromos();
+});
+
+// The actual action for the promo buttons
+function handlePromoAction(promoName) {
+    alert("Editing Promotion: " + promoName);
+}
+// 1. Switching between Settings Sub-tabs
+function switchSettingsTab(tabName, element) {
+    // Update Tab Styles
+    document.querySelectorAll('.settings-tab').forEach(el => {
+        el.className = "settings-tab text-gray-500 px-4 py-3 rounded-lg text-xs font-bold hover:bg-white/5 cursor-pointer border-l-4 border-transparent transition";
+    });
+    element.className = "settings-tab active nav-item px-4 py-3 rounded-lg text-xs font-bold border-l-4 border-[#ff2e44] text-white";
+
+    // Toggle Content Visibility
+    document.getElementById('content-settings-profile').classList.add('hidden');
+    document.getElementById('content-settings-security').classList.add('hidden');
+    document.getElementById('content-settings-notif').classList.add('hidden');
+
+    document.getElementById('content-settings-' + tabName).classList.remove('hidden');
+}
+
+// 2. Avatar (Profile Picture) Actions
+function triggerAvatarUpload() {
+    document.getElementById('avatar-input').click();
+}
+
+function handleAvatarChange(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const url = e.target.result;
+        // Update both the preview and the Header icon instantly
+        document.getElementById('settings-avatar-preview').src = url;
+        const headerImg = document.querySelector('header img'); 
+        if(headerImg) headerImg.src = url;
+    };
+    reader.readAsDataURL(file);
+}
+
+function resetAvatar() {
+    const defaultUrl = "https://i.pravatar.cc/150?u=admin";
+    document.getElementById('settings-avatar-preview').src = defaultUrl;
+    const headerImg = document.querySelector('header img');
+    if(headerImg) headerImg.src = defaultUrl;
+}
+
+// 3. Saving and Syncing Data with Header
+function saveProfileChanges() {
+    const newName = document.getElementById('set-full-name').value;
+    const newEmail = document.getElementById('set-email-addr').value;
+
+    // Update Global Header Name
+    const headerNameEl = document.querySelector('header .text-sm.font-bold');
+    if (headerNameEl) {
+        // This targets the John Doe text node directly while keeping the 'Owner' <p>
+        headerNameEl.childNodes[0].textContent = newName;
+    }
+
+    // Update the Greeting at top-left
+    const subtitleEl = document.getElementById('view-subtitle');
+    if (subtitleEl && subtitleEl.innerText.includes("Welcome back")) {
+        subtitleEl.innerText = `Welcome back, ${newName}!`;
+    }
+
+    alert('Settings Saved! Header name and greeting updated.');
+}
+// 1. Toggle Profile Dropdown
+function toggleProfileDropdown(event) {
+    event.stopPropagation();
+    const dropdown = document.getElementById('profileDropdown');
+    const chevron = document.getElementById('profile-chevron');
+    const isHidden = dropdown.classList.contains('hidden');
+
+    // Close Notification dropdown if it's open
+    document.getElementById('notificationDropdown')?.classList.add('hidden');
+
+    if (isHidden) {
+        dropdown.classList.remove('hidden');
+        chevron.style.transform = 'rotate(180deg)';
+        
+        // Close when clicking anywhere else
+        window.onclick = function() {
+            dropdown.classList.add('hidden');
+            chevron.style.transform = 'rotate(0deg)';
+            window.onclick = null;
+        };
+    } else {
+        dropdown.classList.add('hidden');
+        chevron.style.transform = 'rotate(0deg)';
+    }
+}
+
+// 2. Logout Action
+function handleLogout() {
+    if(confirm("Are you sure you want to log out of Zenith?")) {
+        alert("Logging out...");
+        window.location.reload();
+    }
+}
+
+// 3. Update Sync Logic
+// This makes sure when you save in Settings, the Top Icon updates instantly
+function saveProfileChanges() {
+    // Get values from your settings inputs (Section 11)
+    const newName = document.getElementById('set-full-name').value;
+    const newEmail = document.getElementById('set-email-addr').value;
+
+    // Update Header instantly
+    document.getElementById('header-name').innerText = newName;
+    document.getElementById('dropdown-email').innerText = newEmail;
+    
+    // Update Greeting Subtitle
+    const subtitle = document.getElementById('view-subtitle');
+    if(subtitle.innerText.includes("Welcome back")) {
+        subtitle.innerText = `Welcome back, ${newName}!`;
+    }
+
+    alert('Profile updated across the entire dashboard!');
+}
+// 1. Promotions Data Store
+let promotionsData = [
+    { id: 1, name: "Summer Special", type: "Percentage", val: "20%", start: "2024-05-01", end: "2024-05-31", status: "Active" },
+    { id: 2, name: "Weekend Feast", type: "Flat Discount", val: "₹200", start: "2024-06-01", end: "2024-06-03", status: "Active" }
+];
+
+// 2. Function to Render the Table (Makes it live)
+function renderPromotions() {
+    const tbody = document.getElementById('tbody-promos');
+    if (!tbody) return;
+
+    tbody.innerHTML = promotionsData.map(p => `
+        <tr class="hover:bg-white/5 transition">
+            <td class="font-bold text-white">${p.name}</td>
+            <td>${p.type}</td>
+            <td class="text-[#ff2e44] font-bold">${p.val}</td>
+            <td>${p.start}</td>
+            <td>${p.end}</td>
+            <td>
+                <!-- Click the pill to toggle status -->
+                <span onclick="togglePromoStatus(${p.id})" class="cursor-pointer status-pill ${p.status === 'Active' ? 'status-confirmed' : 'status-cancelled'}" title="Click to toggle status">
+                    ${p.status}
+                </span>
+            </td>
+            <td>
+                <div class="flex gap-4 text-gray-500">
+                    <i class="fa-solid fa-trash hover:text-red-500 cursor-pointer transition" onclick="deletePromo(${p.id})"></i>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// 3. Logic to Save New Promotion from Modal
+function saveNewPromo() {
+    const name = document.getElementById('p-name').value;
+    const type = document.getElementById('p-type').value;
+    const val = document.getElementById('p-val').value;
+    const end = document.getElementById('p-end').value;
+
+    if (!name || !val) return; // Simple check
+
+    const newPromo = {
+        id: Date.now(),
+        name: name,
+        type: type,
+        val: val,
+        start: new Date().toISOString().split('T')[0], // Sets today's date
+        end: end || 'No Expiry',
+        status: 'Active'
+    };
+
+    promotionsData.unshift(newPromo); // Add to top of list
+    renderPromotions(); // Refresh table
+    toggleModal('modal-add-promo'); // Close modal
+    
+    // Clear the inputs
+    document.getElementById('p-name').value = '';
+    document.getElementById('p-val').value = '';
+    document.getElementById('p-end').value = '';
+}
+
+// 4. Logic to Toggle Status (Active <-> Expired)
+function togglePromoStatus(id) {
+    const promo = promotionsData.find(p => p.id === id);
+    if (promo) {
+        promo.status = promo.status === 'Active' ? 'Expired' : 'Active';
+        renderPromotions();
+    }
+}
+
+// 5. Logic to Delete Promotion
+function deletePromo(id) {
+    promotionsData = promotionsData.filter(p => p.id !== id);
+    renderPromotions();
+}
+
+// 6. Hook into your existing Router (if you have one)
+// This ensures that when you switch to the promotions view, the table loads
+// If you don't have a router yet, just call renderPromotions() on page load.
+document.addEventListener('DOMContentLoaded', renderPromotions);
+// Run on load
+renderCustomers();
+    // Initial Render
+    render();
+</script>
+</body>
+</html>

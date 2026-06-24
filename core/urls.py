@@ -109,9 +109,9 @@ urlpatterns = [
     # =========================
     # SETTINGS & NOTIFICATIONS
     # =========================
-    path('settings/', views.settings_page, name='settings'),
+    path('settings/', views.settings, name='settings'),
     path('notifications/', views.notifications, name='notifications'),
-
+    path('payment/', views.payment, name='payment'),
     # =========================
     # LOGOUT
     # =========================
@@ -126,4 +126,62 @@ urlpatterns = [
     name='admin_dashboard'
 ),
     path('restaurant-dashboard/', views.restaurant_dashboard, name='restaurant_dashboard'),
+    path(
+    'create-movie-booking/',
+    views.create_movie_booking,
+    name='create_movie_booking'
+),
+     path(
+    'create-movie-booking/',
+    views.create_movie_booking,
+    name='create_movie_booking'
+),
+    path(
+    'create-sports-booking/',
+    views.create_sports_booking,
+    name='create_sports_booking'
+),
+
+    path(
+    "create-restaurant-booking/",
+    views.create_restaurant_booking,
+    name="create_restaurant_booking"
+),
+
+    path(
+    'create-concert-booking/',
+    views.create_concert_booking,
+    name='create_concert_booking'
+),
+
+ path(
+    'standup-dashboard/',
+    views.standup_dashboard,
+    name='standup_dashboard'
+),
+
+path(
+    'restaurant-dashboard/',
+    views.restaurant_dashboard,
+    name='restaurant_dashboard'
+),
+
+path(
+    'theatre-dashboard/',
+    views.theatre_dashboard,
+    name='theatre_dashboard'
+),
+
+
+path(
+    'stadium-dashboard/',
+    views.stadium_dashboard,
+    name='stadium_dashboard'
+),
+
+path(
+    'concerts-dashboard/',
+    views.concerts_dashboard,
+    name='concerts_dashboard'
+),
 ]

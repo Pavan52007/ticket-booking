@@ -67,39 +67,90 @@ body{
 
     <h1 class="heading">🎫 My Bookings</h1>
 
+    <!-- Movie Bookings -->
+
+    {% for booking in movie_bookings %}
+
     <div class="ticket-card">
-        <h3>🎵 Sunburn Festival</h3>
-        <p>📅 10 July 2026</p>
-        <p>📍 Hyderabad</p>
+
+        <h3>🎬 {{ booking.movie.title }}</h3>
+
+        <p>📅 {{ booking.booking_date }}</p>
+
+        <p>🎟 Seats: {{ booking.seats }}</p>
+
+        <p>💰 Amount: ₹{{ booking.amount }}</p>
+
         <p class="status">✅ Confirmed</p>
 
-        <a href="/ticket/?booking=SUN001" class="btn btn-danger w-100">
+        <a href="/ticket/?booking_id={{ booking.id }}"
+           class="btn btn-danger w-100">
             View Ticket
         </a>
+
     </div>
+
+    {% endfor %}
+
+
+    <!-- Restaurant Bookings -->
+
+    {% for booking in restaurant_bookings %}
 
     <div class="ticket-card">
-        <h3>🏏 CSK vs MI</h3>
-        <p>📅 22 July 2026</p>
-        <p>📍 Mumbai</p>
-        <p class="status">✅ Confirmed</p>
 
-        <a href="/ticket/?booking=SUN001" class="btn btn-danger w-100">
-            View Ticket
-        </a>
+        <h3>🍽 {{ booking.restaurant.title }}</h3>
+
+        <p>⭐ Rating: {{ booking.restaurant.rating }}</p>
+
+        <p>📍 Location: {{ booking.restaurant.location }}</p>
+
+         <p>🍴 Specialty: {{ booking.restaurant.specialty }}</p>
+
+        <p>📅 {{ booking.booking_date }}</p>
+
+        <p>🪑 Table: {{ booking.table_number }}</p>
+
+        <p class="status">✅ Reservation Confirmed</p>
+
     </div>
+
+    {% endfor %}
+
+
+    {% if not movie_bookings and not restaurant_bookings %}
 
     <div class="ticket-card">
-        <h3>🍽 Paradise Biryani</h3>
-        <p>📅 15 June 2026</p>
-        <p>📍 Hyderabad</p>
-        <p class="status">✅ Completed</p>
 
-        <a href="/ticket/?booking=SUN001" class="btn btn-danger w-100">
-            View Ticket
-        </a>
+        <h3>No Bookings Found</h3>
+
+        <p>You have not made any bookings yet.</p>
+
     </div>
 
+    {% endif %}
+
+    {% for booking in concert_bookings %}
+<div class="booking-card">
+
+    <h2>🎤 {{ booking.concert.title }}</h2>
+
+    <p>📍 {{ booking.concert.location }}</p>
+
+    <p>📅 {{ booking.booking_date }}</p>
+
+    <p>💺 Seats: {{ booking.seats }}</p>
+
+    <p>💰 ₹{{ booking.amount }}</p>
+
+    <p style="color: lightgreen;">
+        ✅ Concert Booking Confirmed
+    </p>
+
+</div>
+{% endfor %}
+
+</div>
 </div>
 
 </body>

@@ -555,7 +555,7 @@
                     "image": "https://cdn.razorpay.com/logos/F9Yhfb7ZXjXmIQ_medium.jpg",
                     "handler": function (response){
                         alert("Transaction Successful! Booking Verification ID: " + response.razorpay_payment_id);
-                        window.location.href = "{% url 'sports_checkout' %}";
+                        window.location.href = "success.html?payment_id=" + response.razorpay_payment_id;
                     },
                     "prefill": {
                         "name": clientFirst + " " + clientLast,
@@ -574,7 +574,7 @@
                 rzp1.open();
             } else {
                 // Route for Standard Credit or Debit card option
-                window.location.href = "{% url 'sports_checkout' %}";
+                window.location.href = "payment.html";
             }
         });
 

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Dynamic-Showtime Seat Selection</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .cinema-container::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .cinema-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-neutral-950 via-stone-900 to-rose-950 font-sans min-h-screen py-10 px-4 sm:px-6 lg:px-8 text-amber-50/90 relative overflow-x-hidden">
+
+    <div class="absolute top-1/4 -left-32 w-96 h-96 bg-red-800/10 rounded-full blur-3xl pointer-events-none animate-pulse duration-[6000ms]"></div>
+    <div class="absolute bottom-1/4 -right-32 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none animate-pulse duration-[8000ms]"></div>
+
+    <div class="max-w-7xl mx-auto bg-stone-900/60 backdrop-blur-2xl rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-amber-500/10 overflow-hidden relative z-10">
+        
+        <div class="p-6 border-b border-amber-500/10 flex flex-col sm:flex-row justify-between items-center gap-4 bg-stone-950/40">
+            <div>
+                <h1 class="text-2xl font-extrabold text-amber-100 tracking-tight">Select Your Seats</h1>
+                <p class="text-xs text-stone-400 mt-1">Select your preferred seats. Booking is restricted to one showtime per transaction.</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-4 bg-stone-950/60 px-4 py-2 rounded-xl border border-amber-500/5 shadow-inner text-xs">
+                <div class="flex items-center gap-1.5">
+                    <div class="w-4 h-4 rounded bg-stone-950/60 border border-stone-700"></div>
+                    <span class="text-stone-400">Available</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <div class="w-4 h-4 rounded bg-blue-600 border-t-blue-400 border-x-neutral-950 border-b-neutral-950 shadow-[0_0_4px_rgba(37,99,235,0.4)]"></div>
+                    <span class="text-blue-400 font-medium">Special Seat</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <div class="w-4 h-4 rounded bg-rose-900 border-t-red-600 border-x-neutral-950 border-b-neutral-950 shadow-[0_0_4px_rgba(244,63,94,0.2)]"></div>
+                    <span class="text-stone-400">Booked</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <div class="w-4 h-4 rounded bg-emerald-600 border-t-emerald-400 border-x-neutral-950 border-b-neutral-950 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+                    <span class="text-stone-400">Selected</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-8 py-5 bg-stone-950/50 border-b border-amber-500/5 flex flex-col sm:flex-row items-center gap-4 justify-center">
+            <span class="text-xs font-bold text-stone-400 uppercase tracking-widest">Select Session:</span>
+            <div class="flex items-center gap-3" id="showtimeContainer">
+                <button data-time="09:05 AM" class="time-slot-btn px-6 py-2.5 rounded-lg border font-bold text-center transition-all cursor-pointer bg-red-700 border-red-600 text-amber-50 shadow-lg shadow-red-950/40">
+                    <div class="text-sm tracking-wide">09:05 AM</div>
+                    <div class="text-[9px] uppercase tracking-widest text-red-200 font-medium mt-0.5" id="badge-09:05 AM">IMAX (0)</div>
+                </button>
+
+                <button data-time="02:40 PM" class="time-slot-btn px-6 py-2.5 rounded-lg border font-bold text-center transition-all cursor-pointer bg-stone-950/40 border-amber-500/20 text-stone-300 hover:bg-stone-900/40 border-l-4">
+                    <div class="text-sm tracking-wide">02:40 PM</div>
+                    <div class="text-[9px] uppercase tracking-widest text-stone-400 font-medium mt-0.5" id="badge-02:40 PM">MULTIPLEX (0)</div>
+                </button>
+
+                <button data-time="08:15 PM" class="time-slot-btn px-6 py-2.5 rounded-lg border font-bold text-center transition-all cursor-pointer bg-stone-950/40 border-amber-500/20 text-stone-300 hover:bg-stone-900/40 border-l-4">
+                    <div class="text-sm tracking-wide">08:15 PM</div>
+                    <div class="text-[9px] uppercase tracking-widest text-stone-400 font-medium mt-0.5" id="badge-08:15 PM">DOLBY ATMOS (0)</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row min-w-full divide-y lg:divide-y-0 lg:divide-x divide-amber-500/5">
+            <div class="p-6 flex flex-col items-center justify-start bg-stone-950/20 min-w-[240px] lg:max-w-[260px]">
+                <div class="text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-4 w-full text-center lg:text-left">
+                    Seating Mini-Map
+                </div>
+                <div class="bg-stone-950/80 border border-amber-500/5 p-4 rounded-xl shadow-inner flex flex-col gap-0.5 items-center w-fit justify-center relative overflow-hidden" id="miniMapWrapper">
+                    <div id="miniMapTarget" class="flex flex-col gap-0.5"></div>
+                    <div id="miniMapViewer" class="absolute border border-emerald-500 bg-emerald-500/10 rounded pointer-events-none transition-all duration-75 left-0 top-0 w-full h-full opacity-0"></div>
+                </div>
+            </div>
+
+            <div class="p-8 cinema-container overflow-auto flex flex-col items-center flex-1 max-h-[65vh]" id="scrollContainer">
+                <div class="w-full max-w-xl mx-auto mb-12 relative flex-shrink-0">
+                    <div class="h-1 bg-gradient-to-r from-transparent via-red-600/50 to-transparent rounded-full blur-sm"></div>
+                    <div class="h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent rounded-full opacity-60"></div>
+                    <p class="text-center text-[10px] tracking-[0.3em] uppercase text-red-400 font-bold mt-2">STAGE / SCREEN</p>
+                </div>
+                <div class="space-y-2 pb-6 select-none w-full max-w-5xl flex-shrink-0" id="seatingGrid"></div>
+            </div>
+        </div>
+
+        <div class="p-6 border-t border-amber-500/10 bg-stone-950/80 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="space-y-2 text-center sm:text-left flex-1 max-w-xl">
+                <div class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Current Selection Summary</div>
+                <div class="text-xs font-normal text-amber-100/90 space-y-1 max-h-24 overflow-y-auto" id="selectionDisplay">No Seats Chosen</div>
+            </div>
+            <div class="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
+                <div class="text-right">
+                    <span class="block text-[10px] font-bold text-stone-400 tracking-widest uppercase">Total Price</span>
+                    <span class="text-xl font-black text-emerald-400 font-mono">&#8377;<span id="runningPrice">0</span></span>
+                </div>
+                <button id="checkoutBtn" disabled class="bg-stone-800 text-stone-500 font-black py-3 px-8 rounded-xl transition-all duration-200 uppercase tracking-wider text-sm cursor-not-allowed border border-amber-500/5">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tierMetadata = {
+            "09:05 AM": {
+                tier1: { name: "🎬 Classic Tier", price: 300, specialCount: 25 },
+                tier2: { name: "⭐ Prime Tier", price: 500, specialCount: 35 },
+                tier3: { name: "💎 Recliner Tier", price: 1000, specialCount: 15 }
+            },
+            "02:40 PM": {
+                tier1: { name: "🥈 Silver Tier", price: 150, specialCount: 25 },
+                tier2: { name: "✨ Gold Tier", price: 400, specialCount: 35 },
+                tier3: { name: "🏆 Platinum Tier", price: 1500, specialCount: 15 }
+            },
+            "08:15 PM": {
+                tier1: { name: "🎬 Classic Tier", price: 150, specialCount: 25 },
+                tier2: { name: "⭐ Prime Tier", price: 300, specialCount: 35 },
+                tier3: { name: "💎 Recliner Tier", price: 800, specialCount: 15 }
+            }
+        };
+
+        const seatingLayout = [
+            {
+                tierKey: "tier1",
+                rows: [
+                    { row: 'A', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [2,6,10], "02:40 PM": [4,11,15], "08:15 PM": [1,12] } },
+                    { row: 'B', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [1,12,18], "02:40 PM": [3,8,20], "08:15 PM": [5,16] } },
+                    { row: 'C', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [5,14,20], "02:40 PM": [6,13,17], "08:15 PM": [7,19] } },
+                    { row: 'D', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [3,7,15], "02:40 PM": [2,10,19], "08:15 PM": [3,11] } },
+                    { row: 'E', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [4,9,13], "02:40 PM": [5,12,16], "08:15 PM": [8,15] } },
+                    { row: 'F', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [8,11,17], "02:40 PM": [1,9,14], "08:15 PM": [2,18] } },
+                    { row: 'G', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [16,19], "02:40 PM": [7,18], "08:15 PM": [4,13] } },
+                    { row: 'H', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [15,20], "02:40 PM": [10,22], "08:15 PM": [9,14] } },
+                    { row: 'HH', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [1,22], "02:40 PM": [2,4], "08:15 PM": [6,20] } }
+                ]
+            },
+            {
+                tierKey: "tier2",
+                rows: [
+                    { row: 'I', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [2,6,11,18], "02:40 PM": [4,7,12,19], "08:15 PM": [1,11,15] } },
+                    { row: 'J', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [4,8,13,19], "02:40 PM": [1,10,14,20], "08:15 PM": [4,8,17] } },
+                    { row: 'K', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [1,7,12,16], "02:40 PM": [3,9,15,18], "08:15 PM": [3,9,12] } },
+                    { row: 'L', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [3,9,14,20], "02:40 PM": [2,8,11,16], "08:15 PM": [5,14,19] } },
+                    { row: 'M', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [5,10,15,17], "02:40 PM": [5,13,17,21], "08:15 PM": [6,13,20] } },
+                    { row: 'N', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [10,22], "02:40 PM": [6,22], "08:15 PM": [7,16,18] } }
+                ]
+            },
+            {
+                tierKey: "tier3",
+                rows: [
+                    { row: 'O', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [1,3,6,8,11,14,17,19], "02:40 PM": [2,4,7,9,12,15,18,20], "08:15 PM": [1,5,9,13,16,20] } },
+                    { row: 'P', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [2,4,7,9,12,15,18,20], "02:40 PM": [1,3,5,8,11,13,16,19], "08:15 PM": [2,6,11,14,17,19] } },
+                    { row: 'Q', left: [1,2,3,4,5,6,7,8,9,10], right: [11,12,13,14,15,16,17,18,19,20], bookedByTime: { "09:05 AM": [5,10,13,16,21,22], "02:40 PM": [6,10,14,17,21,22], "08:15 PM": [3,7,12,15,18,22] } }
+                ]
+            }
+        ];
+
+        let specialSeatsCache = {};
+
+        function computeSpecialSeatsForTier(tierBlock) {
+            if (specialSeatsCache[tierBlock.tierKey]) return specialSeatsCache[tierBlock.tierKey];
+            let allSeatsInTier = [];
+            tierBlock.rows.forEach(r => {
+                r.left.forEach(n => allSeatsInTier.push(`${r.row}-${n}`));
+                r.right.forEach(n => allSeatsInTier.push(`${r.row}-${n}`));
+            });
+            let targetCount = tierMetadata["09:05 AM"][tierBlock.tierKey].specialCount;
+            let specialSelected = new Set();
+            let primeSeed = 7;
+            while (specialSelected.size < targetCount && allSeatsInTier.length > 0) {
+                primeSeed = (primeSeed * 31 + 17) % allSeatsInTier.length;
+                let pickIndex = Math.abs(primeSeed);
+                let selectedId = allSeatsInTier.splice(pickIndex, 1)[0];
+                specialSelected.add(selectedId);
+            }
+            specialSeatsCache[tierBlock.tierKey] = specialSelected;
+            return specialSelected;
+        }
+
+        let selectedSeatsMap = { "09:05 AM": {}, "02:40 PM": {}, "08:15 PM": {} };
+        let activeSelectedTime = "09:05 AM";
+
+        const seatingGrid = document.getElementById('seatingGrid');
+        const miniMapTarget = document.getElementById('miniMapTarget');
+        const miniMapViewer = document.getElementById('miniMapViewer');
+        const scrollContainer = document.getElementById('scrollContainer');
+        const selectionDisplay = document.getElementById('selectionDisplay');
+        const runningPrice = document.getElementById('runningPrice');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        const timeSlotBtns = document.querySelectorAll('.time-slot-btn');
+
+        checkoutBtn.addEventListener('click', proceedToCheckout);
+
+        timeSlotBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                selectedSeatsMap = { "09:05 AM": {}, "02:40 PM": {}, "08:15 PM": {} };
+                timeSlotBtns.forEach(b => {
+                    b.className = "time-slot-btn px-6 py-2.5 rounded-lg border font-bold text-center transition-all cursor-pointer bg-stone-950/40 border-amber-500/20 text-stone-300 hover:bg-stone-900/40 border-l-4";
+                    const subText = b.querySelector('div:last-child');
+                    if (subText) subText.className = "text-[9px] uppercase tracking-widest text-stone-400 font-medium mt-0.5";
+                });
+                btn.className = "time-slot-btn px-6 py-2.5 rounded-lg border font-bold text-center transition-all cursor-pointer bg-red-700 border-red-600 text-amber-50 shadow-lg shadow-red-950/40";
+                const activeSubText = btn.querySelector('div:last-child');
+                if (activeSubText) activeSubText.className = "text-[9px] uppercase tracking-widest text-red-200 font-medium mt-0.5";
+                activeSelectedTime = btn.dataset.time;
+                buildTheaterMap();
+                updateSelectionSummary();
+            });
+        });
+
+        function updateMiniMapIndicatorFrame() {
+            const containerWidth = scrollContainer.clientWidth;
+            const containerHeight = scrollContainer.clientHeight;
+            const totalGridWidth = scrollContainer.scrollWidth;
+            const totalGridHeight = scrollContainer.scrollHeight;
+            const miniTargetWidth = miniMapTarget.offsetWidth;
+            const miniTargetHeight = miniMapTarget.offsetHeight;
+            const visibleWidthRatio = Math.min(1, containerWidth / totalGridWidth);
+            const visibleHeightRatio = Math.min(1, containerHeight / totalGridHeight);
+            const viewerWidth = Math.max(12, miniTargetWidth * visibleWidthRatio);
+            const viewerHeight = Math.max(12, miniTargetHeight * visibleHeightRatio);
+            const maxScrollLeft = totalGridWidth - containerWidth;
+            const maxScrollTop = totalGridHeight - containerHeight;
+            const pctX = maxScrollLeft > 0 ? scrollContainer.scrollLeft / maxScrollLeft : 0;
+            const pctY = maxScrollTop > 0 ? scrollContainer.scrollTop / maxScrollTop : 0;
+            const maxViewerLeft = miniTargetWidth - viewerWidth;
+            const maxViewerTop = miniTargetHeight - viewerHeight;
+            const finalLeft = 16 + (maxViewerLeft * pctX);
+            const finalTop = 16 + (maxViewerTop * pctY);
+            miniMapViewer.style.width = `${viewerWidth}px`;
+            miniMapViewer.style.height = `${viewerHeight}px`;
+            miniMapViewer.style.left = `${finalLeft}px`;
+            miniMapViewer.style.top = `${finalTop}px`;
+            miniMapViewer.style.opacity = "1";
+        }
+
+        scrollContainer.addEventListener('scroll', updateMiniMapIndicatorFrame);
+        window.addEventListener('resize', updateMiniMapIndicatorFrame);
+
+        function buildTheaterMap() {
+            seatingGrid.innerHTML = "";
+            miniMapTarget.innerHTML = "";
+            const currentMetadata = tierMetadata[activeSelectedTime];
+            seatingLayout.forEach(tierBlock => {
+                const liveConfig = currentMetadata[tierBlock.tierKey];
+                const specialSet = computeSpecialSeatsForTier(tierBlock);
+                const tierHeader = document.createElement('div');
+                tierHeader.className = "text-xs font-bold text-stone-500 uppercase tracking-widest pt-6 pb-2 border-b border-amber-500/5 mb-3 text-center sm:text-left flex-shrink-0";
+                tierHeader.textContent = `${liveConfig.name} — ₹${liveConfig.price}`;
+                seatingGrid.appendChild(tierHeader);
+                tierBlock.rows.forEach(rowData => {
+                    const rowWrapper = document.createElement('div');
+                    rowWrapper.className = "flex items-center justify-center gap-1.5 w-full min-w-max my-1 flex-shrink-0";
+                    const miniRowWrapper = document.createElement('div');
+                    miniRowWrapper.className = "flex gap-[2px] items-center justify-center";
+                    if (tierBlock.tierKey === "tier1" && rowData.row === 'E') {
+                        rowWrapper.style.marginBottom = "1cm";
+                        miniRowWrapper.style.marginBottom = "3px";
+                    }
+                    const leftLabel = document.createElement('span');
+                    leftLabel.className = "w-8 text-right text-xs font-bold text-stone-600 font-mono pr-2";
+                    leftLabel.textContent = rowData.row;
+                    rowWrapper.appendChild(leftLabel);
+                    const leftBlock = document.createElement('div');
+                    leftBlock.className = "flex gap-1";
+                    const currentBookedList = rowData.bookedByTime[activeSelectedTime] || [];
+                    rowData.left.forEach(num => {
+                        const isBooked = currentBookedList.includes(num);
+                        const isSpecial = specialSet.has(`${rowData.row}-${num}`);
+                        leftBlock.appendChild(createSeat(num, rowData, liveConfig.price, liveConfig.name, isBooked, isSpecial));
+                        miniRowWrapper.appendChild(createMiniNode(rowData.row, num, isBooked, isSpecial));
+                    });
+                    rowWrapper.appendChild(leftBlock);
+                    const walkwayGap = document.createElement('div');
+                    walkwayGap.className = "w-12";
+                    rowWrapper.appendChild(walkwayGap);
+                    const miniWalkway = document.createElement('div');
+                    miniWalkway.className = "w-2";
+                    miniRowWrapper.appendChild(miniWalkway);
+                    const rightBlock = document.createElement('div');
+                    rightBlock.className = "flex gap-1";
+                    rowData.right.forEach(num => {
+                        const isBooked = currentBookedList.includes(num);
+                        const isSpecial = specialSet.has(`${rowData.row}-${num}`);
+                        rightBlock.appendChild(createSeat(num, rowData, liveConfig.price, liveConfig.name, isBooked, isSpecial));
+                        miniRowWrapper.appendChild(createMiniNode(rowData.row, num, isBooked, isSpecial));
+                    });
+                    rowWrapper.appendChild(rightBlock);
+                    const rightLabel = document.createElement('span');
+                    rightLabel.className = "w-8 text-left text-xs font-bold text-stone-600 font-mono pl-2";
+                    rightLabel.textContent = rowData.row;
+                    rowWrapper.appendChild(rightLabel);
+                    seatingGrid.appendChild(rowWrapper);
+                    miniMapTarget.appendChild(miniRowWrapper);
+                });
+            });
+            updateTimeBadges();
+            setTimeout(updateMiniMapIndicatorFrame, 100);
+        }
+
+        function createMiniNode(row, number, isBooked, isSpecial) {
+            const miniNode = document.createElement('div');
+            const seatId = `${row}-${number}`;
+            miniNode.id = `mini-${seatId}`;
+            miniNode.className = "w-[4px] h-[4px] rounded-[1px] transition-all duration-150 flex-shrink-0 border";
+            const isSelectedInActiveTime = !!selectedSeatsMap[activeSelectedTime][seatId];
+            if (isBooked) {
+                miniNode.className += " bg-rose-900 border-t-red-500 border-x-neutral-950 border-b-neutral-950";
+            } else if (isSelectedInActiveTime) {
+                miniNode.className += " bg-emerald-500 border-t-emerald-400 border-x-neutral-950 border-b-neutral-950 shadow-[0_0_4px_rgba(52,211,153,0.8)]";
+            } else if (isSpecial) {
+                miniNode.className += " bg-blue-500 border-t-blue-400 border-x-neutral-950 border-b-neutral-950 shadow-[0_0_2px_rgba(37,99,235,0.6)]";
+            } else {
+                miniNode.className += " bg-stone-700/40 border-stone-800";
+            }
+            return miniNode;
+        }
+
+        function createSeat(number, rowData, price, tierName, isBooked, isSpecial) {
+            const seat = document.createElement('button');
+            const seatId = `${rowData.row}-${number}`;
+            seat.className = "seat w-7 h-7 sm:w-8 sm:h-8 rounded text-[10px] font-bold font-mono transition-all border outline-none cursor-pointer flex items-center justify-center flex-shrink-0";
+            seat.textContent = number;
+            seat.dataset.row = rowData.row;
+            seat.dataset.seatNumber = number;
+            seat.dataset.price = price;
+            seat.dataset.tier = tierName;
+            seat.dataset.isSpecial = isSpecial ? "true" : "false";
+            const isSelectedInActiveTime = !!selectedSeatsMap[activeSelectedTime][seatId];
+            if (isBooked) {
+                seat.className += " bg-rose-900/60 border-t-red-600 border-x-neutral-950 border-b-neutral-950 text-rose-400/50 cursor-not-allowed";
+                seat.disabled = true;
+            } else if (isSelectedInActiveTime) {
+                seat.className += " selected bg-emerald-600 border-t-emerald-400 border-x-neutral-950 border-b-neutral-950 text-amber-50 shadow-[0_0_12px_rgba(16,185,129,0.4)] font-black";
+                seat.dataset.state = "selected";
+            } else if (isSpecial) {
+                seat.className += " bg-blue-600/80 border-t-blue-400 border-x-neutral-950 border-b-neutral-950 text-blue-100 shadow-[0_0_8px_rgba(37,99,235,0.3)] hover:border-t-emerald-500 hover:bg-stone-900/60";
+                seat.dataset.state = "available";
+            } else {
+                seat.className += " bg-stone-950/40 border-stone-700 text-stone-400 hover:border-t-emerald-500 hover:border-x-neutral-950 hover:border-b-neutral-950 hover:bg-stone-900/60";
+                seat.dataset.state = "available";
+            }
+            seat.addEventListener('click', () => handleSeatToggle(seat));
+            return seat;
+        }
+
+        function handleSeatToggle(seatElement) {
+            const row = seatElement.dataset.row;
+            const seatNum = parseInt(seatElement.dataset.seatNumber);
+            const price = parseInt(seatElement.dataset.price);
+            const tier = seatElement.dataset.tier;
+            const isSpecial = seatElement.dataset.isSpecial === "true";
+            const seatId = `${row}-${seatNum}`;
+            const miniNodeElement = document.getElementById(`mini-${seatId}`);
+            if (seatElement.dataset.state === "available") {
+                seatElement.dataset.state = "selected";
+                seatElement.className = "seat selected w-7 h-7 sm:w-8 sm:h-8 rounded text-[10px] font-black font-mono transition-all border outline-none cursor-pointer flex items-center justify-center bg-emerald-600 border-t-emerald-400 border-x-neutral-950 border-b-neutral-950 text-amber-50 shadow-[0_0_12px_rgba(16,185,129,0.4)] flex-shrink-0";
+                if (miniNodeElement) miniNodeElement.className = "w-[4px] h-[4px] rounded-[1px] transition-all duration-150 bg-emerald-500 border-t-emerald-400 border-x-neutral-950 border-b-neutral-950 shadow-[0_0_4px_rgba(52,211,153,0.8)] flex-shrink-0";
+                selectedSeatsMap[activeSelectedTime][seatId] = { row, seatNum, price, tier };
+            } else {
+                seatElement.dataset.state = "available";
+                seatElement.classList.remove('selected');
+                if (isSpecial) {
+                    seatElement.className = "seat w-7 h-7 sm:w-8 sm:h-8 rounded text-[10px] font-bold font-mono transition-all border outline-none cursor-pointer flex items-center justify-center bg-blue-600/80 border-t-blue-400 border-x-neutral-950 border-b-neutral-950 text-blue-100 shadow-[0_0_8px_rgba(37,99,235,0.3)] hover:border-t-emerald-500 hover:bg-stone-900/60 flex-shrink-0";
+                    if (miniNodeElement) miniNodeElement.className = "w-[4px] h-[4px] rounded-[1px] transition-all duration-150 bg-blue-500 border-t-blue-400 border-x-neutral-950 border-b-neutral-950 shadow-[0_0_2px_rgba(37,99,235,0.6)] flex-shrink-0";
+                } else {
+                    seatElement.className = "seat w-7 h-7 sm:w-8 sm:h-8 rounded text-[10px] font-bold font-mono transition-all border outline-none cursor-pointer flex items-center justify-center bg-stone-950/40 border-stone-700 text-stone-400 hover:border-t-emerald-500 hover:border-x-neutral-950 hover:border-b-neutral-950 hover:bg-stone-900/60 flex-shrink-0";
+                    if (miniNodeElement) miniNodeElement.className = "w-[4px] h-[4px] rounded-[1px] transition-all duration-150 bg-stone-700/40 border-stone-800 flex-shrink-0";
+                }
+                delete selectedSeatsMap[activeSelectedTime][seatId];
+            }
+            updateSelectionSummary();
+            updateTimeBadges();
+        }
+
+        function updateTimeBadges() {
+            Object.keys(selectedSeatsMap).forEach(time => {
+                const btn = document.querySelector(`[data-time="${time}"]`);
+                if (btn) {
+                    const subText = btn.querySelector('div:last-child');
+                    const count = Object.keys(selectedSeatsMap[time]).length;
+                    if (subText) {
+                        let formatLabel = "IMAX";
+                        if (time === "02:40 PM") formatLabel = "MULTIPLEX";
+                        if (time === "08:15 PM") formatLabel = "DOLBY ATMOS";
+                        subText.textContent = `${formatLabel} (${count})`;
+                    }
+                }
+            });
+        }
+
+        function updateSelectionSummary() {
+            let totalAccumulativePrice = 0;
+            let displaySegments = [];
+            let holdsSelections = false;
+            Object.keys(selectedSeatsMap).forEach(timeSlot => {
+                const activeSlotMap = selectedSeatsMap[timeSlot];
+                const activeKeys = Object.keys(activeSlotMap);
+                if (activeKeys.length > 0) {
+                    holdsSelections = true;
+                    let rowsGrouping = {};
+                    activeKeys.forEach(key => {
+                        const item = activeSlotMap[key];
+                        totalAccumulativePrice += item.price;
+                        if (!rowsGrouping[item.row]) rowsGrouping[item.row] = [];
+                        rowsGrouping[item.row].push(item.seatNum);
+                    });
+                    let slotDisplayString = Object.keys(rowsGrouping).map(rowName => {
+                        rowsGrouping[rowName].sort((a, b) => a - b);
+                        return `Row ${rowName}: ${rowsGrouping[rowName].join(', ')}`;
+                    }).join(' | ');
+                    displaySegments.push(`[${timeSlot}] ${slotDisplayString}`);
+                }
+            });
+            if (holdsSelections) {
+                selectionDisplay.textContent = displaySegments.join('\n');
+                checkoutBtn.disabled = false;
+                checkoutBtn.className = "bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-black py-3 px-8 rounded-xl transition-all duration-200 uppercase tracking-wider text-sm cursor-pointer border border-t-emerald-400 border-x-neutral-950 border-b-neutral-950 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:scale-[1.02]";
+            } else {
+                selectionDisplay.textContent = "No Seats Chosen";
+                checkoutBtn.disabled = true;
+                checkoutBtn.className = "bg-stone-800 text-stone-500 font-black py-3 px-8 rounded-xl transition-all duration-200 uppercase tracking-wider text-sm cursor-not-allowed border border-amber-500/5";
+            }
+            runningPrice.textContent = totalAccumulativePrice;
+        }
+
+        function proceedToCheckout() {
+            const selectedSeatElements = document.querySelectorAll('.seat.selected');
+            if (selectedSeatElements.length === 0) {
+                alert("Please select at least one seat before proceeding.");
+                return;
+            }
+            const groupedTiers = {};
+            selectedSeatElements.forEach(seatEl => {
+                let tier = seatEl.getAttribute('data-tier') || "Unknown Tier";
+                const row = seatEl.getAttribute('data-row');
+                const price = parseFloat(seatEl.getAttribute('data-price')) || 0;
+                const seatNum = seatEl.getAttribute('data-seat-number');
+                tier = tier.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim();
+                const key = `${tier}|${row}|${price}`;
+                if (!groupedTiers[key]) {
+                    groupedTiers[key] = { tierName: tier, rowName: row, unitPrice: price, seats: [] };
+                }
+                groupedTiers[key].seats.push(seatNum);
+            });
+            Object.values(groupedTiers).forEach(group => {
+                group.seats.sort((a, b) => parseInt(a) - parseInt(b));
+            });
+            const finalData = Object.values(groupedTiers);
+            localStorage.setItem('bookingData', JSON.stringify(finalData));
+            localStorage.setItem('selectedShowTime', activeSelectedTime); // ✅ FIX: Save the active showtime
+            window.location.href = "/cinema-checkout/?movie=" + activeSelectedTime;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            buildTheaterMap();
+        });
+    </script>
+</body>
+</html>

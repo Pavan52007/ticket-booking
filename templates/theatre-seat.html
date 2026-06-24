@@ -25,9 +25,18 @@
         
         <div class="p-6 border-b border-amber-500/10 flex flex-col sm:flex-row justify-between items-center gap-4 bg-stone-950/40">
             <div>
-                <h1 class="text-2xl font-extrabold text-amber-100 tracking-tight">Select Your Seats</h1>
-                <p class="text-xs text-stone-400 mt-1">Select your preferred seats. Booking is restricted to one showtime per transaction.</p>
-            </div>
+    <h1 class="text-2xl font-extrabold text-amber-100 tracking-tight">
+        Select Your Seats
+    </h1>
+
+    <h3 class="text-red-400 font-bold mt-2">
+        🎬 Movie: {{ movie }}
+    </h3>
+
+    <p class="text-xs text-stone-400 mt-1">
+        Select your preferred seats...
+    </p>
+</div>
             
             <div class="flex flex-wrap items-center gap-4 bg-stone-950/60 px-4 py-2 rounded-xl border border-amber-500/5 shadow-inner text-xs">
                 <div class="flex items-center gap-1.5">
@@ -456,7 +465,7 @@
             const finalData = Object.values(groupedTiers);
             localStorage.setItem('bookingData', JSON.stringify(finalData));
             localStorage.setItem('selectedShowTime', activeSelectedTime); // ✅ FIX: Save the active showtime
-            window.location.href = "/cinema-checkout/?movie=" + activeSelectedTime;
+            window.location.href ="/cinema-checkout/?movie={{ movie }}&showtime=" + activeSelectedTime;
         }
 
         window.addEventListener('DOMContentLoaded', () => {

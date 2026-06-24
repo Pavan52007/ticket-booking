@@ -345,11 +345,14 @@ function openRazorpay() {
             "currency": "INR",
             "name": "The Concert Hall",
             "description": "Seat Booking Payment",
-            "handler": function (response){
-                // This block runs after successful payment
-                alert("Payment Successful! ID: " + response.razorpay_payment_id);
-                closeModal();
-                location.reload(); 
+            handler: function (response){
+              const seats =
+              document.getElementById('modal-seats').textContent;
+              const total =
+              document.getElementById('total-val').textContent
+              .replace(/[₹,]/g,'');
+              window.location.href =
+              `/create-concert-booking/?seats=${encodeURIComponent(seats)}&amount=${total}`;
             },
             "prefill": {
                 "name": document.getElementById('c-name').value,
@@ -364,9 +367,17 @@ function openRazorpay() {
         rzp1.open();
         
     } else {
-        // Redirection to your custom payment page for Credit/Debit card
-        window.location.href = `payment.html?total=${amount/100}`;
-    }
+      
+      const seats =
+        document.getElementById('modal-seats').textContent;
+      
+        const total =
+        document.getElementById('total-val').textContent
+        .replace(/[₹,]/g,'');
+        
+        window.location.href =
+        `/create-concert-booking/?seats=${encodeURIComponent(seats)}&amount=${total}`;
+      }
 }
 function makeRow(prefix, rowLetter, count, c, aisleAt, bookedSet, blueSet) {
   const wrap = document.createElement('div'); wrap.className = 'srow';

@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventPulse | Promoter Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; overflow-x: hidden; }
+        .sidebar { background-color: #0b0f19; width: 260px; height: 100vh; position: fixed; border-right: 1px solid #1e293b; z-index: 50; }
+        .right-telemetry-sidebar { background-color: #0b0f19; width: 340px; height: 100vh; position: fixed; right: 0; top: 0; border-left: 1px solid #1e293b; z-index: 45; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .right-telemetry-sidebar.active { transform: translateX(0); }
+        .main-content { margin-left: 260px; margin-right: 0px; background-color: #020617; min-height: 100vh; padding: 2.5rem; transition: margin-right 0.4s ease; }
+        .main-content.telemetry-active { margin-right: 340px; }
+        .card { background-color: #0f172a; border: 1px solid #1e293b; border-radius: 1rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-2px); border-color: #ef4444; box-shadow: 0 12px 30px -10px rgba(239, 68, 68, 0.15); }
+        .active-nav { background: linear-gradient(90deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0) 100%); border-left: 4px solid #ef4444; color: #f8fafc !important; }
+        .text-accent { color: #ef4444; }
+        .bg-accent { background-color: #ef4444; }
+        .hidden-section { display: none; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeInUp 0.4s ease-out forwards; opacity: 0; }
+        .seating-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .seating-scroll::-webkit-scrollbar-track { background: #0f172a; }
+        .seating-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .seating-scroll::-webkit-scrollbar-thumb:hover { background: #ef4444; }
+        .search-wrapper { position: relative; width: 100%; max-width: 28rem; }
+        .autocomplete-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #0f172a; border: 1px solid #1e293b; border-radius: 0.75rem; z-index: 200; overflow: hidden; box-shadow: 0 16px 40px -8px rgba(0,0,0,0.6); max-height: 340px; overflow-y: auto; }
+        .autocomplete-dropdown:empty { display: none; }
+        .ac-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid #1e293b20; }
+        .ac-item:last-child { border-bottom: none; }
+        .ac-item:hover, .ac-item.ac-active { background: rgba(239,68,68,0.08); }
+        .ac-item .ac-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+        .ac-item .ac-label { font-size: 12px; font-weight: 600; color: #f1f5f9; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ac-item .ac-sub { font-size: 10px; color: #64748b; flex-shrink: 0; }
+        .ac-section-header { padding: 6px 14px 4px; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #475569; background: #0b0f19; border-bottom: 1px solid #1e293b; }
+        .ac-highlight { color: #ef4444; }
+        
+        /* Toast Notifications styling */
+        .toast-card {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(1rem) scale(0.95); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="splashScreen" onclick="handleClearSplashOverlay(event)" class="fixed inset-0 bg-[#020617] z-[999] flex flex-col items-center justify-center cursor-pointer transition-all duration-700 ease-in-out">
+        <div class="text-center space-y-5 px-4 pointer-events-none">
+            <div class="inline-flex w-20 h-20 rounded-2xl bg-gradient-to-tr from-red-600 to-pink-500 items-center justify-center shadow-2xl shadow-red-500/30 mb-2 animate-pulse">
+                <i class="fa-solid fa-music text-white text-3xl"></i>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white">
+                EventPulse <span class="text-red-500 font-medium text-2xl mx-2">X</span> Zenith Events
+            </h1>
+            <p class="text-slate-400 text-xs tracking-widest uppercase pt-6 font-medium animate-bounce">Click anywhere to enter dashboard</p>
+        </div>
+    </div>
+
+    <aside class="sidebar p-6 flex flex-col justify-between">
+        <div class="overflow-y-auto seating-scroll pr-1">
+            <div class="flex items-center gap-3 mb-8 px-2">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-red-600 to-pink-500 flex items-center justify-center shadow-lg shadow-red-500/20">
+                    <i class="fa-solid fa-music text-white text-sm"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight text-white">EventPulse</h1>
+            </div>
+            <nav class="space-y-1.5 text-slate-100">
+                <a href="#" id="nav-dashboard" onclick="showSection('dashboard')" class="nav-link flex items-center gap-3.5 px-4 py-3 rounded-xl active-nav text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all"><i class="fa-solid fa-gauge text-base"></i> Dashboard</a>
+                <a href="#" id="nav-concerts" onclick="showSection('concerts')" class="nav-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all"><i class="fa-solid fa-guitar text-base"></i> Concerts</a>
+                <a href="#" id="nav-venues" onclick="showSection('venues')" class="nav-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all"><i class="fa-solid fa-building text-base"></i> Venues</a>
+                <a href="#" id="nav-promotions" onclick="showSection('promotions')" class="nav-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all"><i class="fa-solid fa-bullhorn text-base"></i> Promotions</a>
+                <a href="#" id="nav-analytics" onclick="showSection('analytics')" class="nav-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all"><i class="fa-solid fa-chart-line text-base"></i> Analytics</a>
+                <a href="#" id="nav-settings" onclick="showSection('settings')" class="nav-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all"><i class="fa-solid fa-gear text-base"></i> Settings</a>
+            </nav>
+            <div class="mt-8 mb-3 px-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest border-t border-slate-800/60 pt-6 flex justify-between items-center">
+                <span><i class="fa-solid fa-trophy mr-1.5 text-amber-500"></i> Live Rankings</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></span>
+            </div>
+            <div id="sidebarUserList" class="space-y-2 px-1"></div>
+        </div>
+        <div class="card p-4 flex items-center gap-3 cursor-pointer hover:border-red-500/50 bg-slate-900/50 mt-4" onclick="document.getElementById('profileModal').classList.remove('hidden')">
+            <div id="sbUserInitial" class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center font-bold text-red-400 shrink-0">SS</div>
+            <div class="overflow-hidden">
+                <p id="sbUserName" class="font-semibold text-sm text-slate-200 truncate">Sumit Sharma</p>
+                <p class="text-xs text-slate-400">Pro Promoter</p>
+            </div>
+        </div>
+    </aside>
+
+    <aside id="rightTelemetrySidebar" class="right-telemetry-sidebar p-5 flex flex-col justify-between">
+        <div class="overflow-y-auto seating-scroll h-full space-y-6 block pr-1">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Promoter Telemetry</h3>
+                </div>
+                <button onclick="closeTelemetrySidebar()" class="text-slate-500 hover:text-slate-300 transition-colors"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <div>
+                <h2 id="telTitle" class="text-lg font-bold tracking-tight text-white truncate">Select Concert</h2>
+                <p id="telVenue" class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-location-dot text-slate-600 mr-1"></i>No venue connected</p>
+            </div>
+            <div class="space-y-2.5">
+                <div class="bg-slate-900/70 border border-slate-800/80 p-3.5 rounded-xl">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Tickets Confirmed</p>
+                    <p id="telSold" class="text-xl font-bold text-emerald-400 mt-0.5">0</p>
+                </div>
+                <div class="bg-slate-900/70 border border-slate-800/80 p-3.5 rounded-xl">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Tickets Remainder</p>
+                    <p id="telLeft" class="text-xl font-bold text-amber-500 mt-0.5">0</p>
+                </div>
+                <div class="bg-slate-900/70 border border-slate-800/80 p-3.5 rounded-xl">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Gross proceeds</p>
+                    <p id="telRevenue" class="text-xl font-bold text-teal-400 mt-0.5">₹0</p>
+                </div>
+            </div>
+            <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-xl space-y-3">
+                <div class="flex justify-between items-center">
+                    <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider"><i class="fa-solid fa-couch text-red-500/80 mr-1"></i> Row Map Blueprint</h4>
+                    <div class="flex gap-2 text-[9px] font-semibold text-slate-500">
+                        <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-sm bg-slate-800 border border-slate-700"></span> Open</span>
+                        <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-sm bg-red-500"></span> Sold</span>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-900 text-[9px] font-bold text-slate-600 text-center py-1 rounded border border-slate-800 tracking-widest uppercase">Stage Focus Direction</div>
+                <div class="max-h-36 overflow-y-auto seating-scroll px-0.5">
+                    <div id="telSeatingGridMap" class="grid grid-cols-12 gap-1 justify-center text-center"></div>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Production Notes Log</h4>
+                <div id="telHighlights" class="text-xs text-slate-300 space-y-2 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800/80 leading-relaxed max-h-40 overflow-y-auto seating-scroll">
+                    <p class="text-slate-500 italic">Select an active card instance track to extract real-time pipeline log arrays.</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main id="mainContentArea" class="main-content">
+        <header class="mb-10 flex justify-between items-end gap-4">
+            <div>
+                <h2 id="headerGreeting" class="text-3xl font-bold tracking-tight text-white">Welcome back, Sumit! 👋</h2>
+                <p class="text-slate-400 mt-1.5 text-sm">Let's make today a record-breaking day for your events.</p>
+            </div>
+            <div class="search-wrapper mx-4">
+                <i class="fa-solid fa-magnifying-glass text-slate-500 text-sm" style="position:absolute;left:1rem;top:0.875rem;pointer-events:none;z-index:1;"></i>
+               <input type="text" id="globalSearchInput"
+    oninput="handleSearchConcerts(this.value)"
+    onkeydown="handleSearchKeydown(event)"
+    onfocus="handleSearchConcerts(this.value)"
+    autocomplete="off" 
+    data-lpignore="true"
+    placeholder="Search concerts or venues..."
+    class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/20 transition-all">
+                <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
+            </div>
+            <div id="currentDate" class="text-xs font-semibold text-slate-400 bg-slate-900 px-4 py-2.5 rounded-xl border border-slate-800 flex items-center gap-2 shadow-sm shrink-0"></div>
+        </header>
+
+        <section id="dashboard" class="content-section animate-fade-in">
+            <div class="grid grid-cols-4 gap-6 mb-6">
+                <div class="card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400"><i class="fa-solid fa-ticket text-sm"></i></div>
+                        <span class="text-emerald-500 text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">+16.8%</span>
+                    </div>
+                    <p class="text-slate-400 text-xs font-medium">Tickets Sold</p>
+                    <p id="dashTicketsSold" class="text-3xl font-bold mt-1 text-slate-100">12,450</p>
+                    <div class="h-10 w-full mt-4"><canvas id="sparkline1"></canvas></div>
+                </div>
+                <div class="card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400"><i class="fa-solid fa-users text-sm"></i></div>
+                        <span class="text-emerald-500 text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">+11.3%</span>
+                    </div>
+                    <p class="text-slate-400 text-xs font-medium">Occupancy Avg</p>
+                    <p id="dashOccupancy" class="text-3xl font-bold mt-1 text-slate-100">78%</p>
+                    <div class="h-10 w-full mt-4"><canvas id="sparkline2"></canvas></div>
+                </div>
+                <div class="card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400"><i class="fa-solid fa-thumbs-up text-sm"></i></div>
+                        <span class="text-emerald-500 text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">+24.7%</span>
+                    </div>
+                    <p class="text-slate-400 text-xs font-medium">Social Engagement</p>
+                    <p id="dashSocial" class="text-3xl font-bold mt-1 text-slate-100">950K</p>
+                    <div class="h-10 w-full mt-4"><canvas id="sparkline3"></canvas></div>
+                </div>
+                <div class="card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400"><i class="fa-solid fa-indian-rupee-sign text-sm"></i></div>
+                        <span class="text-emerald-500 text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">+22.5%</span>
+                    </div>
+                    <p class="text-slate-400 text-xs font-medium">Total Revenue</p>
+                    <p id="dashRevenue" class="text-3xl font-bold mt-1 text-slate-100">₹3.25Cr</p>
+                    <div class="h-10 w-full mt-4"><canvas id="sparkline4"></canvas></div>
+                </div>
+            </div>
+            <div class="grid grid-cols-4 gap-6 mb-8">
+                <div class="card p-5 flex flex-col justify-center"><p class="text-xs font-medium text-slate-400">Total Profit</p><p id="dashProfit" class="text-2xl font-bold text-emerald-400 mt-1">₹12.45L <span class="text-xs text-emerald-500 font-medium bg-emerald-500/10 px-1.5 py-0.5 rounded ml-1.5">↑ 12%</span></p></div>
+                <div class="card p-5 flex flex-col justify-center"><p class="text-xs font-medium text-slate-400">Total Events</p><p id="dashEvents" class="text-2xl font-bold text-slate-100 mt-1">24</p></div>
+                <div class="card p-5 flex flex-col justify-center"><p class="text-xs font-medium text-slate-400">Expenses</p><p class="text-2xl font-bold text-rose-500 mt-1">₹4.20L</p></div>
+                <div class="card p-5 flex flex-col justify-center"><p class="text-xs font-medium text-slate-400">Owner Rating</p><p class="text-2xl font-bold text-amber-400 mt-1">4.9 <span class="text-xs text-slate-500 font-normal">/ 5.0</span></p></div>
+            </div>
+            <div class="grid grid-cols-3 gap-6 mb-8">
+                <div class="card p-6 col-span-2">
+                    <h3 class="font-bold text-base text-slate-200 mb-6">Revenue & Booking Growth</h3>
+                    <div class="h-64"><canvas id="perfChart"></canvas></div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-base text-slate-200 mb-5">Top Performing Venues</h3>
+                    <div class="space-y-4">
+                        <div><div class="flex justify-between text-xs font-semibold mb-1.5 text-slate-300"><span>Grand Arena</span><span>98%</span></div><div class="w-full bg-slate-800 h-2 rounded-full"><div class="bg-gradient-to-r from-red-500 to-pink-500 h-2 rounded-full" style="width:98%"></div></div></div>
+                        <div><div class="flex justify-between text-xs font-semibold mb-1.5 text-slate-300"><span>City Hall</span><span>85%</span></div><div class="w-full bg-slate-800 h-2 rounded-full"><div class="bg-blue-500 h-2 rounded-full" style="width:85%"></div></div></div>
+                        <div><div class="flex justify-between text-xs font-semibold mb-1.5 text-slate-300"><span>Open Stadium</span><span>72%</span></div><div class="w-full bg-slate-800 h-2 rounded-full"><div class="bg-amber-500 h-2 rounded-full" style="width:72%"></div></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-6">
+                <div class="card p-6">
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-slate-400 mb-6">Venue Performance</h3>
+                    <div class="space-y-5">
+                        <div><div class="flex justify-between text-xs font-semibold mb-1.5 text-slate-300"><span>Grand Arena</span><span>95%</span></div><div class="w-full bg-slate-800 h-1.5 rounded-full"><div class="bg-accent h-1.5 rounded-full" style="width:95%"></div></div></div>
+                        <div><div class="flex justify-between text-xs font-semibold mb-1.5 text-slate-300"><span>City Hall</span><span>89%</span></div><div class="w-full bg-slate-800 h-1.5 rounded-full"><div class="bg-accent h-1.5 rounded-full" style="width:89%"></div></div></div>
+                        <div><div class="flex justify-between text-xs font-semibold mb-1.5 text-slate-300"><span>Open Stadium</span><span>84%</span></div><div class="w-full bg-slate-800 h-1.5 rounded-full"><div class="bg-accent h-1.5 rounded-full" style="width:84%"></div></div></div>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-slate-400 mb-4">Audience Demographics</h3>
+                    <div class="h-48 flex justify-center"><canvas id="audienceChart"></canvas></div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-slate-400 mb-4">Social Media Channels</h3>
+                    <div class="h-48"><canvas id="socialChart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="concerts" class="content-section hidden-section animate-fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-slate-200">All Concerts Inventory</h3>
+                <button onclick="openAddModal('concert')" class="bg-accent px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-red-600 shadow-md shadow-red-600/10 transition flex items-center gap-2"><i class="fa-solid fa-plus text-xs"></i> Add Concert</button>
+            </div>
+            <div id="concertGrid" class="grid grid-cols-3 gap-6 mb-12"></div>
+            <h3 class="text-lg font-bold mb-4 text-rose-400 border-t border-slate-800/80 pt-8 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Live Now
+                <span class="text-xs font-normal text-slate-500">(Click card to expand telemetry sidebar tracker panel)</span>
+            </h3>
+            <div id="liveGrid" class="grid grid-cols-3 gap-6 mb-10"></div>
+            <h3 class="text-lg font-bold mb-4 text-blue-400">Upcoming Schedule</h3>
+            <div id="upcomingGrid" class="grid grid-cols-3 gap-6 mb-10"></div>
+            <h3 class="text-lg font-bold mb-4 text-slate-400">Completed Events <span class="text-xs font-normal text-slate-500">(Post-event analytical records)</span></h3>
+            <div id="completedGrid" class="grid grid-cols-3 gap-6"></div>
+        </section>
+
+        <section id="venues" class="content-section hidden-section animate-fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-slate-200">Registered Venues Overview</h3>
+                <button onclick="openAddModal('venue')" class="bg-accent px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-red-600 transition flex items-center gap-2"><i class="fa-solid fa-plus text-xs"></i> Add Venue</button>
+            </div>
+            <div class="grid grid-cols-5 gap-6 items-start">
+                <div id="venueGrid" class="col-span-3 space-y-4"></div>
+                <div class="col-span-2 card p-4 sticky top-6 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2"><i class="fa-solid fa-map-location-dot text-red-400"></i> Venue Geographic Node</h4>
+                        <span id="mapTargetLabel" class="text-[10px] bg-slate-900 border border-slate-800 px-2 py-0.5 rounded text-slate-300 font-medium">Grand Arena</span>
+                    </div>
+                    <div class="w-full aspect-[4/3] rounded-xl overflow-hidden bg-slate-950 border border-slate-800/80 relative shadow-inner">
+                        <iframe id="venueMapIframe" class="w-full h-full border-0 opacity-80" src="https://www.openstreetmap.org/export/embed.html?bbox=77.580%2C12.960%2C77.610%2C12.990&layer=mapnik&marker=12.9716%2C77.5946" scrolling="no"></iframe>
+                    </div>
+                    <p class="text-[11px] text-slate-500 italic text-center"><i class="fa-solid fa-circle-info"></i> Click any venue layout card to automatically align node tracking maps.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="promotions" class="content-section hidden-section animate-fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-slate-200">Active Marketing Campaigns</h3>
+                <button onclick="openAddModal('promotion')" class="bg-accent px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-red-600 transition flex items-center gap-2"><i class="fa-solid fa-plus text-xs"></i> New Promo</button>
+            </div>
+            <div id="promoGrid" class="grid grid-cols-3 gap-6"></div>
+        </section>
+
+        <section id="analytics" class="content-section hidden-section animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-100">Audience Insights Analytics</h2>
+                <p class="text-slate-400 text-sm mt-1">Deep structural monitoring across promotional campaigns and attendee purchase channels.</p>
+            </div>
+            <div class="grid grid-cols-3 gap-6 mb-8">
+                <div class="card p-5"><div class="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5"><span>Checkout Conversion</span><span class="text-emerald-400">↑ 4.2%</span></div><p class="text-2xl font-bold text-slate-100">32.4%</p><p class="text-[11px] text-slate-400 mt-1">Cart-to-purchase optimization index ratio score.</p></div>
+                <div class="card p-5"><div class="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5"><span>Average Ticket Value</span><span class="text-emerald-400">↑ ₹120</span></div><p class="text-2xl font-bold text-slate-100">₹2,610</p><p class="text-[11px] text-slate-400 mt-1">Gross transactional basket size mean proceeds variance.</p></div>
+                <div class="card p-5"><div class="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5"><span>Acquisition Cost (CAC)</span><span class="text-rose-400">↓ 11%</span></div><p class="text-2xl font-bold text-slate-100">₹310 <span class="text-xs text-slate-500 font-normal">/ user</span></p><p class="text-[11px] text-slate-400 mt-1">Blended algorithmic paid advertising spend efficiency.</p></div>
+            </div>
+            <div class="grid grid-cols-2 gap-6 mb-6">
+                <div class="card p-6">
+                    <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-sm uppercase tracking-wider text-slate-300">Ticket Sales Composition by Genre</h3><span class="text-[10px] bg-red-500/10 text-red-400 border border-red-500/20 font-bold px-2 py-0.5 rounded">GROSS VOLUME</span></div>
+                    <div class="h-64"><canvas id="salesChart"></canvas></div>
+                </div>
+                <div class="card p-6">
+                    <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-sm uppercase tracking-wider text-slate-300">Attendee Breakdown by Age Bracket</h3><span class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold px-2 py-0.5 rounded">DEMOGRAPHICS MAP</span></div>
+                    <div class="h-64"><canvas id="demographicsChart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="settings" class="content-section hidden-section animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-100">Account Settings Configuration</h2>
+                <p class="text-slate-400 text-sm mt-1">Manage your developer profile settings, security tokens, and dashboard credentials.</p>
+            </div>
+            <div class="grid grid-cols-4 gap-8 items-start">
+                <div class="space-y-1 bg-slate-900/40 border border-slate-800 p-2.5 rounded-2xl">
+                    <button onclick="switchSettingsTab('profile-tab')" class="settings-tab-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-200 bg-slate-800/80 border border-slate-700/50 transition-all text-left"><i class="fa-solid fa-user-gear text-red-400"></i> Profile Info</button>
+                    <button onclick="switchSettingsTab('security-tab')" class="settings-tab-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all text-left"><i class="fa-solid fa-shield-halved text-slate-500"></i> Security</button>
+                    <button onclick="switchSettingsTab('notifications-tab')" class="settings-tab-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all text-left"><i class="fa-solid fa-bell text-slate-500"></i> Notifications</button>
+                    <button onclick="switchSettingsTab('api-tab')" class="settings-tab-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all text-left"><i class="fa-solid fa-key text-slate-500"></i> API Integrations</button>
+                </div>
+                <div class="col-span-3 space-y-6">
+                    <div id="profile-tab" class="settings-tab-panel card p-6 space-y-6">
+                        <div><h3 class="text-base font-bold text-slate-200">Public Profile</h3><p class="text-xs text-slate-500 mt-0.5">This information will be synchronized across live ticketing modules.</p></div>
+                        <div class="border-t border-slate-800/80 my-4"></div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Full Name</label><div class="relative"><i class="fa-solid fa-user absolute left-3.5 top-3.5 text-slate-600 text-xs"></i><input type="text" id="profInputName" class="w-full bg-slate-900 border border-slate-800 pl-9 pr-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/20 transition-all text-sm"></div></div>
+                            <div><label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Email Address</label><div class="relative"><i class="fa-solid fa-envelope absolute left-3.5 top-3.5 text-slate-600 text-xs"></i><input type="email" id="profInputEmail" class="w-full bg-slate-900 border border-slate-800 pl-9 pr-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/20 transition-all text-sm"></div></div>
+                        </div>
+                        <div class="flex justify-end pt-2"><button onclick="updateProfile()" class="bg-accent px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-red-600 transition-colors shadow-lg shadow-red-500/10">Save Profile Updates</button></div>
+                    </div>
+                    <div id="security-tab" class="settings-tab-panel card p-6 space-y-6 hidden">
+                        <div><h3 class="text-base font-bold text-slate-200">Security Credentials</h3><p class="text-xs text-slate-500 mt-0.5">Ensure your dashboard uses a complex cryptographic password sequence.</p></div>
+                        <div class="border-t border-slate-800/80 my-4"></div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">New Password</label><div class="relative"><i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-600 text-xs"></i><input type="password" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-800 pl-9 pr-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 transition-colors text-sm"></div></div>
+                            <div><label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Confirm Password</label><div class="relative"><i class="fa-solid fa-shield absolute left-3.5 top-3.5 text-slate-600 text-xs"></i><input type="password" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-800 pl-9 pr-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 transition-colors text-sm"></div></div>
+                        </div>
+                        <div class="flex justify-end pt-2"><button class="bg-slate-800 text-slate-200 px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-slate-700 transition-colors">Update Password</button></div>
+                    </div>
+                    <div id="notifications-tab" class="settings-tab-panel card p-6 space-y-4 hidden">
+                        <div><h3 class="text-base font-bold text-slate-200">System Notifications</h3><p class="text-xs text-slate-500 mt-0.5">Control live transactional events webhook alert channels.</p></div>
+                        <div class="border-t border-slate-800/80 my-2"></div>
+                        <div class="space-y-3">
+                            <label class="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800/60 cursor-pointer"><div><p class="text-xs font-bold text-slate-300">Live Ticket Sales Ticker</p><p class="text-[11px] text-slate-500 mt-0.5">Push sound notifications dynamically when a new ticket is booked.</p></div><input type="checkbox" id="tickSalesSound" checked class="accent-red-500 w-4 h-4 rounded"></label>
+                            <label class="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800/60 cursor-pointer"><div><p class="text-xs font-bold text-slate-300">Capacity Threshold Alerts</p><p class="text-[11px] text-slate-500 mt-0.5">Notify when an event venue exceeds 90% total seat occupancy limits.</p></div><input type="checkbox" checked class="accent-red-500 w-4 h-4 rounded"></label>
+                        </div>
+                    </div>
+                    <div id="api-tab" class="settings-tab-panel card p-6 space-y-4 hidden">
+                        <div><h3 class="text-base font-bold text-slate-200">Developer API Keys</h3><p class="text-xs text-slate-500 mt-0.5">Web tokens used to connect external ticket checkout structures.</p></div>
+                        <div class="border-t border-slate-800/80 my-2"></div>
+                        <div><label class="text-[11px] font-bold uppercase tracking-wider text-slate-500 block mb-1.5">Live Production Token</label><div class="flex gap-2"><input type="text" readonly value="ep_live_9f8263ca982d61h8392cbfa" class="w-full font-mono bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-400 text-xs focus:outline-none"><button onclick="alert('API Token copied to clipboard')" class="bg-slate-800 border border-slate-700/60 text-slate-300 px-4 rounded-xl text-xs font-bold hover:bg-slate-700 shrink-0"><i class="fa-solid fa-copy"></i></button></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="addModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md">
+        <div class="card w-96 p-6 relative animate-fade-in max-h-[90vh] overflow-y-auto">
+            <h2 id="modalTitle" class="text-lg font-bold mb-4 text-slate-200">Add New Entry</h2>
+            <form id="addForm" class="space-y-4">
+                <div id="formFields" class="space-y-3"></div>
+                <button type="submit" class="w-full py-3 bg-accent rounded-xl font-bold text-sm hover:bg-red-600 transition-colors mt-2">Save Parameters</button>
+                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="w-full py-2 text-slate-400 text-sm font-semibold hover:text-slate-200">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="profileModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md">
+        <div class="card w-96 p-6 relative animate-fade-in">
+            <button onclick="document.getElementById('profileModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="text-center mt-2">
+                <div id="modalUserInitial" class="w-14 h-14 rounded-2xl border border-red-500/20 bg-red-500/10 text-accent flex items-center justify-center text-xl mx-auto mb-3 shadow-sm font-bold">SS</div>
+                <h2 id="modalUserName" class="text-lg font-bold text-slate-100">Sumit Sharma</h2>
+                <p class="text-xs text-slate-400">Pro Enterprise Promoter</p>
+            </div>
+            <div class="grid grid-cols-2 gap-3 my-5">
+                <div class="bg-slate-900/60 border border-slate-800/60 p-3 rounded-xl text-center"><p class="text-[10px] font-bold text-slate-500 uppercase">Total Items</p><p class="font-bold text-lg text-slate-200 mt-0.5">24</p></div>
+                <div class="bg-slate-900/60 border border-slate-800/60 p-3 rounded-xl text-center"><p class="text-[10px] font-bold text-slate-500 uppercase">Average Score</p><p class="font-bold text-lg text-amber-400 mt-0.5">4.9</p></div>
+            </div>
+            <div class="text-xs space-y-3 mb-6 px-1">
+                <div class="flex justify-between border-b border-slate-800 pb-2.5"><span class="text-slate-400">Attained Proceeds</span><span class="font-semibold text-slate-200">₹12.45L</span></div>
+                <div class="flex justify-between border-b border-slate-800 pb-2.5"><span class="text-slate-400">Onboard Date</span><span class="font-semibold text-slate-200">Jan 2026</span></div>
+            </div>
+            <button onclick="window.location.href='login.html'" 
+        class="w-full py-3 bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white text-red-400 rounded-xl transition-all text-sm font-bold">
+    <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Logout
+</button>
+    </div>
+
+    <!-- Toast container for notifications -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-[200] space-y-3 pointer-events-none"></div>
+
+    <script>
+        let currentUser = JSON.parse(localStorage.getItem('ep_user_profile')) || { name: "Sumit Sharma", email: "sumit@promoter.com" };
+
+        const defaultVenues = [
+            { name: "Grand Arena", location: "Downtown", capacity: "50,000", status: "Active" },
+            { name: "City Hall", location: "Uptown", capacity: "2,000", status: "Active" },
+            { name: "Open Stadium", location: "Suburbs", capacity: "30,000", status: "Maintenance" },
+            { name: "Club Pulse", location: "City Center", capacity: "500", status: "Active" }
+        ];
+
+        let venues = JSON.parse(localStorage.getItem('ep_venues'));
+        if (!venues || venues.length === 0) { venues = defaultVenues; localStorage.setItem('ep_venues', JSON.stringify(venues)); }
+
+        // Localized mapping for OpenStreetMap positioning
+        let storedGeolocations = JSON.parse(localStorage.getItem('ep_venue_geolocations'));
+        if (!storedGeolocations) {
+            storedGeolocations = {
+                "Grand Arena":  { lat: "12.9716", lon: "77.5946", bbox: "77.580%2C12.960%2C77.610%2C12.990" },
+                "City Hall":    { lat: "18.9220", lon: "72.8347", bbox: "72.820%2C18.910%2C72.850%2C18.940" },
+                "Open Stadium": { lat: "28.6139", lon: "77.2090", bbox: "77.190%2C28.600%2C77.220%2C28.630" },
+                "Club Pulse":   { lat: "22.5726", lon: "88.3639", bbox: "88.350%2C22.560%2C88.380%2C22.590" }
+            };
+            localStorage.setItem('ep_venue_geolocations', JSON.stringify(storedGeolocations));
+        }
+        const venueGeolocations = storedGeolocations;
+
+        const defaultConcerts = [
+            { name: "Neon Nights", status: "live", img: "https://images.stockcake.com/public/b/7/e/b7e81a8b-1407-4eb4-a4a2-d76e920563ef_large/neon-concert-waves-stockcake.jpg", venue: "Grand Arena", trailer: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", views: 45200, ticketsSold: 4150, ticketsLeft: 1100, revenue: 1867500, highlights: "Gates opened smoothly; Merch stand running high volume sales; Venue capacity updated dynamically to accommodate stadium scale demand." },
+            { name: "Sunset Jazz", status: "live", img: "https://images.unsplash.com/photo-1511192336575-5a79af67a629", venue: "Grand Arena", trailer: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", views: 12400, ticketsSold: 3800, ticketsLeft: 1450, revenue: 1710000, highlights: "VIP lounge fully occupied; Main arena floor reconfiguration successful." },
+            { name: "Rock Anthem", status: "upcoming", img: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14", venue: "Open Stadium", trailer: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", views: 89000, ticketsSold: 0, ticketsLeft: 30000, revenue: 0, highlights: "" },
+            { name: "Pop Galaxy", status: "completed", img: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7", venue: "Grand Arena", trailer: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", views: 154000, ticketsSold: 5200, ticketsLeft: 50, revenue: 2340000, highlights: "Sold out within 48 hours; Surprise duet performance during the encore; Immersive 3D structural laser setups." }
+        ];
+
+        let concerts = JSON.parse(localStorage.getItem('ep_concerts')) || defaultConcerts;
+        if (!localStorage.getItem('ep_concerts')) { localStorage.setItem('ep_concerts', JSON.stringify(concerts)); }
+
+        let leaderboardPromoters = [
+            { id: "self", name: currentUser.name, spent: 750000, active: true },
+            { id: "comp1", name: "Priya V", spent: 710000, active: true },
+            { id: "comp2", name: "Rahul K", spent: 540000, active: true },
+            { id: "comp3", name: "Anita D", spent: 480000, active: true },
+            { id: "comp4", name: "Vikram S", spent: 390000, active: true }
+        ];
+
+        const prospectivePromotersPool = [
+            { name: "Kabir Dev", spent: 310000 }, { name: "Sneha Kapoor", spent: 440000 },
+            { name: "Rohan Mehta", spent: 510000 }, { name: "Tanya Sharma", spent: 280000 }
+        ];
+
+        let promotions = JSON.parse(localStorage.getItem('ep_promotions')) || [
+            { title: "Early Bird Discount", code: "EARLY20", discount: 20, valid: "2026-07-15" },
+            { title: "Group Booking Discount", code: "GROUP5", discount: 5, valid: "2026-06-30" },
+            { title: "Student Pass Discount", code: "STUDENT10", discount: 10, valid: "2026-06-18" }
+        ];
+
+        let activeLiveInterval = null, currentModalConcertIndex = null, seatStatesArray = [], currentSearchQuery = "", acActiveIndex = -1;
+        let sessionAdditionalSold = 0;
+        let sessionAdditionalRevenue = 0;
+        let activeModalType = '';
+
+        function handleClearSplashOverlay(event) {
+            const s = document.getElementById('splashScreen');
+            if (s) { s.classList.add('opacity-0', 'pointer-events-none'); setTimeout(() => s.remove(), 700); }
+        }
+
+        function highlightMatch(text, query) {
+            if (!query) return text;
+            const idx = text.toLowerCase().indexOf(query.toLowerCase());
+            if (idx === -1) return text;
+            return text.slice(0, idx) + '<span class="ac-highlight">' + text.slice(idx, idx + query.length) + '</span>' + text.slice(idx + query.length);
+        }
+
+        function buildAutocompleteDropdown(query) {
+            const dropdown = document.getElementById('autocompleteDropdown');
+            if (!dropdown) return;
+            const q = query.trim().toLowerCase();
+            if (!q) { dropdown.innerHTML = ''; acActiveIndex = -1; return; }
+            const mc = concerts.map((c, i) => ({ ...c, _i: i })).filter(c => c.name.toLowerCase().includes(q) || c.venue.toLowerCase().includes(q));
+            const mv = venues.filter(v => v.name.toLowerCase().includes(q) || v.location.toLowerCase().includes(q));
+            let html = '';
+            if (mc.length > 0) {
+                html += '<div class="ac-section-header"><i class="fa-solid fa-guitar mr-1"></i> Concerts</div>';
+                mc.forEach(c => {
+                    const sc = { live: 'background:#ef444420;color:#ef4444', upcoming: 'background:#3b82f620;color:#60a5fa', completed: 'background:#10b98120;color:#34d399' };
+                    html += `<div class="ac-item" onclick="acNavigateConcert(${c._i})" data-type="concert" data-idx="${c._i}"><div class="ac-icon" style="${sc[c.status]||sc.upcoming}"><i class="fa-solid fa-music" style="font-size:11px"></i></div><span class="ac-label">${highlightMatch(c.name, query.trim())}</span><span class="ac-sub">${c.venue} &bull; ${c.status}</span></div>`;
+                });
+            }
+            if (mv.length > 0) {
+                html += '<div class="ac-section-header"><i class="fa-solid fa-building mr-1"></i> Venues</div>';
+                mv.forEach(v => {
+                    html += `<div class="ac-item" onclick="acNavigateVenue('${v.name}')" data-type="venue" data-name="${v.name}"><div class="ac-icon" style="background:#8b5cf620;color:#a78bfa"><i class="fa-solid fa-location-dot" style="font-size:11px"></i></div><span class="ac-label">${highlightMatch(v.name, query.trim())}</span><span class="ac-sub">${v.location} &bull; ${v.capacity} seats</span></div>`;
+                });
+            }
+            if (!html) html = '<div class="ac-item" style="cursor:default;"><span class="ac-label" style="color:#475569;font-style:italic;">No results found</span></div>';
+            dropdown.innerHTML = html;
+            acActiveIndex = -1;
+        }
+
+        function acNavigateConcert(idx) { 
+            closeAutocomplete(); 
+            document.getElementById('showSectionInput').value = '';
+            showSection('concerts'); 
+            renderAll(); 
+            setTimeout(() => openEventTelemetrySidebar(idx), 80); 
+        }
+
+        function acNavigateVenue(name) { 
+            closeAutocomplete(); 
+            document.getElementById('globalSearchInput').value = '';
+            showSection('venues'); 
+            renderAll(); 
+            setTimeout(() => selectVenueLocation(name), 80); 
+        }
+
+        function closeAutocomplete() { const d = document.getElementById('autocompleteDropdown'); if (d) d.innerHTML = ''; acActiveIndex = -1; }
+
+        function handleSearchKeydown(e) {
+            const dropdown = document.getElementById('autocompleteDropdown');
+            const items = dropdown ? dropdown.querySelectorAll('.ac-item[data-type]') : [];
+            if (!items.length) return;
+            if (e.key === 'ArrowDown') { e.preventDefault(); acActiveIndex = Math.min(acActiveIndex + 1, items.length - 1); items.forEach((el, i) => el.classList.toggle('ac-active', i === acActiveIndex)); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); acActiveIndex = Math.max(acActiveIndex - 1, 0); items.forEach((el, i) => el.classList.toggle('ac-active', i === acActiveIndex)); }
+            else if (e.key === 'Enter') { e.preventDefault(); if (acActiveIndex >= 0 && items[acActiveIndex]) items[acActiveIndex].click(); else if (items.length === 1) items[0].click(); }
+            else if (e.key === 'Escape') closeAutocomplete();
+        }
+
+        function handleSearchConcerts(query) { currentSearchQuery = query.trim().toLowerCase(); buildAutocompleteDropdown(query); renderAll(); }
+
+        function getTier(spent) {
+            if (spent > 600000) return { label: 'PLATINUM', color: 'text-sky-400', icon: 'fa-gem' };
+            if (spent > 450000) return { label: 'GOLD', color: 'text-amber-400', icon: 'fa-crown' };
+            if (spent > 250000) return { label: 'SILVER', color: 'text-slate-300', icon: 'fa-medal' };
+            return { label: 'BRONZE', color: 'text-amber-700', icon: 'fa-award' };
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden-section'));
+            document.getElementById(id).classList.remove('hidden-section');
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active-nav'));
+            const t = document.getElementById(`nav-${id}`);
+            if (t) t.classList.add('active-nav');
+            
+            // Re-render components for matching search results
+            renderAll();
+        }
+
+        function switchSettingsTab(targetTabId) {
+            document.querySelectorAll('.settings-tab-panel').forEach(p => p.classList.add('hidden'));
+            document.getElementById(targetTabId).classList.remove('hidden');
+            document.querySelectorAll('.settings-tab-btn').forEach(btn => { btn.classList.remove('text-slate-200','bg-slate-800/80','border-slate-700/50'); btn.classList.add('text-slate-400'); btn.querySelector('i').classList.remove('text-red-400'); btn.querySelector('i').classList.add('text-slate-500'); });
+            const ab = event.currentTarget;
+            ab.classList.add('text-slate-200','bg-slate-800/80','border-slate-700/50');
+            ab.querySelector('i').classList.remove('text-slate-500'); ab.querySelector('i').classList.add('text-red-400');
+        }
+
+        function selectVenueLocation(venueName) {
+            const label = document.getElementById('mapTargetLabel'), iframe = document.getElementById('venueMapIframe');
+            if (!label || !iframe) return;
+            label.innerText = venueName;
+            const c = venueGeolocations[venueName] || { lat: "20.5937", lon: "78.9629", bbox: "68.000%2C8.000%2C97.000%2C37.000" };
+            iframe.src = `https://www.openstreetmap.org/export/embed.html?bbox=${c.bbox}&layer=mapnik&marker=${c.lat}%2C${c.lon}`;
+        }
+
+        function applyPromotionCode(index) {
+            const inp = document.getElementById(`promoInput_${index}`), fb = document.getElementById(`promoFeedback_${index}`), concert = concerts[index];
+            if (!inp || !fb || !concert) return;
+            const code = inp.value.trim().toUpperCase(), coupon = promotions.find(p => p.code === code);
+            if (!coupon) { fb.innerText = "Invalid Promo Code Sequence."; fb.className = "text-[11px] text-rose-500 mt-2 font-medium block"; return; }
+            if (new Date(coupon.valid) < new Date()) { 
+                fb.innerText = "Coupon code has expired."; 
+                fb.className = "text-[11px] text-rose-500 mt-2 font-medium block"; 
+                return; 
+            }
+            
+            // Apply ticket price discount configuration
+            const discountPercent = coupon.discount;
+            fb.innerText = `Discount Applied: -${discountPercent}%`;
+            fb.className = "text-[11px] text-emerald-400 mt-2 font-medium block";
+        }
+
+        // Leaderboard rendering
+        function renderLeaderboard() {
+            const sidebarList = document.getElementById('sidebarUserList');
+            if (!sidebarList) return;
+            
+            leaderboardPromoters.sort((a, b) => b.spent - a.spent);
+            
+            sidebarList.innerHTML = leaderboardPromoters.map((p, idx) => {
+                const tier = getTier(p.spent);
+                const isSelf = p.id === 'self' ? 'border-red-500/30 bg-red-500/5' : 'border-slate-800/40';
+                return `
+                    <div class="card p-2 px-3 flex justify-between items-center text-[11px] ${isSelf} mb-1">
+                        <div class="flex items-center gap-2 truncate">
+                            <span class="font-bold text-slate-500 w-3">${idx + 1}</span>
+                            <div class="truncate">
+                                <p class="font-bold text-slate-300 truncate">${p.name}</p>
+                                <p class="text-[9px] text-slate-500 flex items-center gap-1"><i class="fa-solid ${tier.icon} ${tier.color}"></i> ${tier.label}</p>
+                            </div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <p class="font-bold text-slate-300">₹${(p.spent/100000).toFixed(2)}L</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Concert Grids rendering
+        function renderConcertGrids() {
+            const mainGrid = document.getElementById('concertGrid');
+            const liveGrid = document.getElementById('liveGrid');
+            const upcomingGrid = document.getElementById('upcomingGrid');
+            const completedGrid = document.getElementById('completedGrid');
+            
+            if (!mainGrid || !liveGrid || !upcomingGrid || !completedGrid) return;
+            
+            mainGrid.innerHTML = '';
+            liveGrid.innerHTML = '';
+            upcomingGrid.innerHTML = '';
+            completedGrid.innerHTML = '';
+            
+            concerts.forEach((c, idx) => {
+                if (currentSearchQuery) {
+                    const matchesName = c.name.toLowerCase().includes(currentSearchQuery);
+                    const matchesVenue = c.venue.toLowerCase().includes(currentSearchQuery);
+                    if (!matchesName && !matchesVenue) return;
+                }
+                
+                const cardHtml = `
+                    <div class="card overflow-hidden flex flex-col cursor-pointer relative" onclick="handleConcertCardClick(${idx})">
+                        <div class="h-44 w-full overflow-hidden relative">
+                            <img src="${c.img}" alt="${c.name}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                            <div class="absolute top-3 right-3">
+                                ${getStatusBadge(c.status)}
+                            </div>
+                        </div>
+                        <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                            <div>
+                                <h4 class="font-bold text-slate-100 text-base">${c.name}</h4>
+                                <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-location-dot text-slate-600 mr-1.5"></i> ${c.venue}</p>
+                            </div>
+
+                            
+                            ${c.status === 'live' || c.status === 'completed' ? `
+                                <div class="grid grid-cols-2 gap-4 border-t border-slate-800/60 pt-4">
+                                    <div>
+                                        <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Tickets Confirmed</p>
+                                        <p class="text-sm font-bold text-slate-200 mt-0.5">${(c.ticketsSold || 0).toLocaleString('en-IN')}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Gross proceeds</p>
+                                        <p class="text-sm font-bold text-teal-400 mt-0.5">₹${(c.revenue || 0).toLocaleString('en-IN')}</p>
+                                    </div>
+                                </div>
+                            ` : `
+                                <div class="border-t border-slate-800/60 pt-4">
+                                    <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Pre-registration Views</p>
+                                    <p class="text-sm font-bold text-slate-200 mt-0.5">${(c.views || 0).toLocaleString('en-IN')}</p>
+                                </div>
+                            `}
+                            
+                            ${c.status === 'live' ? `
+                                <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-2.5 text-center mt-2 flex items-center justify-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                                    <span class="text-[10px] font-bold text-red-400 uppercase tracking-wider">Click for Telemetry</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                mainGrid.insertAdjacentHTML('beforeend', cardHtml);
+                if (c.status === 'live') liveGrid.insertAdjacentHTML('beforeend', cardHtml);
+                else if (c.status === 'upcoming') upcomingGrid.insertAdjacentHTML('beforeend', cardHtml);
+                else if (c.status === 'completed') completedGrid.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        function getStatusBadge(status) {
+            if (status === 'live') {
+                return `<span class="bg-red-500/90 text-white font-bold text-[9px] tracking-widest uppercase px-2.5 py-1 rounded-full shadow-lg shadow-red-500/20 border border-red-400/30 flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-white rounded-full animate-ping"></span> Live</span>`;
+            } else if (status === 'upcoming') {
+                return `<span class="bg-blue-500/90 text-white font-bold text-[9px] tracking-widest uppercase px-2.5 py-1 rounded-full border border-blue-400/30">Upcoming</span>`;
+            } else if (status === 'completed') {
+                return `<span class="bg-emerald-500/90 text-white font-bold text-[9px] tracking-widest uppercase px-2.5 py-1 rounded-full border border-emerald-400/30">Completed</span>`;
+            }
+        }
+
+        // Venues Grid rendering
+        function renderVenueGrid() {
+            const grid = document.getElementById('venueGrid');
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+            venues.forEach((v) => {
+                if (currentSearchQuery) {
+                    const match = v.name.toLowerCase().includes(currentSearchQuery) || v.location.toLowerCase().includes(currentSearchQuery);
+                    if (!match) return;
+                }
+                
+                const activeBadge = v.status === 'Active' 
+                    ? '<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-bold px-2 py-0.5 rounded">ACTIVE</span>'
+                    : '<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] font-bold px-2 py-0.5 rounded">MAINTENANCE</span>';
+                    
+                grid.innerHTML += `
+                    <div class="card p-5 cursor-pointer flex justify-between items-center border border-slate-800 hover:border-red-500/40" onclick="selectVenueLocation('${v.name}')">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400">
+                                <i class="fa-solid fa-building text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-200 text-sm">${v.name}</h4>
+                                <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-map-pin text-slate-600 mr-1"></i> ${v.location}</p>
+                            </div>
+                        </div>
+                        <div class="text-right flex flex-col items-end gap-1.5">
+                            <p class="text-xs text-slate-400 font-semibold"><i class="fa-solid fa-users text-slate-600 mr-1"></i> ${v.capacity} seats</p>
+                            ${activeBadge}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Promotions Grid rendering
+        function renderPromoGrid() {
+            const grid = document.getElementById('promoGrid');
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+            promotions.forEach((p) => {
+                if (currentSearchQuery) {
+                    const match = p.title.toLowerCase().includes(currentSearchQuery) || p.code.toLowerCase().includes(currentSearchQuery);
+                    if (!match) return;
+                }
+                
+                grid.innerHTML += `
+                    <div class="card p-5 border border-slate-800 flex flex-col justify-between space-y-4">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h4 class="font-bold text-slate-200 text-sm truncate pr-2" title="${p.title}">${p.title}</h4>
+                                <span class="bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] font-extrabold px-2 py-0.5 rounded font-mono shrink-0">${p.discount}% OFF</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-2">Active promo campaign coupon code.</p>
+                        </div>
+                        <div class="bg-slate-900/60 border border-slate-800/60 p-2.5 rounded-xl flex justify-between items-center">
+                            <div>
+                                <p class="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Coupon Code</p>
+                                <p class="text-xs font-mono font-bold text-slate-300 mt-0.5">${p.code}</p>
+                            </div>
+                            <button onclick="navigator.clipboard.writeText('${p.code}'); addNotificationToast('Code Copied!', 'Promo code ${p.code} copied to clipboard.')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 w-8 h-8 rounded-lg flex items-center justify-center transition-colors">
+                                <i class="fa-solid fa-copy text-xs"></i>
+                            </button>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-500 border-t border-slate-800/40 pt-3">
+                            <span>Valid until:</span>
+                            <span class="font-semibold text-slate-400">${p.valid}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Live telemetry sidebar controller
+        function handleConcertCardClick(idx) {
+            openEventTelemetrySidebar(idx);
+        }
+
+        function openEventTelemetrySidebar(idx) {
+            const sidebar = document.getElementById('rightTelemetrySidebar');
+            const mainContent = document.getElementById('mainContentArea');
+            if (!sidebar || !mainContent) return;
+            
+            currentModalConcertIndex = idx;
+            const concert = concerts[idx];
+            
+            document.getElementById('telTitle').innerText = concert.name;
+            document.getElementById('telVenue').innerHTML = `<i class="fa-solid fa-location-dot text-slate-600 mr-1"></i>${concert.venue}`;
+            
+            document.getElementById('telSold').innerText = (concert.ticketsSold || 0).toLocaleString('en-IN');
+            document.getElementById('telLeft').innerText = (concert.ticketsLeft || 0).toLocaleString('en-IN');
+            document.getElementById('telRevenue').innerText = `₹${(concert.revenue || 0).toLocaleString('en-IN')}`;
+            
+            generateSeatingGrid(idx);
+            
+            const highlights = document.getElementById('telHighlights');
+            if (highlights) {
+                highlights.innerHTML = `
+                    <p class="text-slate-500 italic">[System Initialization] Loading telemetric stream for ${concert.name}...</p>
+                    <p class="text-slate-400 mt-1"><span class="text-slate-600">[${new Date().toLocaleTimeString()}]</span> Connected to venue node at ${concert.venue}.</p>
+                    <p class="text-slate-400 mt-1"><span class="text-slate-600">[${new Date().toLocaleTimeString()}]</span> Row Blueprint seating map online.</p>
+                `;
+                if (concert.highlights) {
+                    highlights.innerHTML += `<p class="text-slate-400 mt-1.5 border-t border-slate-800/80 pt-1.5"><i class="fa-solid fa-circle-info text-slate-600"></i> ${concert.highlights}</p>`;
+                }
+            }
+            
+            sidebar.classList.add('active');
+            mainContent.classList.add('telemetry-active');
+            
+            if (activeLiveInterval) clearInterval(activeLiveInterval);
+            if (concert.status === 'live') {
+                activeLiveInterval = setInterval(() => {
+                    simulateTicketSale(idx);
+                }, 3000 + Math.random() * 3000);
+            }
+        }
+
+        function closeTelemetrySidebar() {
+            const sidebar = document.getElementById('rightTelemetrySidebar');
+            const mainContent = document.getElementById('mainContentArea');
+            if (sidebar) sidebar.classList.remove('active');
+            if (mainContent) mainContent.classList.remove('telemetry-active');
+            
+            if (activeLiveInterval) {
+                clearInterval(activeLiveInterval);
+                activeLiveInterval = null;
+            }
+            currentModalConcertIndex = null;
+        }
+
+        // Seating map generation & reservation controllers
+        function generateSeatingGrid(idx) {
+            const concert = concerts[idx];
+            const totalSeats = 96;
+            seatStatesArray = [];
+            
+            const capacity = (concert.ticketsSold || 0) + (concert.ticketsLeft || 100);
+            const soldRatio = (concert.ticketsSold || 0) / capacity;
+            
+            const gridContainer = document.getElementById('telSeatingGridMap');
+            if (!gridContainer) return;
+            gridContainer.innerHTML = '';
+            
+            for (let r = 0; r < 8; r++) {
+                const rowLetter = String.fromCharCode(65 + r);
+                let price = 1200;
+                if (r < 2) price = 5000;
+                else if (r < 5) price = 2500;
+                
+                for (let c = 1; c <= 12; c++) {
+                    const seatId = `${rowLetter}-${c}`;
+                    let isSold = false;
+                    
+                    if (concert.status === 'completed') {
+                        isSold = true;
+                    } else if (concert.status === 'upcoming') {
+                        isSold = false;
+                    } else {
+                        const seed = (concert.name.charCodeAt(0) || 0) + r * 13 + c * 7;
+                        const pseudoRandom = (Math.sin(seed) + 1) / 2;
+                        isSold = pseudoRandom < soldRatio;
+                    }
+                    
+                    const seatObj = { id: seatId, status: isSold ? 'sold' : 'open', price: price };
+                    seatStatesArray.push(seatObj);
+                    
+                    const seatClass = isSold 
+                        ? 'bg-red-500 border border-red-600 cursor-not-allowed text-white' 
+                        : 'bg-slate-800 border border-slate-700 hover:border-red-500/70 hover:bg-slate-700 text-slate-400 cursor-pointer';
+                        
+                    gridContainer.innerHTML += `
+                        <button id="seat-${seatId}" 
+                                title="Seat ${seatId} (${isSold ? 'Sold' : `Open - ₹${price.toLocaleString('en-IN')}`})" 
+                                onclick="handleSeatClick('${seatId}', ${idx})" 
+                                class="w-5 h-5 rounded-sm flex items-center justify-center text-[7px] font-bold transition-all ${seatClass}">
+                            ${rowLetter}${c}
+                        </button>
+                    `;
+                }
+            }
+        }
+
+        function handleSeatClick(seatId, idx) {
+            const seat = seatStatesArray.find(s => s.id === seatId);
+            if (!seat || seat.status === 'sold') return;
+            bookSeat(seat, idx);
+        }
+
+        function bookSeat(seat, idx) {
+            const concert = concerts[idx];
+            if (concert.ticketsLeft <= 0) {
+                addNotificationToast("Sold Out!", `${concert.name} has no tickets left.`);
+                return;
+            }
+            
+            seat.status = 'sold';
+            concert.ticketsSold = (concert.ticketsSold || 0) + 1;
+            concert.ticketsLeft = Math.max(0, (concert.ticketsLeft || 0) - 1);
+            concert.revenue = (concert.revenue || 0) + seat.price;
+            
+            localStorage.setItem('ep_concerts', JSON.stringify(concerts));
+            
+            sessionAdditionalSold += 1;
+            sessionAdditionalRevenue += seat.price;
+            
+            const selfPromoter = leaderboardPromoters.find(p => p.id === 'self');
+            if (selfPromoter) {
+                selfPromoter.spent += seat.price;
+                renderLeaderboard();
+            }
+            
+            const btn = document.getElementById(`seat-${seat.id}`);
+            if (btn) {
+                btn.className = 'w-5 h-5 rounded-sm flex items-center justify-center text-[7px] font-bold transition-all bg-red-500 border border-red-600 cursor-not-allowed text-white';
+                btn.title = `Seat ${seat.id} (Sold)`;
+            }
+            
+            document.getElementById('telSold').innerText = concert.ticketsSold.toLocaleString('en-IN');
+            document.getElementById('telLeft').innerText = concert.ticketsLeft.toLocaleString('en-IN');
+            document.getElementById('telRevenue').innerText = `₹${concert.revenue.toLocaleString('en-IN')}`;
+            
+            const time = new Date().toLocaleTimeString();
+            const highlights = document.getElementById('telHighlights');
+            if (highlights) {
+                const logEl = document.createElement('p');
+                logEl.className = 'text-slate-400 mt-1 animate-fade-in';
+                logEl.innerHTML = `<span class="text-slate-600">[${time}]</span> <span class="text-emerald-400">Booked:</span> Seat <span class="text-slate-100 font-semibold">${seat.id}</span> (Gross: +₹${seat.price.toLocaleString('en-IN')})`;
+                highlights.appendChild(logEl);
+                highlights.scrollTop = highlights.scrollHeight;
+            }
+            
+            playBeepSound();
+            addNotificationToast("Ticket Confirmed!", `${concert.name}: Seat ${seat.id} purchased.`);
+            
+            renderConcertGrids();
+            updateDashboardStats();
+        }
+
+        // Live booking tick simulation
+        function simulateTicketSale(idx) {
+            const openSeats = seatStatesArray.filter(s => s.status === 'open');
+            if (openSeats.length === 0) {
+                clearInterval(activeLiveInterval);
+                const highlights = document.getElementById('telHighlights');
+                if (highlights) {
+                    const logEl = document.createElement('p');
+                    logEl.className = 'text-amber-500 font-bold mt-1';
+                    logEl.innerText = `[Simulation Closed] All tickets sold out.`;
+                    highlights.appendChild(logEl);
+                }
+                return;
+            }
+            
+            const randomSeat = openSeats[Math.floor(Math.random() * openSeats.length)];
+            bookSeat(randomSeat, idx);
+        }
+
+        // Add modal builder
+        function openAddModal(type) {
+            activeModalType = type;
+            const modal = document.getElementById('addModal');
+            const title = document.getElementById('modalTitle');
+            const fields = document.getElementById('formFields');
+            if (!modal || !title || !fields) return;
+            
+            fields.innerHTML = '';
+            modal.classList.remove('hidden');
+            
+            if (type === 'concert') {
+                title.innerText = "Add New Concert";
+                let venueOptionsHtml = venues.map(v => `<option value="${v.name}">${v.name}</option>`).join('');
+                fields.innerHTML = `
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Concert Name</label>
+                        <input type="text" id="addConcertName" required class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Status</label>
+                        <select id="addConcertStatus" class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                            <option value="live">Live Now</option>
+                            <option value="upcoming">Upcoming</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Image URL</label>
+                        <input type="text" id="addConcertImg" value="https://images.unsplash.com/photo-1470225620780-dba8ba36b745" class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Venue</label>
+                        <select id="addConcertVenue" class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                            ${venueOptionsHtml}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Views</label>
+                        <input type="number" id="addConcertViews" value="1000" class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Tickets Sold</label>
+                        <input type="number" id="addConcertSold" value="0" class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Tickets Left</label>
+                        <input type="number" id="addConcertLeft" value="1000" class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Revenue (₹)</label>
+                        <input type="number" id="addConcertRevenue" value="0" class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Highlights</label>
+                        <textarea id="addConcertHighlights" class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm h-14">Initial pipeline logs active.</textarea>
+                    </div>
+                `;
+            } else if (type === 'venue') {
+                title.innerText = "Add New Venue";
+                fields.innerHTML = `
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Venue Name</label>
+                        <input type="text" id="addVenueName" required class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Location</label>
+                        <input type="text" id="addVenueLocation" required class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Capacity</label>
+                        <input type="text" id="addVenueCapacity" placeholder="e.g. 15,000" required class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Status</label>
+                        <select id="addVenueStatus" class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                            <option value="Active">Active</option>
+                            <option value="Maintenance">Maintenance</option>
+                        </select>
+                    </div>
+                `;
+            } else if (type === 'promotion') {
+                title.innerText = "New Promotion Campaign";
+                fields.innerHTML = `
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Campaign Title</label>
+                        <input type="text" id="addPromoTitle" required class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Promo Code</label>
+                        <input type="text" id="addPromoCode" placeholder="e.g. MONSTER25" required class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Discount %</label>
+                        <input type="number" id="addPromoDiscount" min="1" max="100" required class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Expiration Date</label>
+                        <input type="date" id="addPromoValid" required class="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                `;
+            }
+        }
+
+        document.getElementById('addForm').onsubmit = function(e) {
+            e.preventDefault();
+            if (activeModalType === 'concert') {
+                const name = document.getElementById('addConcertName').value;
+                const status = document.getElementById('addConcertStatus').value;
+                const img = document.getElementById('addConcertImg').value;
+                const venue = document.getElementById('addConcertVenue').value;
+                const views = parseInt(document.getElementById('addConcertViews').value) || 0;
+                const ticketsSold = parseInt(document.getElementById('addConcertSold').value) || 0;
+                const ticketsLeft = parseInt(document.getElementById('addConcertLeft').value) || 0;
+                const revenue = parseInt(document.getElementById('addConcertRevenue').value) || 0;
+                const highlights = document.getElementById('addConcertHighlights').value;
+                
+                concerts.push({ name, status, img, venue, views, ticketsSold, ticketsLeft, revenue, highlights });
+                localStorage.setItem('ep_concerts', JSON.stringify(concerts));
+                addNotificationToast("Concert Added!", `Successfully registered ${name} in the inventory.`);
+            } else if (activeModalType === 'venue') {
+                const name = document.getElementById('addVenueName').value;
+                const location = document.getElementById('addVenueLocation').value;
+                const capacity = document.getElementById('addVenueCapacity').value;
+                const status = document.getElementById('addVenueStatus').value;
+                
+                venues.push({ name, location, capacity, status });
+                localStorage.setItem('ep_venues', JSON.stringify(venues));
+                
+                const lat = (12.9 + Math.random() * 15).toFixed(4);
+                const lon = (77.5 + Math.random() * 10).toFixed(4);
+                const bbox = `${(parseFloat(lon)-0.015).toFixed(3)}%2C${(parseFloat(lat)-0.015).toFixed(3)}%2C${(parseFloat(lon)+0.015).toFixed(3)}%2C${(parseFloat(lat)+0.015).toFixed(3)}`;
+                venueGeolocations[name] = { lat, lon, bbox };
+                localStorage.setItem('ep_venue_geolocations', JSON.stringify(venueGeolocations));
+                
+                addNotificationToast("Venue Added!", `Venue ${name} registered successfully.`);
+            } else if (activeModalType === 'promotion') {
+                const title = document.getElementById('addPromoTitle').value;
+                const code = document.getElementById('addPromoCode').value.toUpperCase();
+                const discount = parseInt(document.getElementById('addPromoDiscount').value) || 0;
+                const valid = document.getElementById('addPromoValid').value;
+                
+                promotions.push({ title, code, discount, valid });
+                localStorage.setItem('ep_promotions', JSON.stringify(promotions));
+                addNotificationToast("Promotion Created!", `Code ${code} (${discount}%) is now active.`);
+            }
+            
+            document.getElementById('addModal').classList.add('hidden');
+            renderAll();
+        };
+
+        // Profile updater
+        function updateProfile() {
+            currentUser.name = document.getElementById('profInputName').value;
+            currentUser.email = document.getElementById('profInputEmail').value;
+            localStorage.setItem('ep_user_profile', JSON.stringify(currentUser));
+            
+            loadProfileInSettings();
+            
+            leaderboardPromoters.find(p => p.id === 'self').name = currentUser.name;
+            renderLeaderboard();
+            
+            addNotificationToast("Profile Saved!", "Public promoter profile details synchronized successfully.");
+        }
+
+        function loadProfileInSettings() {
+            const nameInput = document.getElementById('profInputName');
+            const emailInput = document.getElementById('profInputEmail');
+            if (nameInput) nameInput.value = currentUser.name;
+            if (emailInput) emailInput.value = currentUser.email;
+            
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            document.getElementById('sbUserInitial').innerText = initials;
+            document.getElementById('modalUserInitial').innerText = initials;
+            document.getElementById('sbUserName').innerText = currentUser.name;
+            document.getElementById('modalUserName').innerText = currentUser.name;
+            document.getElementById('headerGreeting').innerText = `Welcome back, ${currentUser.name.split(' ')[0]}! 👋`;
+        }
+
+        // Web Audio Synthesized Chime Tones
+        function playBeepSound() {
+            const chk = document.getElementById('tickSalesSound');
+            if (chk && !chk.checked) return;
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
+                gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.15);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.15);
+            } catch (e) {
+                console.error("Web Audio API not supported/blocked: ", e);
+            }
+        }
+
+        // Visual notifications toaster
+        function addNotificationToast(title, body) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast-card bg-[#0f172a]/95 backdrop-blur-md border border-red-500/30 p-4 rounded-xl shadow-2xl flex gap-3 text-slate-200 pointer-events-auto max-w-sm w-80 items-start';
+            toast.innerHTML = `
+                <div class="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 shrink-0 mt-0.5">
+                    <i class="fa-solid fa-bell text-xs"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-xs text-slate-100">${title}</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5 leading-relaxed">${body}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-slate-300 shrink-0"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('transition-all', 'duration-500', 'opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 500);
+            }, 3500);
+        }
+
+        // Global stats updater
+        function updateDashboardStats() {
+            const baseSold = 12450;
+            const baseRevenue = 32500000;
+            const baseProfit = 1245000;
+            
+            const currentSold = baseSold + sessionAdditionalSold;
+            const currentRevenue = baseRevenue + sessionAdditionalRevenue;
+            const currentProfit = baseProfit + Math.round(sessionAdditionalRevenue * 0.80);
+            
+            const elSold = document.getElementById('dashTicketsSold');
+            if (elSold) elSold.innerText = currentSold.toLocaleString('en-IN');
+            
+            const elRevenue = document.getElementById('dashRevenue');
+            if (elRevenue) {
+                const crVal = (currentRevenue / 10000000).toFixed(2);
+                elRevenue.innerText = `₹${crVal}Cr`;
+            }
+            
+            const elProfit = document.getElementById('dashProfit');
+            if (elProfit) {
+                const lVal = (currentProfit / 100000).toFixed(2);
+                elProfit.innerText = `₹${lVal}L`;
+            }
+            
+            const elEvents = document.getElementById('dashEvents');
+            if (elEvents) elEvents.innerText = concerts.length + 20;
+        }
+
+        // Date display builder
+        function initCurrentDate() {
+            const el = document.getElementById('currentDate');
+            if (!el) return;
+            const now = new Date();
+            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+            el.innerHTML = `<i class="fa-solid fa-calendar-days text-red-500 mr-1"></i> ${now.toLocaleDateString('en-US', options)}`;
+        }
+
+        // Chart.js graphics loader
+        let chartsInstance = {};
+
+        function initCharts() {
+            Object.keys(chartsInstance).forEach(k => {
+                if (chartsInstance[k]) chartsInstance[k].destroy();
+            });
+            
+            initSparkline('sparkline1', [12000, 12150, 12200, 12350, 12450], '#ef4444');
+            initSparkline('sparkline2', [72, 75, 73, 76, 78], '#ef4444');
+            initSparkline('sparkline3', [900, 920, 930, 940, 950], '#ef4444');
+            initSparkline('sparkline4', [2.8, 2.95, 3.1, 3.15, 3.25], '#ef4444');
+            
+            const perfCtx = document.getElementById('perfChart');
+            if (perfCtx) {
+                chartsInstance['perfChart'] = new Chart(perfCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+                        datasets: [
+                            {
+                                label: 'Revenue (Lakhs)',
+                                data: [12, 19, 15, 25, 22, 30, 32.5],
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                borderWidth: 2
+                            },
+                            {
+                                label: 'Bookings (Thousands)',
+                                data: [4, 7, 5, 9, 8, 11, 12.4],
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                borderWidth: 2
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#94a3b8', font: { family: "'Plus Jakarta Sans'" } } }
+                        },
+                        scales: {
+                            x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b' } },
+                            y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b' } }
+                        }
+                    }
+                });
+            }
+            
+            const audienceCtx = document.getElementById('audienceChart');
+            if (audienceCtx) {
+                chartsInstance['audienceChart'] = new Chart(audienceCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ["18-24", "25-34", "35-44", "45+"],
+                        datasets: [{
+                            data: [45, 35, 15, 5],
+                            backgroundColor: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10 } } }
+                        },
+                        cutout: '70%'
+                    }
+                });
+            }
+            
+            const socialCtx = document.getElementById('socialChart');
+            if (socialCtx) {
+                chartsInstance['socialChart'] = new Chart(socialCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ["Insta", "YT", "TikTok", "FB"],
+                        datasets: [{
+                            label: 'Engagement',
+                            data: [450000, 250000, 180000, 70000],
+                            backgroundColor: ['#f43f5e', '#ef4444', '#a855f7', '#3b82f6'],
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
+                            y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 9 } } }
+                        }
+                    }
+                });
+            }
+            
+            const salesCtx = document.getElementById('salesChart');
+            if (salesCtx) {
+                chartsInstance['salesChart'] = new Chart(salesCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ["Pop", "Rock", "Jazz", "Electronic", "Classical"],
+                        datasets: [{
+                            data: [40, 30, 15, 10, 5],
+                            backgroundColor: ['#ec4899', '#ef4444', '#3b82f6', '#10b981', '#f59e0b'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10 } } }
+                        }
+                    }
+                });
+            }
+            
+            const demoCtx = document.getElementById('demographicsChart');
+            if (demoCtx) {
+                chartsInstance['demographicsChart'] = new Chart(demoCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ["18-21", "22-25", "26-30", "31-35", "36-45", "46+"],
+                        datasets: [{
+                            label: 'Percentage %',
+                            data: [25, 30, 20, 12, 8, 5],
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: '#64748b' } },
+                            y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b' } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initSparkline(id, data, color) {
+            const ctx = document.getElementById(id);
+            if (!ctx) return;
+            chartsInstance[id] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map((_, i) => i),
+                    datasets: [{
+                        data: data,
+                        borderColor: color,
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        fill: true,
+                        backgroundColor: color + '0a',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    scales: { x: { display: false }, y: { display: false } },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+function deleteItem(type, index) {
+    if (confirm('Are you sure you want to delete this item?')) {
+        if (type === 'concert') {
+            concerts.splice(index, 1);
+            localStorage.setItem('ep_concerts', JSON.stringify(concerts));
+        } else if (type === 'venue') {
+            venues.splice(index, 1);
+            localStorage.setItem('ep_venues', JSON.stringify(venues));
+        } else if (type === 'promotion') {
+            promotions.splice(index, 1);
+            localStorage.setItem('ep_promotions', JSON.stringify(promotions));
+        }
+        renderAll();
+        addNotificationToast("Item Deleted", "The entry has been successfully removed.");
+    }
+}
+        function renderAll() {
+            renderLeaderboard();
+            renderConcertGrids();
+            renderVenueGrid();
+            renderPromoGrid();
+            updateDashboardStats();
+        }
+
+        // Global Initialization triggers
+      window.onload = function() {
+    // THIS IS THE FIX: Explicitly clear the search input on load
+    document.getElementById('globalSearchInput').value = '';
+    
+    initCurrentDate();
+    loadProfileInSettings();
+    renderAll();
+    initCharts();
+    showSection('dashboard');
+            
+            // Set up document clicks to close autocomplete if clicked outside
+            document.addEventListener('click', function(e) {
+                const searchWrapper = document.querySelector('.search-wrapper');
+                if (searchWrapper && !searchWrapper.contains(e.target)) {
+                    closeAutocomplete();
+                }
+            });
+        };
+    </script>
+</body>
+</html>

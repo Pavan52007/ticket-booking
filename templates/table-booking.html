@@ -916,8 +916,10 @@
         .table-wrap.booked .rect-chair,
         .table-wrap.booked .couple-chair,
         .table-wrap.booked .large-four-chair {
-            background-color: var(--booked-slate) !important;
-            border-color: var(--booked-border) !important;
+           cursor: not-allowed !important; 
+    pointer-events: auto; /* Required to trigger the JS alert */
+    opacity: 0.6;         /* Visual feedback that it's inactive */
+    transform: none !important;
         }
         .table-wrap.booked .mini-bottle-icon {
             filter: grayscale(1) brightness(0.5) sepia(1) hue-rotate(-50deg) saturate(5);
@@ -1460,7 +1462,10 @@
             <p>Complete your Imperial Reservation</p>
         </div>
         
-        <div id="checkoutForm">
+        <form id="checkoutForm" method="POST" action="{% url 'table_booking' %}">
+{% csrf_token %}
+<input type="hidden" name="restaurant_name" value="The Grand Royal Restaurant">
+<input type="hidden" name="table_number" id="table_number">
             <input 
     type="text" 
     id="userName" 
@@ -1484,10 +1489,12 @@
     </div>
     
     <!-- Final Action Button -->
-    <button class="btn-confirm" onclick="processPayment()">Proceed to Payment</button>
+    <button type="button" class="btn-confirm" onclick="processPayment()">
+    Proceed to Payment
+   </button>
 </div>        </div>
     </div>
-</div>
+</form>
 
 
     <script>
@@ -1721,44 +1728,21 @@
 
         btnCancel.addEventListener('click', () => modalOverlay.style.display = 'none');
 
-        btnConfirm.addEventListener('click', () => {
-            if (selectedTablesList.length > 0) {
-                const confirmedDetails = selectedTablesList.map(item => `${item.element.getAttribute('data-table-id')} (${item.quantity} Unit(s))`).join('\n');
-                
-                selectedTablesList.forEach(item => {
-                    const tableElement = item.element;
-                    tableElement.classList.remove('selected');
+       btnConfirm.addEventListener('click', () => {
 
-                    if (tableElement.hasAttribute('data-stock')) {
-                        let remainingStock = parseInt(tableElement.getAttribute('data-stock'));
-                        remainingStock = Math.max(0, remainingStock - item.quantity);
-                        tableElement.setAttribute('data-stock', remainingStock);
-                        
-                        const badgeRef = document.getElementById(`stock-${tableElement.id}`);
-                        if (badgeRef) {
-                            badgeRef.innerText = `${remainingStock} Left`;
-                        }
-                        
-                        if (remainingStock === 0) {
-                            tableElement.classList.add('booked');
-                        }
-                    } else {
-                        tableElement.classList.add('booked');
-                    }
-                });
+    if (selectedTablesList.length > 0) {
 
-                modalOverlay.style.display = 'none';
-              
-                
-                selectedTablesList = [];
-                updateActionBarState();
-            }
-        });
+        const tableId =
+            selectedTablesList[0].element.getAttribute("data-table-id");
 
-// 1. Update the existing Confirm button to show the checkout page
-btnConfirm.addEventListener('click', () => {
-    modalOverlay.style.display = 'none';
-    document.getElementById('checkoutPage').style.display = 'flex';
+        document.getElementById("table_number").value = tableId;
+
+        console.log("TABLE SELECTED =", tableId);
+
+        modalOverlay.style.display = 'none';
+        window.location.href =
+        `/create-restaurant-booking/?table=${encodeURIComponent(tableId)}`;
+    }
 });
 
 // 2. Add the final payment processor
@@ -1777,44 +1761,91 @@ function processPayment() {
 }
 
 function processPayment() {
+
     const name = document.getElementById('userName').value;
     const method = document.querySelector('input[name="payMethod"]:checked');
-    
+
     if (!name || !method) {
         alert("Please provide your details and select a payment method.");
         return;
     }
 
-    if (method.value === 'razor') {
-        // 1. Define your checkout options
+    let selectedTable = document.querySelector(".table-wrap.selected");
+
+    if (!selectedTable) {
+        alert("Please select a table first.");
+        return;
+    }
+
+    const tableId = selectedTable.getAttribute("data-table-id");
+
+    document.getElementById("table_number").value = tableId;
+
+    console.log("TABLE =", tableId);
+
+    if (method.value === "razor") {
+
         var options = {
-            "key": "YOUR_RAZORPAY_KEY_ID", // Replace with your actual Key ID
-            "amount": "50000", // Amount in paise (e.g., 50000 = ₹500)
+            "key": "YOUR_RAZORPAY_KEY_ID",
+            "amount": "50000",
             "currency": "INR",
             "name": "The Grand Royal Restaurant",
             "description": "Reservation Payment",
-            "handler": function (response){
-                alert("Payment Successful! Payment ID: " + response.razorpay_payment_id);
-                // Here you would redirect to a "Success" page
+
+            "handler": function (response) {
+
+                document.getElementById("table_number").value = tableId;
+
+                console.log("PAYMENT SUCCESS");
+                console.log("TABLE =", tableId);
+
+                document.getElementById("checkoutForm").submit();
             },
+
             "prefill": {
                 "name": name,
                 "email": document.getElementById('userEmail').value,
                 "contact": document.getElementById('userPhone').value
             },
-            "theme": { "color": "#E5C07B" } // Matches your restaurant theme
+
+            "theme": {
+                "color": "#E5C07B"
+            }
         };
 
-        // 2. Open the Razorpay Checkout modal
         var rzp1 = new Razorpay(options);
         rzp1.open();
 
     } else {
-        // Redirect to your custom credit/debit card page
-        window.location.href = "payment.html"; 
-    }
-}
 
+    document.getElementById("table_number").value = tableId;
+
+    sessionStorage.setItem(
+        "restaurant_table",
+        tableId
+    );
+
+    sessionStorage.setItem(
+        "restaurant_name",
+        "The Grand Royal Restaurant"
+    );
+
+    sessionStorage.setItem(
+    "table_number",
+    tableId
+);
+
+sessionStorage.setItem(
+    "restaurant_name",
+    "The Grand Royal Restaurant"
+);
+const selectedTable =
+document.querySelector('.selected-seat')?.getAttribute('data-table-id');
+
+window.location.href =
+`/create-restaurant-booking/?table=${encodeURIComponent(selectedTable)}`;
+   }
+}
 
     </script>
 

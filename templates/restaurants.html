@@ -169,41 +169,34 @@ body{
 
 <div class="row g-4">
 
-<!-- CARD 1 -->
+{% for restaurant in restaurants %}
+
 <div class="col-md-3">
 <div class="restaurant-card">
 
-<!-- ❤️ HEART -->
-<div class="heart-icon"
-onclick="addToWishlist('Royal Spice','https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800')">
+<div class="heart-icon">
 <i class="fa-solid fa-heart"></i>
 </div>
 
-<img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800">
+<img src="{{ restaurant.image }}">
 
 <div class="restaurant-body">
-<h5>Royal Spice</h5>
-<p>🍛 Indian Cuisine</p>
+
+<h5>{{ restaurant.title }}</h5>
+
+<p>{{ restaurant.specialty }}</p>
 
 <div class="restaurant-meta">
-<p>⭐ Rating: 4.8/5</p>
-<p>📍 Bangalore</p>
-<p>⏰ Open: 11 AM - 11 PM</p>
-<p>💰 ₹800 for Two</p>
+<p>⭐ Rating: {{ restaurant.rating }}</p>
+<p>📍 {{ restaurant.location }}</p>
+<p>⏰ Open: {{ restaurant.opening_hours }}</p>
 </div>
 
 <div class="button-group">
 
-<a href="{% url 'table_booking' %}" class="book-btn">
-Reserve
-</a>
-
-<form action="{% url 'add_favorite' %}" method="POST" style="flex:1;">
-{% csrf_token %}
-
-<input type="hidden" name="name" value="Restaurant">
-
-</form>
+<a href="/table-booking/?restaurant={{ restaurant.id }}"
+class="book-btn">
+Reserve </a>
 
 </div>
 
@@ -211,124 +204,10 @@ Reserve
 </div>
 </div>
 
-
-<!-- CARD 2 -->
-<div class="col-md-3">
-<div class="restaurant-card">
-
-<div class="heart-icon"
-onclick="addToWishlist('Urban Grill','https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800')">
-<i class="fa-solid fa-heart"></i>
-</div>
-
-<img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800">
-
-<div class="restaurant-body">
-<h5>Urban Grill</h5>
-<p>🥩 Multi Cuisine</p>
-
-<div class="restaurant-meta">
-<p>⭐ Rating: 4.7/5</p>
-<p>📍 Mysore</p>
-<p>⏰ Open: 12 PM - 12 AM</p>
-<p>💰 ₹1200 for Two</p>
-</div>
-
-<div class="button-group">
-
-<a href="{% url 'table_booking' %}" class="book-btn">Reserve</a>
-
-<form action="{% url 'add_favorite' %}" method="POST" style="flex:1;">
-{% csrf_token %}
-<input type="hidden" name="name" value="Restaurant">
-
-</form>
+{% endfor %}
 
 </div>
 
-</div>
-</div>
-</div>
-<!-- CARD 3 -->
-<div class="col-md-3">
-    <div class="restaurant-card">
-    
-    <div class="heart-icon"
-    onclick="addToWishlist('Pasta Palace','https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800')">
-    <i class="fa-solid fa-heart"></i>
-    </div>
-    
-    <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800">
-    
-    <div class="restaurant-body">
-    <h5>Pasta Palace</h5>
-    <p>🍝 Italian Cuisine</p>
-    
-    <div class="restaurant-meta">
-    <p>⭐ Rating: 4.6/5</p>
-    <p>📍 Hyderabad</p>
-    <p>⏰ Open: 10 AM - 10 PM</p>
-    <p>💰 ₹1500 for Two</p>
-    </div>
-    
-    <div class="button-group">
-    
-    <a href="{% url 'table_booking' %}" class="book-btn">
-    Reserve
-    </a>
-    
-    <form action="{% url 'add_favorite' %}" method="POST" style="flex:1;">
-    {% csrf_token %}
-    <input type="hidden" name="name" value="Restaurant">
-    
-    </form>
-    
-    </div>
-    
-    </div>
-    </div>
-    </div>
-    
-    
-    <!-- CARD 4 -->
-    <div class="col-md-3">
-    <div class="restaurant-card">
-    
-    <div class="heart-icon"
-    onclick="addToWishlist('Sky Lounge','https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800')">
-    <i class="fa-solid fa-heart"></i>
-    </div>
-    
-    <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800">
-    
-    <div class="restaurant-body">
-    <h5>Sky Lounge</h5>
-    <p>🌃 Rooftop Dining</p>
-    
-    <div class="restaurant-meta">
-    <p>⭐ Rating: 4.9/5</p>
-    <p>📍 Mumbai</p>
-    <p>⏰ Open: 5 PM - 1 AM</p>
-    <p>💰 ₹2500 for Two</p>
-    </div>
-    
-    <div class="button-group">
-    
-    <a href="{% url 'table_booking' %}" class="book-btn">Reserve</a>
-    
-    <form action="{% url 'add_favorite' %}" method="POST" style="flex:1;">
-    {% csrf_token %}
-    <input type="hidden" name="name" value="Restaurant">
-    
-    </form>
-    
-    </div>
-    
-    </div>
-    </div>
-    </div>
-    
-    </div>
     
     
     <!-- ================= UPCOMING RESTAURANTS ================= -->
@@ -360,7 +239,10 @@ onclick="addToWishlist('Urban Grill','https://images.unsplash.com/photo-15525666
     
     <div class="button-group">
     
-    <a href="{% url 'table_booking' %}" class="book-btn">Reserve</a>
+    <a href="{% url 'table_booking' %}?restaurant={{ restaurant.id }}"
+    class="book-btn">
+    Reserve
+ </a>
     
     <form action="{% url 'add_favorite' %}" method="POST" style="flex:1;">
     {% csrf_token %}

@@ -1,8 +1,24 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Favorite
+
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from .data import MOVIES, CONCERTS, RESTAURANTS, SPORTS, OFFERS, DASHBOARD
 
-
+from .models import (
+    Favorite,
+    UserProfile,
+    Movie,
+    Restaurant,
+    SportsEvent,
+    Concert,
+    Booking,
+    MovieBooking,
+    SportsBooking, 
+    ConcertBooking,
+    MovieBooking
+)
 # =========================
 # BASIC PAGES
 # =========================
@@ -13,62 +29,109 @@ def home(request):
 def admin_dashboard(request):
     return render(request, "admin_dashboard.html")
 
+from django.contrib.auth import authenticate, login
+from .models import UserProfile
+
 def login_view(request):
+
     if request.method == "POST":
 
         username = request.POST.get("username")
         password = request.POST.get("password")
-        role = request.POST.get("role")
-        promoter_type = request.POST.get("promoter_type")
 
-        print(username)
-        print(password)
-        print(role)
-        print(promoter_type)
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
 
-        if role == "customer":
-            return redirect("dashboard")
+        if user is not None:
 
-        elif role == "admin":
-            return redirect("admin_dashboard")
+            login(request, user)
 
-        elif role == "promoter":
+            try:
+                profile = UserProfile.objects.get(user=user)
 
-            if promoter_type == "standup_comedy_owner":
-                return redirect("standup_dashboard")
+                print("ROLE =", profile.role)
+                print("PROMOTER TYPE =", profile.promoter_type)
 
-            elif promoter_type == "theatre_owner":
+                if profile.role == "customer":
+                    return redirect("dashboard")
+
+                elif profile.role == "admin":
+                    return redirect("admin_dashboard")
+
+                    
+                elif profile.role == "promoter":
+                    if profile.promoter_type == "standup_comedy_owner":
+                        return redirect("standup_dashboard")
+                        
+                    elif profile.promoter_type == "restaurant_owner":
+                        return redirect("restaurant_dashboard")
+
+                    elif profile.promoter_type == "stadium_owner":
+                        return redirect("stadium_dashboard")
+                        
+                    elif profile.promoter_type == "theatre_owner":
+                        return redirect("theatre_dashboard")
+                        
+                    elif profile.promoter_type == "music_concert_owner":
+                        return redirect("concerts_dashboard")
+                        
                 return redirect("dashboard")
 
-            elif promoter_type == "restaurant_owner":
-                return redirect("restaurant_dashboard")
-
-            elif promoter_type == "stadium_owner":
+            except UserProfile.DoesNotExist:
                 return redirect("dashboard")
 
-            elif promoter_type == "music_concert_owner":
-                return redirect("dashboard")
+        return render(
+            request,
+            "login.html",
+            {"error": "Invalid username or password"}
+        )
 
     return render(request, "login.html")
 
 # ✅ FIXED: now saves user data in session
+
+from django.http import HttpResponse
+from django.contrib.auth.models import User
+from django.contrib.auth import login
+from django.contrib import messages
+
 def register(request):
+
     if request.method == "POST":
+
         username = request.POST.get("username")
         email = request.POST.get("email")
+        phone = request.POST.get("phone")
         password = request.POST.get("password")
 
-        request.session['user'] = {
-            "username": username,
-            "email": email,
-            "password": password
-        }
+        role = request.POST.get("role", "customer")
+        promoter_type = request.POST.get("promoter_type", "")
 
-        return redirect('dashboard')
+        if User.objects.filter(username=username).exists():
+            return HttpResponse("Username already exists")
 
-    return render(request, 'register.html')
+        if User.objects.filter(email=email).exists():
+            return HttpResponse("Email already exists")
 
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
 
+        UserProfile.objects.create(
+            user=user,
+            phone=phone,
+            role=role,
+            promoter_type=promoter_type
+        )
+
+        return redirect("login")
+
+    return render(request, "register.html")
 def dashboard(request):
     return render(request, 'main_dashboard.html', {
         "data": DASHBOARD
@@ -86,37 +149,80 @@ def profile(request):
         "user": user
     })
 
-
+from .models import Event
 def events(request):
-    return render(request, 'events.html')
+    events = Event.objects.all()
 
+    print("EVENT COUNT =", events.count())
+
+    return render(
+        request,
+        "events.html",
+        {
+            "events": events
+        }
+    )
 
 def event_details(request):
     return render(request, 'event_details.html')
 
+from .models import Movie
 
 def movies(request):
-    return render(request, 'movies.html', {
-        "movies": MOVIES
-    })
 
+    movies = Movie.objects.all()
 
+    return render(
+        request,
+        'movies.html',
+        {
+            "movies": movies
+        }
+    )
 def concerts(request):
-    return render(request, 'concerts.html', {
-        "concerts": CONCERTS
-    })
 
+    concerts = Concert.objects.all()
+
+    return render(
+        request,
+        "concerts.html",
+        {
+            "concerts": concerts
+        }
+    )
+
+
+from .models import SportsEvent
 
 def sports(request):
-    return render(request, 'sports.html', {
-        "sports": SPORTS
-    })
+
+    sports = SportsEvent.objects.all()
+
+    print("SPORTS COUNT =", sports.count())
+
+    return render(
+        request,
+        'sports.html',
+        {
+            "sports": sports
+        }
+    )
+
 
 
 def restaurants(request):
-    return render(request, 'restaurants.html', {
-        "restaurants": RESTAURANTS
-    })
+
+    restaurants = Restaurant.objects.all()
+
+    print("RESTAURANTS COUNT =", restaurants.count())
+
+    return render(
+        request,
+        'restaurants.html',
+        {
+            'restaurants': restaurants
+        }
+    )
 
 
 def offers(request):
@@ -129,11 +235,24 @@ def offers(request):
 # BOOKINGS
 # =========================
 
+
 def table_booking(request):
-    restaurant = request.GET.get('restaurant', 'Restaurant')
-    return render(request, 'table-booking.html', {
-        'restaurant': restaurant
-    })
+
+    restaurant_id = request.GET.get("restaurant")
+
+    print("URL RESTAURANT ID =", restaurant_id)
+
+    request.session["restaurant_id"] = restaurant_id
+
+    restaurant = Restaurant.objects.get(id=restaurant_id)
+
+    return render(
+        request,
+        "table-booking.html",
+        {
+            "restaurant": restaurant
+        }
+    )
 
 
 def booking(request):
@@ -143,24 +262,83 @@ def booking(request):
         'restaurant': restaurant
     })
 
-
 def sports_checkout(request):
-    event = request.GET.get('event', 'cskmi')
-    return render(request, 'sports-checkout.html', {
-        'event': event
-    })
 
+    if request.method == "POST":
+        print("POST DATA =", request.POST)
+
+        seats = request.POST.get("seats")
+        amount = request.POST.get("amount")
+
+        booking = Booking.objects.create(
+            user=request.user,
+            event_name="CSK vs MI",
+            seats=seats,
+            amount=amount,
+            status="Confirmed"
+        )
+
+        available_seats = Seat.objects.filter(
+            event_name="CSK vs MI",
+            is_booked=False
+        )[:int(seats)]
+
+        for seat in available_seats:
+            seat.is_booked = True
+            seat.booking = booking
+            seat.save()
+
+        request.session["amount"] = amount
+
+        return redirect("payment")
+
+    return render(
+        request,
+        "sports-checkout.html"
+    )
 
 def my_bookings(request):
-    return render(request, 'mybookings.html')
 
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    movie_bookings = MovieBooking.objects.filter(
+        user=request.user
+    ).order_by("-booking_date")
+
+    restaurant_bookings = RestaurantBooking.objects.filter(
+        user=request.user
+    ).order_by("-booking_date")
+
+    concert_bookings = ConcertBooking.objects.filter(
+        user=request.user
+    ).order_by("-booking_date")
+
+    return render(
+        request,
+        "mybookings.html",
+        {
+            "movie_bookings": movie_bookings,
+            "restaurant_bookings": restaurant_bookings,
+            "concert_bookings": concert_bookings,
+        }
+    )
 
 def ticket(request):
-    booking = request.GET.get('booking', 'SUN001')
-    return render(request, 'ticket.html', {
-        'booking': booking
-    })
 
+    booking_id = request.GET.get("booking_id")
+
+    booking = MovieBooking.objects.get(
+        id=booking_id
+    )
+
+    return render(
+        request,
+        "ticket.html",
+        {
+            "booking": booking
+        }
+    )
 
 # =========================
 # EVENT DETAILS
@@ -244,10 +422,25 @@ def concert_details(request):
 # =========================
 
 def concerts_checkout(request, concert):
-    return render(request, 'concerts_checkout.html', {
-        'concert': concert
-    })
 
+    concert_obj = Concert.objects.get(id=concert)
+
+    seats = request.GET.get("seats")
+    amount = request.GET.get("amount")
+
+    request.session["concert_id"] = concert_obj.id
+    request.session["concert_seats"] = seats
+    request.session["concert_amount"] = amount
+
+    return render(
+        request,
+        'concerts_checkout.html',
+        {
+            'concert': concert_obj,
+            'seats': seats,
+            'amount': amount
+        }
+    )
 
 # =========================
 # CINEMA FLOW
@@ -260,16 +453,21 @@ def theatre_seat(request):
         'movie': movie
     })
 
+from .models import Movie
 
 def cinema_checkout(request):
-    movie = request.GET.get('movie', 'pushpa2')
-    seats = request.GET.get('seats', '')
 
-    return render(request, 'cinema-checkout.html', {
-        'movie': movie,
-        'seats': seats
-    })
+    movie_id = request.GET.get("movie")
 
+    movie = Movie.objects.get(id=movie_id)
+
+    return render(
+        request,
+        "cinema-checkout.html",
+        {
+            "movie": movie
+        }
+    )
 
 # =========================
 # FAVORITES (MODEL BASED)
@@ -351,8 +549,12 @@ def standup_checkout(request):
 # =========================
 
 def movie_booking(request):
-    movie = request.GET.get('movie', 'pushpa2')
-    return redirect(f"/theatre-seat/?movie={movie}")
+    movie_id = request.GET.get('movie_id')
+
+    if movie_id:
+        return redirect(f"/theatre-seat/?movie={movie_id}")
+
+    return redirect("/movies/")
 
 
 def main_dashboard(request):
@@ -378,13 +580,16 @@ def wishlist(request):
         'items': items
     })
 
+@login_required
+def settings(request):
 
-def settings_page(request):
-    user = request.session.get('user')
-
-    return render(request, 'settings.html', {
-        'user': user
-    })
+    return render(
+        request,
+        "settings.html",
+        {
+            "user": request.user
+        }
+    )
 
 def event_seat(request):
     return render(request, "event_seat.html")
@@ -400,13 +605,21 @@ def booking_card(request):
         'booking_id': booking_id
     })
 
+from .models import SportsEvent
 
 def sport_ticket(request):
-    event = request.GET.get('event', 'cskmi')
-    return render(request, 'sport_ticket.html', {
-        'event': event
-    })
 
+    event_id = request.GET.get('event')
+
+    event = SportsEvent.objects.get(id=event_id)
+
+    return render(
+        request,
+        'sport_ticket.html',
+        {
+            'event': event
+        }
+    )
 
 def theatre_comedy(request):
     return render(request, 'theatre_comedy.html')
@@ -446,3 +659,184 @@ def restaurant_dashboard(request):
     return render(request, 'restaurant_dashboard.html')
 def standup_dashboard(request):
     return render(request, 'standup_dashboard.html')
+
+def stadium_dashboard(request):
+    return render(request, 'stadium_dashboard.html')
+
+def theatre_dashboard(request):
+    return render(request, 'theatre_dashboard.html')
+
+def concerts_dashboard(request):
+    return render(request, 'concerts_dashboard.html')
+
+def create_movie_booking(request):
+
+    if request.method == "POST":
+
+        movie_id = request.POST.get("movie_id")
+
+        seats = request.POST.get("seats")
+
+        amount = request.POST.get("amount")
+
+        movie = Movie.objects.get(id=movie_id)
+
+        booking = MovieBooking.objects.create(
+            user=request.user,
+            movie=movie,
+            seats=seats,
+            amount=amount
+        )
+
+        return redirect(
+            f"/ticket/?booking_id={booking.id}"
+        )
+
+    return redirect("movies")
+
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def create_movie_booking(request):
+
+    if request.method == "POST":
+
+        movie_id = request.POST.get("movie_id")
+        seats = request.POST.get("seats")
+        amount = request.POST.get("amount")
+
+        movie = Movie.objects.get(id=movie_id)
+
+        booking = MovieBooking.objects.create(
+            user=request.user,
+            movie=movie,
+            seats=seats,
+            amount=amount
+        )
+
+        return redirect(
+            f"/ticket/?booking_id={booking.id}"
+        )
+
+    return redirect("movies")
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def create_sports_booking(request):
+
+    print("CREATE SPORTS BOOKING CALLED")
+
+    if request.method == "POST":
+
+        event_id = request.POST.get("event_id")
+        seats = request.POST.get("seats")
+        amount = request.POST.get("amount")
+
+        print("EVENT ID =", request.POST.get("event_id"))
+        print("SEATS =", request.POST.get("seats"))
+        print("AMOUNT =", request.POST.get("amount"))
+        event = SportsEvent.objects.get(id=event_id)
+
+        booking = SportsBooking.objects.create(
+            user=request.user,
+            event=event,
+            seats=seats,
+            amount=amount
+        )
+
+        return redirect(
+            f"/sports-ticket-view/?booking_id={booking.id}"
+        )
+
+    return redirect("sports")
+
+from django.shortcuts import render, redirect
+from .models import RestaurantBooking, Restaurant
+
+def payment(request):
+    print("PAYMENT VIEW CALLED")
+
+    if request.method == "POST":
+
+        restaurant_id = request.session.get("restaurant_id")
+
+        restaurant = Restaurant.objects.get(id=restaurant_id)
+def payment(request):
+
+    if request.method == "POST":
+
+        restaurant_name = request.POST.get(
+            "restaurant_name"
+        )
+
+        table_number = request.POST.get(
+            "table_number"
+        )
+
+        RestaurantBooking.objects.create(
+            user=request.user,
+            restaurant_name=restaurant_name,
+            booking_date=date.today(),
+            booking_time=datetime.now().time(),
+            guests=1,
+            table_number=table_number
+        )
+
+        return redirect("my_bookings")
+
+    amount = request.session.get("amount")
+
+    return render(
+        request,
+        "card_payment.html",
+        {
+            "amount": amount
+        }
+    )
+
+@login_required
+def create_restaurant_booking(request):
+
+    restaurant_id = request.session.get("restaurant_id")
+
+    restaurant = Restaurant.objects.get(id=restaurant_id)
+
+    table_number = request.GET.get("table")
+
+    print("TABLE RECEIVED =", table_number)
+
+    RestaurantBooking.objects.create(
+        user=request.user,
+        restaurant=restaurant,
+        table_number=table_number
+    )
+
+    return redirect("my_bookings")
+
+@login_required
+def create_concert_booking(request):
+
+    print("CREATE CONCERT BOOKING CALLED")
+
+    concert_id = request.session.get("concert_id")
+    seats = request.GET.get("seats")
+    amount = request.GET.get("amount")
+
+    print("CONCERT ID =", concert_id)
+    print("SEATS =", seats)
+    print("AMOUNT =", amount)
+
+    concert = Concert.objects.get(id=concert_id)
+
+    ConcertBooking.objects.create(
+        user=request.user,
+        concert=concert,
+        seats=seats,
+        amount=amount
+    )
+
+    print("BOOKING SAVED")
+
+    return redirect("my_bookings")

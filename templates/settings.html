@@ -258,18 +258,18 @@ body.light-mode h2, body.light-mode .tab.active { color: #ff2e63; }
 
       <div class="field">
         <label>Username</label>
-        <input type="text" id="profileUsername" readonly />
+        <input type="text" value="{{ user.username }}" readonly>
       </div>
 
       <div class="field">
         <label>Email</label>
-        <input type="email" id="profileEmail" readonly />
+        <input type="email" value="{{ user.email }}" readonly>
       </div>
 
-      <div class="field">
-        <label>Phone Number</label>
-        <input type="tel" id="profilePhone" placeholder="+91 XXXXX XXXXX" />
-      </div>
+     <div class="field">
+    <label>Phone Number</label>
+    <input type="tel" value="{{ user.userprofile.phone }}" readonly>
+</div>
 
       <div class="field">
         <label>Change Password</label>
@@ -407,22 +407,18 @@ function loadProfileFromStorage() {
   console.log("All Users Data:", allUsersString);
 
   if (!loggedInEmail || !allUsersString) {
-    console.log("Redirecting: Missing session data.");
-    window.location.href = "login.html";
+    console.log("Missing localStorage data");
     return;
-  }
+}
 
-  const allUsers = JSON.parse(allUsersString);
-  const user = allUsers.find(u => u.email === loggedInEmail);
+const allUsers = JSON.parse(allUsersString);
+const user = allUsers.find(u => u.email === loggedInEmail);
 
-  if (user) {
+if (user) {
     document.getElementById("profileUsername").value = user.username || "";
-    document.getElementById("profileEmail").value    = user.email || "";
-    document.getElementById("profilePhone").value    = user.phone || "";
-  } else {
-    console.log("Redirecting: User not found in database.");
-    window.location.href = "login.html";
-  }
+    document.getElementById("profileEmail").value = user.email || "";
+    document.getElementById("profilePhone").value = user.phone || "";
+}
 }/* ===== UPDATE PROFILE CHANGES IN ARRAY ===== */
 function saveProfileChanges() {
   const loggedInEmail = localStorage.getItem("ze_loggedInUserEmail");

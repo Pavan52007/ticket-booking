@@ -122,172 +122,48 @@ body::before{
 <div class="container event-section">
 <div class="row g-4">
 
-<!-- EVENT 1 -->
+{% for event in events %}
+
 <div class="col-md-3">
   <div class="event-card">
-    <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7" class="event-img">
+
+    <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7"
+         class="event-img">
+
     <div class="event-body">
-      <h5>Sunburn Festival</h5>
-      <p>India’s biggest EDM festival</p>
+
+      <h5>{{ event.title }}</h5>
+
+      <p>{{ event.category }}</p>
 
       <div class="event-meta">
-        <p>📅 Date: 25 July 2026</p>
-        <p>⏰ Time: 6:00 PM</p>
-        <p>📍 Location: Mumbai</p>
-        <p>🎤 Host: Sunburn Team</p>
+
+        <p>📅 Date: {{ event.event_date }}</p>
+
+        <p>⏰ Time: {{ event.event_time }}</p>
+
+        <p>📍 Venue: {{ event.venue }}</p>
+
+        <p>💰 Price: ₹{{ event.price }}</p>
+
+        <p>🎟 Seats: {{ event.available_seats }}</p>
+
       </div>
 
-      <a href="{% url 'event_details' %}?event=sunburn" class="book-btn">Book Now</a>
+      <a href="{% url 'event_details' %}?id={{ event.id }}"
+         class="book-btn">
+         Book Now
+      </a>
+
     </div>
+
   </div>
 </div>
 
-<!-- EVENT 2 -->
-<div class="col-md-3">
-  <div class="event-card">
-    <img src="https://images.unsplash.com/photo-1551818255-e6e10975bc17" class="event-img">
-    <div class="event-body">
-      <h5>Tech Summit</h5>
-      <p>AI & ML Conference</p>
-
-      <div class="event-meta">
-        <p>📅 Date: 12 Aug 2026</p>
-        <p>⏰ Time: 10:00 AM</p>
-        <p>📍 Location: Bangalore</p>
-        <p>🎤 Host: Tech Council</p>
-      </div>
-
-      <a href="{% url 'event_details' %}?event=tech" class="book-btn">Book Now</a>
-    </div>
-  </div>
-</div>
-
-<!-- EVENT 3 -->
-<div class="col-md-3">
-  <div class="event-card">
-    <img src="https://images.unsplash.com/photo-1503424886307-b090341d25d1" class="event-img">
-    <div class="event-body">
-      <h5>Music Night</h5>
-      <p>Live Concert Event</p>
-
-      <div class="event-meta">
-        <p>📅 Date: 5 Sept 2026</p>
-        <p>⏰ Time: 7:30 PM</p>
-        <p>📍 Location: Chennai</p>
-        <p>🎤 Host: Rhythm Crew</p>
-      </div>
-
-      <a href="{% url 'event_details' %}?event=music" class="book-btn">Book Now</a>
-    </div>
-  </div>
-</div>
-
-<!-- EVENT 4 -->
-<div class="col-md-3">
-  <div class="event-card">
-    <img src="https://images.unsplash.com/photo-1521334884684-d80222895322" class="event-img">
-    <div class="event-body">
-      <h5>Startup Expo</h5>
-      <p>Business & Innovation Meet</p>
-
-      <div class="event-meta">
-        <p>📅 Date: 18 Aug 2026</p>
-        <p>⏰ Time: 11:00 AM</p>
-        <p>📍 Location: Hyderabad</p>
-        <p>🎤 Host: Startup India</p>
-      </div>
-
-      <a href="{% url 'event_details' %}?event=startup" class="book-btn">Book Now</a>
-    </div>
-  </div>
-</div>
-
-<!-- EVENT 5 -->
-<div class="col-md-3">
-  <div class="event-card">
-    <img src="https://images.unsplash.com/photo-1505935428862-770b6f24f629" class="event-img">
-    <div class="event-body">
-      <h5>Food Carnival</h5>
-      <p>Street Food Festival</p>
-
-      <div class="event-meta">
-        <p>📅 Date: 2 Sept 2026</p>
-        <p>⏰ Time: 4:00 PM</p>
-        <p>📍 Location: Delhi</p>
-        <p>🎤 Host: Foodies Union</p>
-      </div>
-
-      <a href="{% url 'event_details' %}?event=food" class="book-btn">Book Now</a>
-    </div>
-  </div>
-</div>
-
-<!-- EVENT 6 -->
-<div class="col-md-3">
-  <div class="event-card">
-    <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30" class="event-img">
-    <div class="event-body">
-      <h5>Sports League</h5>
-      <p>Live Sports Matches</p>
-
-      <div class="event-meta">
-        <p>📅 Date: 20 July 2026</p>
-        <p>⏰ Time: 5:00 PM</p>
-        <p>📍 Location: Kolkata</p>
-        <p>🎤 Host: Sports Authority</p>
-      </div>
-
-      <a href="{% url 'event_details' %}?event=sports" class="book-btn">Book Now</a>
-    </div>
-  </div>
-</div>
-
-<!-- EVENT 7 -->
-<div class="col-md-3">
-  <div class="event-card">
-    <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745" class="event-img">
-    <div class="event-body">
-      <h5>Art Exhibition</h5>
-      <p>Modern Art Gallery</p>
-
-      <div class="event-meta">
-        <p>📅 Date: 10 Sept 2026</p>
-        <p>⏰ Time: 1:00 PM</p>
-        <p>📍 Location: Jaipur</p>
-        <p>🎤 Host: Art Society</p>
-      </div>
-
-      <a href="{% url 'event_details' %}?event=art" class="book-btn">Book Now</a>
-    </div>
-  </div>
-</div>
-
-<!-- EVENT 8 -->
-<div class="col-md-3">
-  <div class="event-card">
-    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee" class="event-img">
-    <div class="event-body">
-      <h5>Comedy Night</h5>
-      <p>Stand-up Show</p>
-
-      <div class="event-meta">
-        <p>📅 Date: 28 Aug 2026</p>
-        <p>⏰ Time: 8:00 PM</p>
-        <p>📍 Location: Pune</p>
-        <p>🎤 Host: Laugh Club</p>
-      </div>
-
-      <a href="{% url 'event_details' %}?event=sunburn" class="book-btn">
-        Book Now
-    </a>
-    
-    
-    </div>
-  </div>
-</div>
+{% endfor %}
 
 </div>
-</div>
+   
 
 </body>
 </html>

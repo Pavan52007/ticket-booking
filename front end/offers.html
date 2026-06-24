@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Offers & Coupons | Zenith</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body{
+    background:
+    radial-gradient(circle at top,
+    rgba(255,0,0,.25),
+    transparent 50%),
+    #0f0000;
+    color:white;
+    min-height:100vh;
+}
+
+.container{
+    padding:40px 20px;
+}
+
+.heading{
+    text-align:center;
+    margin-bottom:40px;
+}
+
+.heading h1{
+    color:#ff4d4d;
+    font-weight:bold;
+    font-size:42px;
+}
+
+.heading p{
+    color:#ccc;
+}
+
+.offer-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:25px;
+}
+
+.offer-card{
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,0,0,.25);
+    border-radius:20px;
+    overflow:hidden;
+    transition:.3s;
+}
+
+.offer-card:hover{
+    transform:translateY(-8px);
+    box-shadow:0 0 25px rgba(255,0,0,.4);
+}
+
+.offer-card img{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+}
+
+.offer-content{
+    padding:20px;
+    text-align:center;
+}
+
+.offer-content h3{
+    margin-bottom:12px;
+}
+
+.location{
+    color:#ffb3b3;
+    font-size:14px;
+    margin-bottom:8px;
+}
+
+.special{
+    color:#ddd;
+    font-size:14px;
+    min-height:45px;
+}
+
+.discount{
+    font-size:34px;
+    font-weight:bold;
+    color:#ff4d4d;
+    margin-top:10px;
+}
+
+.code{
+    background:black;
+    padding:12px;
+    border-radius:10px;
+    margin:15px 0;
+    font-weight:bold;
+    letter-spacing:2px;
+}
+
+.expiry{
+    color:#bbb;
+    margin-bottom:15px;
+}
+
+.btn-claim{
+    border:none;
+    padding:12px 25px;
+    border-radius:10px;
+    background:#ff4d4d;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    width:100%;
+}
+
+.btn-claim:hover{
+    background:#ff2222;
+}
+
+.back-btn{
+    text-align:center;
+    margin-top:40px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="heading">
+<h1>🎁 Offers & Coupons</h1>
+<p>Claim Exclusive Offers For Movies, Events, Sports & Restaurants</p>
+</div>
+
+<div class="offer-grid">
+
+<!-- SUNBURN -->
+<div class="offer-card">
+
+<img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f">
+
+<div class="offer-content">
+
+<h3>🎧 Sunburn Festival</h3>
+
+<div class="location">
+📍 Hyderabad
+</div>
+
+<div class="special">
+VIP Entry + Fast Track Access
+</div>
+
+<div class="discount">30% OFF</div>
+
+<div class="code">SUNBURN30</div>
+
+<div class="expiry">
+Valid Till: 10 July 2026
+</div>
+
+<button class="btn-claim" onclick="claimOffer(this)">
+🎁 Claim Offer
+</button>
+
+</div>
+</div>
+
+<!-- CSK MI -->
+<div class="offer-card">
+
+<img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e">
+
+<div class="offer-content">
+
+<h3>🏏 CSK vs MI</h3>
+
+<div class="location">
+📍 Mumbai Stadium
+</div>
+
+<div class="special">
+Free Team Merchandise
+</div>
+
+<div class="discount">25% OFF</div>
+
+<div class="code">CSKMI25</div>
+
+<div class="expiry">
+Valid Till: 22 July 2026
+</div>
+
+<button class="btn-claim" onclick="claimOffer(this)">
+🎁 Claim Offer
+</button>
+
+</div>
+</div>
+
+<!-- PUSHPA -->
+<div class="offer-card">
+
+<img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba">
+
+<div class="offer-content">
+
+<h3>🎬 Pushpa 2</h3>
+
+<div class="location">
+📍 PVR Cinemas
+</div>
+
+<div class="special">
+Free Popcorn Combo
+</div>
+
+<div class="discount">20% OFF</div>
+
+<div class="code">PUSHPA20</div>
+
+<div class="expiry">
+Valid Till: 31 Dec 2026
+</div>
+
+<button class="btn-claim" onclick="claimOffer(this)">
+🎁 Claim Offer
+</button>
+
+</div>
+</div>
+
+<!-- STANDUP -->
+<div class="offer-card">
+
+<img src="https://images.unsplash.com/photo-1527224857830-43a7acc85260">
+
+<div class="offer-content">
+
+<h3>😂 Standup Comedy</h3>
+
+<div class="location">
+📍 Hyderabad
+</div>
+
+<div class="special">
+Front Row Seat Upgrade
+</div>
+
+<div class="discount">15% OFF</div>
+
+<div class="code">COMEDY15</div>
+
+<div class="expiry">
+Valid Till: 15 Aug 2026
+</div>
+
+<button class="btn-claim" onclick="claimOffer(this)">
+🎁 Claim Offer
+</button>
+
+</div>
+</div>
+
+<!-- PARADISE -->
+<div class="offer-card">
+
+<img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4">
+
+<div class="offer-content">
+
+<h3>🍽 Paradise Biryani</h3>
+
+<div class="location">
+📍 Hyderabad
+</div>
+
+<div class="special">
+Free Dessert With Buffet
+</div>
+
+<div class="discount">35% OFF</div>
+
+<div class="code">BIRYANI35</div>
+
+<div class="expiry">
+Valid Till: 31 Dec 2026
+</div>
+
+<button class="btn-claim" onclick="claimOffer(this)">
+🎁 Claim Offer
+</button>
+
+</div>
+</div>
+
+<!-- FOOTBALL -->
+<div class="offer-card">
+
+<img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018">
+
+<div class="offer-content">
+
+<h3>⚽ Football Final</h3>
+
+<div class="location">
+📍 Mumbai Arena
+</div>
+
+<div class="special">
+Premium Seating Upgrade
+</div>
+
+<div class="discount">40% OFF</div>
+
+<div class="code">GOAL40</div>
+
+<div class="expiry">
+Valid Till: 05 Aug 2026
+</div>
+
+<button class="btn-claim" onclick="claimOffer(this)">
+🎁 Claim Offer
+</button>
+
+</div>
+</div>
+
+</div>
+
+<div class="back-btn">
+
+<a href="{% url 'dashboard' %}" class="btn btn-danger btn-lg">
+⬅ Back To Dashboard
+</a>
+
+</div>
+
+</div>
+
+<script>
+
+function claimOffer(button){
+
+button.innerHTML="✅ Claimed";
+button.style.background="#28a745";
+button.disabled=true;
+
+setTimeout(function(){
+
+alert("Offer Successfully Added To Your Zenith Account!");
+
+},200);
+
+}
+
+</script>
+
+</body>
+</html>

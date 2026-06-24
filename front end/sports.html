@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Sports | Zenith</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body{
+    color:white;
+    font-family:Arial;
+    background:
+        radial-gradient(circle at top, rgba(255,0,0,0.35), transparent 40%),
+        radial-gradient(circle at bottom, rgba(120,0,0,0.5), transparent 50%),
+        linear-gradient(135deg,#000,#120000,#1a0000,#000);
+    min-height:100vh;
+}
+
+.navbar{ background:#111; }
+
+.section-title{
+    margin:35px 0 15px;
+    font-size:24px;
+    font-weight:bold;
+    color:#ff4b4b;
+    border-left:5px solid red;
+    padding-left:10px;
+}
+
+/* CARD */
+.card-box{
+    position:relative;
+    height:380px;
+    border-radius:20px;
+    overflow:hidden;
+    background:#150000;
+    border:1px solid rgba(255,0,0,.3);
+    box-shadow:0 10px 25px rgba(0,0,0,0.6);
+}
+
+.card-box img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transition:0.4s;
+}
+
+.card-box:hover img{
+    transform:scale(1.08);
+}
+
+/* ❤️ HEART TOP RIGHT */
+.wishlist{
+    position:absolute;
+    top:12px;
+    right:12px;
+    font-size:22px;
+    text-decoration:none;
+    background:rgba(0,0,0,0.6);
+    padding:6px 8px;
+    border-radius:50%;
+    z-index:5;
+    transition:0.3s;
+}
+
+.wishlist:hover{
+    transform:scale(1.2);
+    background:red;
+}
+
+/* OVERLAY */
+.card-body{
+    position:absolute;
+    left:0;
+    bottom:-100%;
+    width:100%;
+    height:75%;
+    padding:15px;
+    background:linear-gradient(to top, rgba(0,0,0,.95), rgba(25,0,0,.85));
+    transition:.5s ease;
+    display:flex;
+    flex-direction:column;
+}
+
+.card-box:hover .card-body{
+    bottom:0;
+}
+
+.meta{
+    font-size:12px;
+    color:#ffb3b3;
+    background:rgba(255,0,0,0.08);
+    padding:8px;
+    border-radius:10px;
+    margin-top:8px;
+    line-height:1.5;
+}
+
+/* BUTTON */
+.button-group{
+    margin-top:auto;
+}
+
+.btn-book{
+    width:100%;
+    height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    border-radius:10px;
+    font-weight:700;
+    font-size:14px;
+    color:white;
+    background:linear-gradient(45deg,#ff416c,#ff4b2b);
+}
+
+.btn-book:hover{
+    transform:scale(1.05);
+    color:white;
+}
+
+</style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark px-4">
+    <a class="navbar-brand text-white">🏏 Zenith Sports</a>
+</nav>
+
+<div class="container">
+
+<!-- ================= LIVE ================= -->
+<div class="section-title">🔥 Live Matches</div>
+<div class="row g-4">
+
+<!-- 1 -->
+<div class="col-md-3">
+<div class="card-box">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwZRTFyymPQXBsVXXD0WvmYCkr5QMJoWtVoQ&s">
+<a href="javascript:void(0)"
+class="wishlist"
+onclick="addToWishlist(
+'IPL Final',
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwZRTFyymPQXBsVXXD0WvmYCkr5QMJoWtVoQ&s',
+'📅 22 July 2026',
+'⏰ 7:30 PM',
+'📍 Wankhede Stadium',
+'🏏 Cricket'
+)">❤️</a>
+<div class="card-body">
+<h4>IPL Final</h4>
+<div class="meta">
+📅 22 July 2026<br>
+⏰ 7:30 PM<br>
+📍 Wankhede Stadium<br>
+🏏 Cricket
+</div>
+<a href="{% url 'sport_ticket' %}?event=iplfinal" class="btn-book">Book Now</a>
+</div></div></div>
+
+<!-- 2 -->
+<div class="col-md-3">
+<div class="card-box">
+<img src="https://images.mykhel.com/img/2025/10/mixcollage-19-oct-2025-08-04-am-2739-1760841330.jpg">
+<a href="javascript:void(0)"
+class="wishlist"
+onclick="addToWishlist(
+'India vs Australia',
+'https://images.mykhel.com/img/2025/10/mixcollage-19-oct-2025-08-04-am-2739-1760841330.jpg',
+'📅 30 July 2026',
+'⏰ 2:00 PM',
+'📍 Eden Gardens',
+'🏏 Cricket'
+)">❤️</a>
+<div class="card-body">
+<h4>India vs Australia</h4>
+<div class="meta">
+📅 30 July 2026<br>
+⏰ 2:00 PM<br>
+📍 Eden Gardens<br>
+🏏 Cricket
+</div>
+<a href="{% url 'sport_ticket' %}?event=indiaaus" class="btn-book">Book Now</a>
+</div></div></div>
+
+<!-- 3 -->
+<div class="col-md-3">
+<div class="card-box">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXZ1uLbV1ma5Qb7iOsfh_MhlU-t-aa2MIMzg&s">
+<a href="javascript:void(0)"
+class="wishlist"
+onclick="addToWishlist(
+'Formula 1 Grand Prix',
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXZ1uLbV1ma5Qb7iOsfh_MhlU-t-aa2MIMzg&s',
+'📅 12 Aug 2026',
+'⏰ 6:00 PM',
+'📍 Buddh Circuit',
+'🏎 Racing'
+)">❤️</a>
+<div class="card-body">
+<h4>Formula 1 Grand Prix</h4>
+<div class="meta">
+📅 12 Aug 2026<br>
+⏰ 6:00 PM<br>
+📍 Buddh Circuit<br>
+🏎 Racing
+</div>
+<a href="{% url 'sport_ticket' %}?event=formula1" class="btn-book">Book Now</a>
+</div></div></div>
+
+<!-- 4 -->
+<div class="col-md-3">
+<div class="card-box">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjkzLAT5sXqJt7DKohHe-6yf0Y958-89zv5Q&s">
+<a href="javascript:void(0)"
+class="wishlist"
+onclick="addToWishlist(
+'ISL Final',
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjkzLAT5sXqJt7DKohHe-6yf0Y958-89zv5Q&s',
+'📅 5 Aug 2026',
+'⏰ 8:00 PM',
+'📍 DY Patil Stadium',
+'⚽ Football'
+)">❤️</a>
+<div class="card-body">
+<h4>ISL Final</h4>
+<div class="meta">
+📅 5 Aug 2026<br>
+⏰ 8:00 PM<br>
+📍 DY Patil Stadium<br>
+⚽ Football
+</div>
+<a href="{% url 'sport_ticket' %}?event=isl" class="btn-book">Book Now</a>
+</div></div></div>
+
+</div>
+
+<!-- ================= UPCOMING ================= -->
+<div class="section-title">📅 Upcoming Matches</div>
+<div class="row g-4">
+
+<!-- 1 -->
+<div class="col-md-3">
+<div class="card-box">
+<img src="https://images.unsplash.com/photo-1554068865-24cecd4e34b8">
+<a href="javascript:void(0)"
+class="wishlist"
+onclick="addToWishlist(
+'Tennis Grand Slam',
+'https://images.unsplash.com/photo-1554068865-24cecd4e34b8',
+'📅 18 Aug 2026',
+'⏰ 4:00 PM',
+'📍 Chennai Arena',
+'🎾 Tennis'
+)">❤️</a>
+<div class="card-body">
+<h4>Tennis Grand Slam</h4>
+<div class="meta">
+📅 18 Aug 2026<br>
+⏰ 4:00 PM<br>
+📍 Chennai Arena<br>
+🎾 Tennis
+</div>
+<a href="{% url 'sport_ticket' %}?event=tennis" class="btn-book">Book Now</a>
+</div></div></div>
+
+<!-- 2 -->
+<div class="col-md-3">
+<div class="card-box">
+<img src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea">
+<a href="javascript:void(0)"
+class="wishlist"
+onclick="addToWishlist(
+'Badminton League',
+'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea',
+'📅 24 Aug 2026',
+'⏰ 5:30 PM',
+'📍 Kanteerava Stadium',
+'🏸 Badminton'
+)">❤️</a>
+<div class="card-body">
+<h4>Badminton League</h4>
+<div class="meta">
+📅 24 Aug 2026<br>
+⏰ 5:30 PM<br>
+📍 Kanteerava Stadium<br>
+🏸 Badminton
+</div>
+<a href="{% url 'sport_ticket' %}?event=badminton" class="btn-book">Book Now</a>
+</div></div></div>
+
+<!-- 3 -->
+<div class="col-md-3">
+<div class="card-box">
+<img src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5">
+<a href="javascript:void(0)"
+class="wishlist"
+onclick="addToWishlist(
+'Marathon Final',
+'https://images.unsplash.com/photo-1552674605-db6ffd4facb5',
+'📅 1 Sept 2026',
+'⏰ 6:00 AM',
+'📍 India Gate',
+'🏃 Marathon'
+)">❤️</a>
+<div class="card-body">
+<h4>Marathon Final</h4>
+<div class="meta">
+📅 1 Sept 2026<br>
+⏰ 6:00 AM<br>
+📍 India Gate<br>
+🏃 Marathon
+</div>
+<a href="{% url 'sport_ticket' %}?event=marathon" class="btn-book">Book Now</a>
+</div></div></div>
+
+<!-- 4 -->
+<div class="col-md-3">
+<div class="card-box">
+<img src="https://images.unsplash.com/photo-1546519638-68e109498ffc">
+<a href="javascript:void(0)"
+class="wishlist"
+onclick="addToWishlist(
+'Basketball Finals',
+'https://images.unsplash.com/photo-1546519638-68e109498ffc',
+'📅 10 Sept 2026',
+'⏰ 7:00 PM',
+'📍 Pune Arena',
+'🏀 Basketball'
+)">❤️</a>
+<div class="card-body">
+<h4>Basketball Finals</h4>
+<div class="meta">
+📅 10 Sept 2026<br>
+⏰ 7:00 PM<br>
+📍 Pune Arena<br>
+🏀 Basketball
+</div>
+<a href="{% url 'sport_ticket' %}?event=basketball" class="btn-book">Book Now</a>
+</div></div></div>
+
+</div>
+
+<!-- ================= BEST PICKS ================= -->
+<div class="section-title">⭐ Best Picks For You</div>
+<div class="row g-4">
+
+<!-- 1 -->
+<div class="col-md-3">
+<div class="card-box">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStTARN6sKixUJzC6vemJQMUBpuyFHVGytM1A&s">
+<a href="javascript:void(0)"
+class="wishlist"
+onclick="addToWishlist(
+'IPL Legends',
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStTARN6sKixUJzC6vemJQMUBpuyFHVGytM1A&s',
+'📅 20 Sept 2026',
+'⏰ 7:00 PM',
+'📍 Arun Jaitley Stadium',
+'🏏 Cricket'
+)">❤️</a>
+<div class="card-body">
+<h4>IPL Legends</h4>
+<div class="meta">
+📅 20 Sept 2026<br>
+⏰ 7:00 PM<br>
+📍 Arun Jaitley Stadium<br>
+🏏 Cricket
+</div>
+<a href="{% url 'sport_ticket' %}?event=ipllegend" class="btn-book">Book Now</a>
+</div></div></div>
+
+<!-- 2 -->
+<div class="col-md-3">
+<div class="card-box">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs1Ks5Un0fJrsoPq1owCoJ5vfgjOOeL70kTg&s">
+<a href="javascript:void(0)"
+class="wishlist"
+onclick="addToWishlist(
+'Hockey League',
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs1Ks5Un0fJrsoPq1owCoJ5vfgjOOeL70kTg&s',
+'📅 25 Sept 2026',
+'⏰ 7:30 PM',
+'📍 Kalinga Stadium',
+'🏑 Hockey'
+)">❤️</a>
+<div class="card-body">
+<h4>Hockey League</h4>
+<div class="meta">
+📅 25 Sept 2026<br>
+⏰ 7:30 PM<br>
+📍 Kalinga Stadium<br>
+🏑 Hockey
+</div>
+<a href="{% url 'sport_ticket' %}?event=hockey" class="btn-book">Book Now</a>
+</div></div></div>
+
+<!-- 3 -->
+<div class="col-md-3">
+<div class="card-box">
+<img src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5">
+<a href="javascript:void(0)"
+class="wishlist"
+onclick="addToWishlist(
+'City Marathon',
+'https://images.unsplash.com/photo-1552674605-db6ffd4facb5',
+'📅 30 Sept 2026',
+'⏰ 5:30 AM',
+'📍 Marine Drive',
+'🏃 Marathon'
+)">❤️</a>
+<div class="card-body">
+<h4>City Marathon</h4>
+<div class="meta">
+📅 30 Sept 2026<br>
+⏰ 5:30 AM<br>
+📍 Marine Drive<br>
+🏃 Marathon
+</div>
+<a href="{% url 'sport_ticket' %}?event=citymarathon" class="btn-book">Book Now</a>
+</div></div></div>
+
+<!-- 4 -->
+<div class="col-md-3">
+<div class="card-box">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAkdsYHbEuAXkRUhaYg7rh12CBAhPHflK4FA&s">
+<a href="javascript:void(0)"
+class="wishlist"
+onclick="addToWishlist(
+'Champions League',
+'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAkdsYHbEuAXkRUhaYg7rh12CBAhPHflK4FA&s',
+'📅 5 Oct 2026',
+'⏰ 8:00 PM',
+'📍 Wembley Stadium',
+'⚽ Football'
+)">❤️</a>
+<div class="card-body">
+<h4>Champions League</h4>
+<div class="meta">
+📅 5 Oct 2026<br>
+⏰ 8:00 PM<br>
+📍 Wembley Stadium<br>
+⚽ Football
+</div>
+<a href="{% url 'sport_ticket' %}?event=champions" class="btn-book">Book Now</a>
+</div></div></div>
+
+</div>
+
+</div>
+<script>
+    function addToWishlist(title, image, date, time, place, category){
+    
+        let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    
+        let exists = wishlist.find(item => item.title === title);
+    
+        if(!exists){
+    
+            wishlist.push({
+                title: title,
+                image: image,
+                date: date,
+                time: time,
+                place: place,
+                category: category
+            });
+    
+            localStorage.setItem(
+                "wishlist",
+                JSON.stringify(wishlist)
+            );
+    
+            alert(title + " added to wishlist ❤️");
+    
+        }else{
+    
+            alert("Already in wishlist ❤️");
+    
+        }
+    }
+    </script>
+</body>
+</html>

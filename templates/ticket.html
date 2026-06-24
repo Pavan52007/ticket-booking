@@ -41,13 +41,19 @@ body{
 
 <h3>Booking ID</h3>
 
-<h2>{{ booking }}</h2>
+<h2>ZEN{{ booking.id }}</h2>
 
 <p>
-Event : Zenith Event<br>
-Seat : A12<br>
-Date : 10 July 2026<br>
-Time : 7:00 PM
+🎬 Movie : {{ booking.movie.title }}
+<br><br>
+
+💺 Seats : {{ booking.seats }}
+<br><br>
+
+💰 Amount : ₹{{ booking.amount }}
+<br><br>
+
+📅 Booked On : {{ booking.booking_date }}
 </p>
 
 <img
