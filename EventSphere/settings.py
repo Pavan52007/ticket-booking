@@ -25,8 +25,15 @@ SECRET_KEY = 'django-insecure-xre79go5*=fmtt-*7w%9m)uo_y(+=uqpyg(6^k@cpmb!(yrl%n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "ticket-booking-z2df.onrender.com",
+    "localhost",
+    "127.0.0.1",
+]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://ticket-booking-z2df.onrender.com",
+]
 
 # Application definition
 
