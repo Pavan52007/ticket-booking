@@ -26,7 +26,16 @@ from .models import (
 def home(request):
     return render(request, 'home.html')
 
+from django.contrib.auth.decorators import login_required
+
+@login_required
 def admin_dashboard(request):
+
+    profile = UserProfile.objects.get(user=request.user)
+
+    if profile.role != "admin":
+        return redirect("dashboard")
+
     return render(request, "admin_dashboard.html")
 
 from django.contrib.auth import authenticate, login
