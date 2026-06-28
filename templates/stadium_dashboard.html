@@ -3,568 +3,1121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Titan Sports Zenith | Elite Performance Suite</title>
+    <title>SportsHub Pro | Event Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --titan-blue: #00d1ff; --titan-dark: #07080c; --card-bg: #11131a; --border: #1f222c; }
-        body { font-family: 'Outfit', sans-serif; background-color: var(--titan-dark); color: white; overflow: hidden; }
-        
-        /* Sidebar Navigation */
-        .sidebar { background-color: #0a0b10; width: 260px; height: 100vh; position: fixed; border-right: 1px solid var(--border); z-index: 100; }
-        .nav-item { cursor: pointer; transition: 0.2s; border-left: 4px solid transparent; color: #64748b; font-size: 14px; }
-        .nav-item:hover { color: white; background: rgba(0, 209, 255, 0.05); }
-        .nav-item.active { background: linear-gradient(90deg, rgba(0, 209, 255, 0.1) 0%, transparent 100%); border-left: 4px solid var(--titan-blue); color: var(--titan-blue); }
-
-        /* Content Area */
-        .main-content { margin-left: 260px; height: 100vh; overflow-y: auto; padding: 2.5rem; background: radial-gradient(circle at top right, #0f172a, #07080c); }
-        .card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 1.5rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card:hover { border-color: #3b82f6; transform: translateY(-4px); box-shadow: 0 20px 40px -20px rgba(0, 209, 255, 0.2); }
-
-        /* Custom UI */
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .status-pill { font-size: 10px; padding: 4px 12px; border-radius: 30px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        /* Table Styles */
-        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-        th { text-align: left; color: #475569; font-size: 11px; padding: 12px 20px; text-transform: uppercase; font-weight: 800; }
-        td { padding: 16px 20px; background: #11131a; font-size: 14px; }
-        tr td:first-child { border-radius: 12px 0 0 12px; }
-        tr td:last-child { border-radius: 0 12px 12px 0; }
-
-        .view-section { display: none; }
-        .view-section.active { display: block; animation: scaleUp 0.4s ease-out; }
-        @keyframes scaleUp { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 500; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
-        .modal.active { display: flex; }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #1f222c; border-radius: 10px; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; overflow-x: hidden; }
+        .sidebar { background-color: #0b0f19; width: 260px; height: 100vh; position: fixed; border-right: 1px solid #1e293b; z-index: 50; }
+        .right-panel { background-color: #0b0f19; width: 360px; height: 100vh; position: fixed; right: 0; top: 0; border-left: 1px solid #1e293b; z-index: 45; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .right-panel.active { transform: translateX(0); }
+        .main-content { margin-left: 260px; margin-right: 0px; background-color: #020617; min-height: 100vh; padding: 2.5rem; transition: margin-right 0.4s ease; }
+        .main-content.panel-active { margin-right: 360px; }
+        .card { background-color: #0f172a; border: 1px solid #1e293b; border-radius: 1rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-2px); border-color: #ef4444; box-shadow: 0 12px 30px -10px rgba(239, 68, 68, 0.15); }
+        .active-nav { background: linear-gradient(90deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0) 100%); border-left: 4px solid #ef4444; color: #f8fafc !important; }
+        .text-accent { color: #ef4444; }
+        .hidden-section { display: none; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeInUp 0.4s ease-out forwards; opacity: 0; }
+        @keyframes toastSlideIn { from { opacity: 0; transform: translateX(400px) scale(0.9); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        .animate-toast-in { animation: toastSlideIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+        @keyframes toastSlideOut { from { opacity: 1; } to { opacity: 0; transform: translateX(400px); } }
+        .animate-toast-out { animation: toastSlideOut 0.3s ease-in forwards; }
+        @keyframes shimmer { 0%{background-position:-1000px 0} 100%{background-position:1000px 0} }
+        .shimmer { background: linear-gradient(90deg,#0f172a 25%,#1e293b 50%,#0f172a 75%); background-size:1000px 100%; animation:shimmer 2s infinite; }
+        .seating-scroll::-webkit-scrollbar { width:6px; }
+        .seating-scroll::-webkit-scrollbar-track { background:#0f172a; }
+        .seating-scroll::-webkit-scrollbar-thumb { background:#334155; border-radius:10px; }
+        .seating-scroll::-webkit-scrollbar-thumb:hover { background:#ef4444; }
+        .search-wrapper { position:relative; width:100%; max-width:28rem; }
+        .autocomplete-dropdown { position:absolute; top:calc(100% + 6px); left:0; right:0; background:#0f172a; border:1px solid #1e293b; border-radius:0.75rem; z-index:200; overflow:hidden; box-shadow:0 16px 40px -8px rgba(0,0,0,0.6); max-height:320px; overflow-y:auto; }
+        .autocomplete-dropdown:empty { display:none; }
+        .ac-item { display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; transition:background 0.15s; border-bottom:1px solid #1e293b30; }
+        .ac-item:hover,.ac-item.ac-active { background:rgba(239,68,68,0.08); }
+        .ac-item .ac-icon { width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
+        .ac-item .ac-label { font-size:12px; font-weight:600; color:#f1f5f9; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .ac-item .ac-sub { font-size:10px; color:#64748b; flex-shrink:0; }
+        .ac-section-header { padding:6px 14px 4px; font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#475569; background:#0b0f19; border-bottom:1px solid #1e293b; }
+        .coupon-status { display:inline-block; font-size:9px; font-weight:600; padding:3px 8px; border-radius:12px; margin-top:6px; }
+        .coupon-status.available { background:#10b98120; color:#10b981; border:0.5px solid #10b98140; }
+        .coupon-status.expired { background:#ef444420; color:#ef4444; border:0.5px solid #ef444440; }
+        .coupon-status.expiring { background:#f5a50b20; color:#f5a50b; border:0.5px solid #f5a50b40; }
+        .rank-item { display:flex; align-items:center; gap:5px; padding:6px 8px; border-radius:0.5rem; background:rgba(15,23,42,0.6); border:0.5px solid rgba(30,41,59,0.8); transition:all 0.3s; font-size:11px; }
+        .rank-item:hover { background:rgba(15,23,42,0.9); }
+        .rank-pos { width:18px; text-align:center; font-weight:600; flex-shrink:0; }
+        .rank-pos.gold { color:#f59e0b; }
+        .rank-pos.silver { color:#cbd5e1; }
+        .rank-pos.bronze { color:#d97706; }
+        .rank-avatar { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; flex-shrink:0; overflow:hidden; }
+        .rank-avatar img { width:100%; height:100%; object-fit:cover; }
+        .rank-info { flex:1; min-width:0; }
+        .rank-name { font-weight:600; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:11px; }
+        .rank-sub { font-size:9px; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .rank-score { font-weight:700; color:#ef4444; flex-shrink:0; min-width:34px; text-align:right; font-size:11px; }
+        .rank-change { font-size:9px; font-weight:500; }
+        .rank-change.up { color:#22c55e; }
+        .rank-change.down { color:#ef4444; }
+        .rank-change.same { color:#475569; }
+        .rank-search { position:relative; width:100%; margin-bottom:0.75rem; }
+        .rank-search i { position:absolute; left:0.5rem; top:50%; transform:translateY(-50%); color:#475569; font-size:0.75rem; pointer-events:none; }
+        .rank-search input { width:100%; background:rgba(15,23,42,0.6); border:0.5px solid rgba(30,41,59,0.8); border-radius:0.5rem; padding:0.4rem 0.75rem 0.4rem 1.75rem; font-size:0.7rem; color:#e2e8f0; }
+        .rank-search input:focus { outline:none; border-color:rgba(239,68,68,0.5); }
+        .map-iframe { width:100%; height:220px; border:none; border-radius:0.75rem; display:block; background:#0b0f19; }
+        .venue-stat-pill { display:flex; align-items:center; gap:6px; background:rgba(15,23,42,0.7); border:0.5px solid rgba(30,41,59,0.9); border-radius:10px; padding:8px 12px; font-size:11px; }
+        .toast-container { position:fixed; bottom:2rem; right:2rem; z-index:9999; }
+        .toast { background:#0f172a; border:1px solid #1e293b; border-left:4px solid #10b981; border-radius:0.75rem; padding:0.875rem 1.25rem; min-width:300px; box-shadow:0 12px 40px rgba(0,0,0,0.4); display:flex; align-items:center; gap:10px; color:#e2e8f0; font-size:0.8rem; font-weight:500; margin-top:6px; }
+        .toast.success { border-left-color:#10b981; }
+        .toast.error { border-left-color:#ef4444; color:#f87171; }
+        .toast.info { border-left-color:#3b82f6; }
+        .toast.booking { border-left-color:#f59e0b; }
+        .profile-avatar { width:40px; height:40px; border-radius:12px; object-fit:cover; }
+        .profile-avatar-lg { width:72px; height:72px; border-radius:16px; object-fit:cover; }
+        @keyframes numPop { 0%{transform:scale(1.15);color:#10b981} 100%{transform:scale(1);color:inherit} }
+        .num-pop { animation:numPop 0.4s ease-out; }
+        .stat-num { transition:all 0.3s ease; }
+        .progress-bar { transition:width 0.8s cubic-bezier(0.4,0,0.2,1); }
+        @keyframes seatFlash { 0%{background:rgba(16,185,129,0.4)} 100%{background:rgba(239,68,68,0.85)} }
+        .seat-selling { animation:seatFlash 0.5s ease-out forwards; }
+        .image-preview-container { position:relative; width:100%; background:#0b0f19; border:2px dashed #1e293b; border-radius:0.75rem; overflow:hidden; }
+        .image-preview-container.has-image { border-style:solid; border-color:#ef4444; }
+        .image-preview-placeholder { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:2rem; color:#64748b; font-size:0.875rem; }
+        .image-status-badge { position:absolute; top:8px; right:8px; padding:5px 10px; border-radius:6px; font-size:0.7rem; font-weight:600; background:rgba(15,23,42,0.9); border:1px solid #1e293b; z-index:10; display:flex; align-items:center; gap:5px; }
+        .image-status-badge.success { background:rgba(16,185,129,0.15); color:#10b981; border-color:#10b981; }
+        .image-status-badge.error { background:rgba(239,68,68,0.15); color:#ef4444; border-color:#ef4444; }
+        input[type=file] { display:none; }
+        .venue-card-active { border-color:#3b82f6 !important; box-shadow:0 0 0 2px rgba(59,130,246,0.2); }
+        @keyframes highlightFlash { 0%{background:rgba(239,68,68,0.15)} 100%{background:#0f172a} }
+        .highlight-coupon { animation:highlightFlash 1s ease-out; }
     </style>
 </head>
-<body>
+<body class="antialiased">
 
-    <!-- Sidebar -->
-    <aside class="sidebar flex flex-col p-6">
-        <div class="flex items-center gap-3 mb-12">
-            <div class="w-12 h-12 bg-gradient-to-tr from-blue-600 to-[#00d1ff] rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <i class="fa-solid fa-shield-halved text-black text-2xl"></i>
-            </div>
-            <div>
-                <h1 class="text-xl font-bold leading-none tracking-tight">TITAN<span class="text-[#00d1ff]">Z</span></h1>
-                <p class="text-[9px] text-gray-500 font-bold uppercase mt-1 tracking-widest">Elite Performance</p>
-            </div>
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- Splash -->
+<div id="splashScreen" onclick="handleClearSplashOverlay()" class="fixed inset-0 bg-[#020617] z-[999] flex flex-col items-center justify-center cursor-pointer transition-all duration-700">
+    <div class="text-center space-y-5 px-4 pointer-events-none">
+        <div class="inline-flex w-20 h-20 rounded-2xl bg-gradient-to-tr from-red-600 to-pink-500 items-center justify-center shadow-2xl shadow-red-500/30 mb-2">
+            <i class="fa-solid fa-trophy text-white text-3xl"></i>
         </div>
+        <h1 class="text-4xl font-extrabold tracking-tight text-white">SportsHub <span class="text-red-500 font-medium text-2xl mx-2">✕</span> Zenith Events</h1>
+        <p class="text-slate-400 text-xs tracking-widest uppercase pt-6 font-medium">Click anywhere to enter dashboard</p>
+    </div>
+</div>
 
-        <nav class="space-y-1.5 flex-1" id="sidebar-nav">
-            <div onclick="router('dashboard')" class="nav-item active flex items-center gap-4 px-5 py-3.5 rounded-2xl" data-target="dashboard"><i class="fa-solid fa-grid-2 w-5 text-lg"></i> Dashboard</div>
-            <div onclick="router('roster')" class="nav-item flex items-center gap-4 px-5 py-3.5 rounded-2xl" data-target="roster"><i class="fa-solid fa-users-viewfinder w-5 text-lg"></i> Team Roster</div>
-            <div onclick="router('schedule')" class="nav-item flex items-center gap-4 px-5 py-3.5 rounded-2xl" data-target="schedule"><i class="fa-solid fa-calendar-check w-5 text-lg"></i> Match Center</div>
-            <div onclick="router('training')" class="nav-item flex items-center gap-4 px-5 py-3.5 rounded-2xl" data-target="training"><i class="fa-solid fa-bolt-lightning w-5 text-lg"></i> Tactical Lab</div>
-            <div onclick="router('analytics')" class="nav-item flex items-center gap-4 px-5 py-3.5 rounded-2xl" data-target="analytics"><i class="fa-solid fa-chart-line-up w-5 text-lg"></i> Insights</div>
-            <div onclick="router('settings')" class="nav-item flex items-center gap-4 px-5 py-3.5 rounded-2xl" data-target="settings"><i class="fa-solid fa-user-gear w-5 text-lg"></i> Coach Profile</div>
+<!-- ══ LEFT SIDEBAR ══════════════════════════════════════════════════════════ -->
+<aside class="sidebar p-6 flex flex-col justify-between">
+    <div class="overflow-y-auto seating-scroll pr-1 flex-1">
+        <div class="flex items-center gap-3 mb-8 px-2">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-red-600 to-pink-500 flex items-center justify-center shadow-lg shadow-red-500/20">
+                <i class="fa-solid fa-trophy text-white text-sm"></i>
+            </div>
+            <h1 class="text-xl font-bold tracking-tight text-white">SportsHub</h1>
+        </div>
+        <nav class="space-y-1.5 text-slate-100">
+            <a href="#" id="nav-dashboard" onclick="showSection('dashboard')" class="nav-link flex items-center gap-3.5 px-4 py-3 rounded-xl active-nav text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all"><i class="fa-solid fa-gauge text-base"></i> Dashboard</a>
+            <a href="#" id="nav-matches" onclick="showSection('matches')" class="nav-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all"><i class="fa-solid fa-calendar-alt text-base"></i> Matches</a>
+            <a href="#" id="nav-venues" onclick="showSection('venues')" class="nav-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all"><i class="fa-solid fa-building text-base"></i> Venues</a>
+            <a href="#" id="nav-coupons" onclick="showSection('coupons')" class="nav-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all"><i class="fa-solid fa-tag text-base"></i> Coupons</a>
+            <a href="#" id="nav-analytics" onclick="showSection('analytics')" class="nav-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all"><i class="fa-solid fa-chart-line text-base"></i> Analytics</a>
+            <a href="#" id="nav-settings" onclick="showSection('settings')" class="nav-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all"><i class="fa-solid fa-gear text-base"></i> Settings</a>
         </nav>
 
-        <div class="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl">
-            <p class="text-[10px] text-blue-400 font-bold mb-2">NEXT MATCH</p>
+        <!-- LIVE USER RANKINGS -->
+        <div class="mt-8 mb-3 px-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest border-t border-slate-800/60 pt-6 flex justify-between items-center">
+            <span><i class="fa-solid fa-users mr-1.5 text-amber-500"></i> Top Bookers</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></span>
+        </div>
+        <div class="rank-search px-2">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" id="rankingsSearchInput" placeholder="Search users..." oninput="filterRankings(this.value)">
+        </div>
+        <div id="rankingsList" class="space-y-1.5 px-1"></div>
+        <div class="mt-2 pt-2 border-t border-slate-800/40 text-[10px] text-slate-500 text-center px-2">By tickets purchased · live</div>
+    </div>
+
+    <div class="card p-4 flex items-center gap-3 cursor-pointer hover:border-red-500/50 bg-slate-900/50 mt-4 shrink-0" onclick="document.getElementById('profileModal').classList.remove('hidden')">
+        <div id="sbAvatarWrap" class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center font-bold text-red-400 shrink-0 overflow-hidden">
+            <span id="sbUserInitial">PA</span>
+        </div>
+        <div class="overflow-hidden">
+            <p id="sbUserName" class="font-semibold text-sm text-slate-200 truncate">Promoter Admin</p>
+            <p class="text-xs text-slate-400">Pro Promoter</p>
+        </div>
+    </div>
+</aside>
+
+<!-- ══ RIGHT PANEL — dual use: match telemetry OR venue map ══════════════════ -->
+<aside id="rightPanel" class="right-panel flex flex-col">
+    <!-- MATCH TELEMETRY pane -->
+    <div id="paneMatch" class="h-full overflow-y-auto seating-scroll p-5 space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Match Telemetry</h3>
+            </div>
+            <button onclick="closeRightPanel()" class="text-slate-500 hover:text-slate-300"><i class="fa-solid fa-xmark text-base"></i></button>
+        </div>
+        <div>
+            <h2 id="telTitle" class="text-lg font-bold text-white truncate">Select Match</h2>
+            <p id="telVenue" class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-location-dot text-slate-600 mr-1"></i>No venue</p>
+            <div id="telStatusBadge" class="mt-2 hidden">
+                <span id="telStatusText" class="text-[10px] font-bold px-2 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-1.5 w-fit">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse inline-block"></span> LIVE
+                </span>
+            </div>
+        </div>
+        <div class="bg-slate-900/70 border border-slate-800/80 p-3.5 rounded-xl">
+            <div class="flex justify-between items-center mb-2">
+                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Occupancy</p>
+                <span id="telOccupancyPct" class="text-xs font-bold text-emerald-400">0%</span>
+            </div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div id="telOccupancyBar" class="progress-bar bg-gradient-to-r from-emerald-500 to-red-500 h-2 rounded-full" style="width:0%"></div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+            <div class="bg-slate-900/70 border border-slate-800/80 p-3 rounded-xl">
+                <p class="text-[9px] text-slate-500 uppercase font-bold">Sold</p>
+                <p id="telSold" class="text-base font-bold text-emerald-400 mt-0.5 stat-num">0</p>
+            </div>
+            <div class="bg-slate-900/70 border border-slate-800/80 p-3 rounded-xl">
+                <p class="text-[9px] text-slate-500 uppercase font-bold">Left</p>
+                <p id="telLeft" class="text-base font-bold text-amber-400 mt-0.5 stat-num">0</p>
+            </div>
+            <div class="bg-slate-900/70 border border-slate-800/80 p-3 rounded-xl">
+                <p class="text-[9px] text-slate-500 uppercase font-bold">Revenue</p>
+                <p id="telRevenue" class="text-base font-bold text-teal-400 mt-0.5 stat-num">₹0</p>
+            </div>
+        </div>
+        <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-xl space-y-3">
             <div class="flex justify-between items-center">
-                <span class="text-xs font-bold" id="side-match-opp">---</span>
-                <span class="text-[10px] font-mono bg-blue-500 text-black px-2 py-0.5 rounded">LIVE</span>
+                <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider"><i class="fa-solid fa-chart-bar text-red-500/80 mr-1"></i> Seat Map</h4>
+                <div class="flex gap-2 text-[9px] font-semibold text-slate-500">
+                    <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-sm bg-slate-700"></span> Free</span>
+                    <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-sm bg-red-500"></span> Booked</span>
+                </div>
+            </div>
+            <div class="max-h-32 overflow-y-auto seating-scroll">
+                <div id="telSeatingGridMap" class="grid grid-cols-12 gap-0.5"></div>
             </div>
         </div>
-    </aside>
+        <div>
+            <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Highlights</h4>
+            <div id="telHighlights" class="text-xs text-slate-300 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800/80 leading-relaxed">
+                <p class="text-slate-500 italic">Select a match to view live stats.</p>
+            </div>
+        </div>
+    </div>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- HEADER -->
-        <header class="flex justify-between items-center mb-10">
+    <!-- VENUE MAP pane -->
+    <div id="paneVenue" class="h-full overflow-y-auto seating-scroll p-5 space-y-5 hidden">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Venue Details</h3>
+            </div>
+            <button onclick="closeRightPanel()" class="text-slate-500 hover:text-slate-300"><i class="fa-solid fa-xmark text-base"></i></button>
+        </div>
+        <div>
+            <h2 id="vmName" class="text-lg font-bold text-white truncate">Venue</h2>
+            <p id="vmLocation" class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-location-dot text-blue-500 mr-1"></i>Loading...</p>
+            <div class="mt-2 flex items-center gap-2">
+                <span id="vmStatusBadge" class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 w-fit">Active</span>
+                <span id="vmCapacity" class="text-[10px] text-slate-500"><i class="fa-solid fa-users mr-1"></i>—</span>
+            </div>
+        </div>
+        <div class="rounded-xl overflow-hidden border border-slate-800 relative">
+            <div id="vmMapLoading" class="absolute inset-0 bg-slate-900/90 flex flex-col items-center justify-center z-10 gap-2">
+                <i class="fa-solid fa-map-location-dot text-2xl text-blue-500 animate-pulse"></i>
+                <p class="text-xs text-slate-400">Loading map...</p>
+            </div>
+            <iframe id="vmMapFrame" class="map-iframe" title="Venue Location" loading="lazy" allowfullscreen="" referrerpolicy="no-referrer-when-downgrade" onload="document.getElementById('vmMapLoading').style.display='none'"></iframe>
+        </div>
+        <div>
+            <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Events at this Venue</h4>
+            <div id="vmMatchList" class="space-y-2"></div>
+        </div>
+        <a id="vmMapsLink" href="#" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 w-full py-2.5 bg-blue-600/20 border border-blue-500/30 text-blue-400 rounded-xl text-xs font-bold hover:bg-blue-600/30 transition">
+            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i> Open in Google Maps
+        </a>
+    </div>
+</aside>
+
+<!-- ══ MAIN CONTENT ══════════════════════════════════════════════════════════ -->
+<main id="mainContentArea" class="main-content">
+    <header class="mb-10 flex justify-between items-end gap-4">
+        <div>
+            <h2 id="headerGreeting" class="text-3xl font-bold tracking-tight text-white">Welcome back, Promoter! 👋</h2>
+            <p class="text-slate-400 mt-1.5 text-sm">Manage your sports events and maximize ticket sales today.</p>
+        </div>
+        <div class="search-wrapper mx-4">
+            <i class="fa-solid fa-magnifying-glass text-slate-500 text-sm" style="position:absolute;left:1rem;top:0.875rem;pointer-events:none;z-index:1;"></i>
+            <input type="text" id="globalSearchInput" oninput="handleSearchMatches(this.value)" onkeydown="handleSearchKeydown(event)" onfocus="handleSearchMatches(this.value)" autocomplete="off" placeholder="Search matches, venues, coupons..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/20 transition-all">
+            <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
+        </div>
+        <div id="currentDate" class="text-xs font-semibold text-slate-400 bg-slate-900 px-4 py-2.5 rounded-xl border border-slate-800 flex items-center gap-2 shrink-0"></div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="content-section animate-fade-in">
+        <div id="searchResultsSection" class="hidden-section mb-10">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-slate-200">Results for "<span id="searchQueryDisplay" class="text-red-400"></span>"</h2>
+                <button onclick="clearSearchResults()" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl text-sm font-semibold text-slate-300 transition"><i class="fa-solid fa-times mr-2"></i>Clear</button>
+            </div>
+            <div id="matchesResultsContainer" class="mb-10 hidden-section">
+                <h3 class="text-lg font-bold text-slate-300 mb-4"><i class="fa-solid fa-calendar-alt text-red-500 mr-2"></i>Matches (<span id="matchesResultCount">0</span>)</h3>
+                <div id="matchesResultsGrid" class="grid grid-cols-3 gap-6"></div>
+            </div>
+            <div id="venuesResultsContainer" class="mb-10 hidden-section">
+                <h3 class="text-lg font-bold text-slate-300 mb-4"><i class="fa-solid fa-building text-blue-500 mr-2"></i>Venues (<span id="venuesResultCount">0</span>)</h3>
+                <div id="venuesResultsGrid" class="space-y-3"></div>
+            </div>
+            <div id="couponsResultsContainer" class="mb-10 hidden-section">
+                <h3 class="text-lg font-bold text-slate-300 mb-4"><i class="fa-solid fa-tag text-pink-500 mr-2"></i>Coupons (<span id="couponsResultCount">0</span>)</h3>
+                <div id="couponsResultsGrid" class="grid grid-cols-3 gap-6"></div>
+            </div>
+            <div id="noResultsMessage" class="hidden-section text-center py-12 bg-slate-900/40 rounded-xl border border-dashed border-slate-800">
+                <i class="fa-solid fa-search text-4xl text-slate-500 mb-3 block"></i>
+                <p class="text-slate-400">No results found</p>
+            </div>
+        </div>
+        <div id="dashboardDefaultContent">
+            <div class="grid grid-cols-4 gap-6 mb-6">
+                <div class="card p-6"><div class="flex justify-between items-center mb-4"><div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400"><i class="fa-solid fa-ticket text-sm"></i></div><span class="text-emerald-500 text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">+16.8%</span></div><p class="text-slate-400 text-xs font-medium">Total Tickets Sold</p><p id="kpiSold" class="text-3xl font-bold mt-1 text-slate-100 stat-num">—</p></div>
+                <div class="card p-6"><div class="flex justify-between items-center mb-4"><div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400"><i class="fa-solid fa-users text-sm"></i></div><span class="text-emerald-500 text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">+11.3%</span></div><p class="text-slate-400 text-xs font-medium">Occupancy Avg</p><p id="kpiOcc" class="text-3xl font-bold mt-1 text-slate-100 stat-num">—</p></div>
+                <div class="card p-6"><div class="flex justify-between items-center mb-4"><div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400"><i class="fa-solid fa-trophy text-sm"></i></div><span class="text-emerald-500 text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">+24.7%</span></div><p class="text-slate-400 text-xs font-medium">Events Hosted</p><p id="kpiEvents" class="text-3xl font-bold mt-1 text-slate-100 stat-num">—</p></div>
+                <div class="card p-6"><div class="flex justify-between items-center mb-4"><div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400"><i class="fa-solid fa-indian-rupee-sign text-sm"></i></div><span class="text-emerald-500 text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">+22.5%</span></div><p class="text-slate-400 text-xs font-medium">Total Revenue</p><p id="kpiRevenue" class="text-3xl font-bold mt-1 text-slate-100 stat-num">—</p></div>
+            </div>
+            <div class="grid grid-cols-3 gap-6 mb-8">
+                <div class="card p-6 col-span-2"><div class="flex justify-between items-center mb-4"><h3 class="font-bold text-base text-slate-200">Revenue & Bookings Growth <span id="chartMonthLabel" class="text-[11px] text-slate-500 font-normal">(Current Year)</span></h3><span class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> Live</span></div><div class="h-64"><canvas id="perfChart"></canvas></div></div>
+                <div class="card p-6"><h3 class="font-bold text-base text-slate-200 mb-4">Top Venues</h3><div id="topVenuesBars" class="space-y-4"></div></div>
+            </div>
+            <div class="grid grid-cols-3 gap-6">
+                <div class="card p-6"><h3 class="font-bold text-xs uppercase tracking-wider text-slate-400 mb-6">Venue Performance</h3><div id="venuePerformanceBars" class="space-y-5"></div></div>
+                <div class="card p-6"><h3 class="font-bold text-xs uppercase tracking-wider text-slate-400 mb-4">Audience Demographics</h3><div class="h-48 flex justify-center"><canvas id="audienceChart"></canvas></div></div>
+                <div class="card p-6"><h3 class="font-bold text-xs uppercase tracking-wider text-slate-400 mb-4">Booking Channels</h3><div class="h-48"><canvas id="socialChart"></canvas></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MATCHES -->
+    <section id="matches" class="content-section hidden-section animate-fade-in">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-slate-200">All Matches</h3>
+            <button onclick="openAddModal('match')" class="bg-red-500 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-red-600 shadow-md shadow-red-600/10 transition flex items-center gap-2"><i class="fa-solid fa-plus text-xs"></i> Add Match</button>
+        </div>
+        <div id="matchGrid" class="grid grid-cols-3 gap-6 mb-10"></div>
+        <h3 class="text-lg font-bold mb-4 text-rose-400 border-t border-slate-800/80 pt-8 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Live Now</h3>
+        <div id="liveGrid" class="grid grid-cols-3 gap-6 mb-10"></div>
+        <h3 class="text-lg font-bold mb-4 text-blue-400">Upcoming</h3>
+        <div id="upcomingGrid" class="grid grid-cols-3 gap-6 mb-10"></div>
+        <h3 class="text-lg font-bold mb-4 text-slate-400">Completed</h3>
+        <div id="completedGrid" class="grid grid-cols-3 gap-6"></div>
+    </section>
+
+    <!-- VENUES -->
+    <section id="venues" class="content-section hidden-section animate-fade-in">
+        <div class="flex justify-between items-center mb-6">
             <div>
-                <h2 id="view-title" class="text-4xl font-bold">Command Center</h2>
-                <p id="view-subtitle" class="text-gray-400 mt-1">Real-time squad orchestration.</p>
+                <h3 class="text-xl font-bold text-slate-200">Registered Venues</h3>
+                <p class="text-slate-500 text-xs mt-1">Click any venue to view its location on Google Maps</p>
             </div>
-            <div class="flex items-center gap-6">
-                <div class="bg-white/5 border border-white/10 px-6 py-2 rounded-2xl text-right">
-                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Season Progress</p>
-                    <p class="text-sm font-bold text-[#00d1ff]">14W - 2D - 1L</p>
-                </div>
-                <div onclick="router('settings')" class="flex items-center gap-3 cursor-pointer group">
-                    <div class="text-right">
-                        <p class="font-bold text-sm group-hover:text-[#00d1ff] transition" id="nav-coach-name">Coach Alex</p>
-                        <p class="text-[10px] text-gray-500 font-bold uppercase">Pro License</p>
-                    </div>
-                    <img id="nav-avatar" src="https://i.pravatar.cc/150?u=coach" class="w-12 h-12 rounded-2xl border-2 border-[#1f222c] object-cover">
-                </div>
-            </div>
-        </header>
+            <button onclick="openAddModal('venue')" class="bg-red-500 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-red-600 transition flex items-center gap-2"><i class="fa-solid fa-plus text-xs"></i> Add Venue</button>
+        </div>
+        <div id="venueGrid" class="space-y-3"></div>
+    </section>
 
-        <!-- 1. DASHBOARD -->
-        <section id="view-dashboard" class="view-section active">
-            <div class="grid grid-cols-4 gap-6 mb-8">
-                <div class="card p-6 border-b-4 border-blue-500">
-                    <p class="text-gray-400 text-xs font-bold uppercase">Squad Size</p>
-                    <h4 class="text-4xl font-bold mt-2" id="dash-player-count">0</h4>
-                </div>
-                <div class="card p-6 border-b-4 border-green-500">
-                    <p class="text-gray-400 text-xs font-bold uppercase">Avg Fitness</p>
-                    <h4 class="text-4xl font-bold mt-2" id="dash-fitness">0%</h4>
-                </div>
-                <div class="card p-6 border-b-4 border-[#00d1ff]">
-                    <p class="text-gray-400 text-xs font-bold uppercase">Active Drills</p>
-                    <h4 class="text-4xl font-bold mt-2" id="dash-drill-count">0</h4>
-                </div>
-                <div class="card p-6 border-b-4 border-purple-500">
-                    <p class="text-gray-400 text-xs font-bold uppercase">Fixtures</p>
-                    <h4 class="text-4xl font-bold mt-2" id="dash-match-count">0</h4>
-                </div>
-            </div>
+    <!-- COUPONS -->
+    <section id="coupons" class="content-section hidden-section animate-fade-in">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-slate-200">Active Promotions & Coupons</h3>
+            <button onclick="openAddModal('coupon')" class="bg-red-500 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-red-600 transition flex items-center gap-2"><i class="fa-solid fa-plus text-xs"></i> New Coupon</button>
+        </div>
+        <div id="couponGrid" class="grid grid-cols-3 gap-6"></div>
+    </section>
 
-            <div class="grid grid-cols-12 gap-6">
-                <div class="col-span-8 card p-8">
-                    <h3 class="font-bold text-xl mb-6">Performance Velocity</h3>
-                    <div class="h-80"><canvas id="mainVelocityChart"></canvas></div>
-                </div>
-                <div class="col-span-4 space-y-6">
-                    <div class="card p-6 bg-gradient-to-br from-blue-600/20 to-transparent">
-                        <h3 class="font-bold mb-4">Immediate Match</h3>
-                        <div id="dash-next-match-card" class="space-y-4">
-                            <!-- Injected -->
+    <!-- ANALYTICS -->
+    <section id="analytics" class="content-section hidden-section animate-fade-in">
+        <div class="mb-8"><h2 class="text-2xl font-bold text-slate-100">Analytics Dashboard</h2><p class="text-slate-400 text-sm mt-1">Live insights into match performance.</p></div>
+        <div class="grid grid-cols-3 gap-6 mb-8">
+            <div class="card p-5"><p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Conversion Rate</p><p class="text-2xl font-bold text-slate-100 stat-num">32.4%</p></div>
+            <div class="card p-5"><p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Avg Ticket Price</p><p id="anaAvgPrice" class="text-2xl font-bold text-slate-100 stat-num">₹—</p></div>
+            <div class="card p-5"><p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Total Revenue</p><p id="anaRevenue" class="text-2xl font-bold text-slate-100 stat-num">₹—</p></div>
+        </div>
+        <div class="grid grid-cols-2 gap-6">
+            <div class="card p-6"><h3 class="font-bold text-sm uppercase tracking-wider text-slate-300 mb-6">Ticket Sales by Sport</h3><div class="h-64"><canvas id="salesChart"></canvas></div></div>
+            <div class="card p-6"><h3 class="font-bold text-sm uppercase tracking-wider text-slate-300 mb-6">Attendance by Age Group</h3><div class="h-64"><canvas id="demographicsChart"></canvas></div></div>
+        </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="settings" class="content-section hidden-section animate-fade-in">
+        <div class="mb-8"><h2 class="text-2xl font-bold text-slate-100">Account Settings</h2></div>
+        <div class="grid grid-cols-4 gap-8 items-start">
+            <div class="space-y-1 bg-slate-900/40 border border-slate-800 p-2.5 rounded-2xl">
+                <button onclick="switchSettingsTab('profile-tab',this)" class="settings-tab-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-200 bg-slate-800/80 border border-slate-700/50 transition-all text-left"><i class="fa-solid fa-user-gear text-red-400"></i> Profile</button>
+                <button onclick="switchSettingsTab('security-tab',this)" class="settings-tab-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all text-left"><i class="fa-solid fa-shield-halved text-slate-500"></i> Security</button>
+                <button onclick="switchSettingsTab('notifications-tab',this)" class="settings-tab-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-slate-200 transition-all text-left"><i class="fa-solid fa-bell text-slate-500"></i> Notifications</button>
+            </div>
+            <div class="col-span-3 space-y-6">
+                <div id="profile-tab" class="settings-tab-panel card p-6 space-y-6">
+                    <div><h3 class="text-base font-bold text-slate-200">Public Profile</h3><p class="text-xs text-slate-500 mt-0.5">Update your profile info.</p></div>
+                    <div class="border-t border-slate-800/80"></div>
+                    <div class="flex items-center gap-6">
+                        <div class="relative">
+                            <div id="settingsAvatarWrap" class="w-20 h-20 rounded-2xl bg-red-500/10 border-2 border-red-500/20 flex items-center justify-center font-bold text-red-400 text-2xl overflow-hidden"><span id="settingsUserInitial">PA</span></div>
+                            <label for="profileImgInput" class="absolute -bottom-2 -right-2 w-7 h-7 bg-red-500 rounded-lg flex items-center justify-center cursor-pointer hover:bg-red-600 transition shadow-lg"><i class="fa-solid fa-camera text-white text-xs"></i></label>
+                            <input type="file" id="profileImgInput" accept="image/*" onchange="handleProfileImageUpload(this)">
+                        </div>
+                        <div><p class="text-sm font-semibold text-slate-200">Profile Photo</p><p class="text-xs text-slate-500 mt-1">JPG, PNG or GIF · Max 5MB</p>
+                            <button onclick="document.getElementById('profileImgInput').click()" class="mt-2 text-xs text-red-400 hover:text-red-300 font-semibold">Upload photo</button>
+                            <button onclick="removeProfileImage()" class="mt-2 ml-3 text-xs text-slate-500 hover:text-slate-300 font-semibold">Remove</button>
                         </div>
                     </div>
-                    <div class="card p-6">
-                        <h3 class="font-bold mb-4 text-red-500">Medical Report</h3>
-                        <div id="dash-medical-list" class="space-y-3">
-                            <!-- Injected -->
-                        </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Full Name</label><div class="relative"><i class="fa-solid fa-user absolute left-3.5 top-3.5 text-slate-600 text-xs"></i><input type="text" id="profInputName" class="w-full bg-slate-900 border border-slate-800 pl-9 pr-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm"></div></div>
+                        <div><label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Email</label><div class="relative"><i class="fa-solid fa-envelope absolute left-3.5 top-3.5 text-slate-600 text-xs"></i><input type="email" id="profInputEmail" class="w-full bg-slate-900 border border-slate-800 pl-9 pr-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-red-500 text-sm"></div></div>
                     </div>
+                    <div class="flex justify-end"><button onclick="updateProfile()" class="bg-red-500 px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-red-600 transition">Save Changes</button></div>
                 </div>
-            </div>
-        </section>
-
-        <!-- 2. ROSTER -->
-        <section id="view-roster" class="view-section">
-            <div class="flex justify-between items-center mb-8">
-                <h3 class="text-2xl font-bold">Athlete Pool</h3>
-                <button onclick="toggleModal('modal-player')" class="bg-[#00d1ff] text-black px-8 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-blue-500/20 hover:scale-105 transition">+ REGISTER ATHLETE</button>
-            </div>
-            <div class="overflow-hidden">
-                <table id="roster-table">
-                    <thead>
-                        <tr><th>Athlete</th><th>Role</th><th>Stamina</th><th>Status</th><th>Actions</th></tr>
-                    </thead>
-                    <tbody id="tbody-roster"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- 3. SCHEDULE (MATCH CENTER) -->
-        <section id="view-schedule" class="view-section">
-            <div class="flex justify-between items-center mb-8">
-                <h3 class="text-2xl font-bold">Season Calendar</h3>
-                <button onclick="toggleModal('modal-match')" class="bg-white/5 border border-white/10 hover:bg-white/10 px-8 py-3 rounded-2xl font-bold text-sm transition">SCHEDULE FIXTURE</button>
-            </div>
-            <div class="grid grid-cols-1 gap-4" id="match-list-generative">
-                <!-- Generative match cards go here -->
-            </div>
-        </section>
-
-        <!-- 4. TRAINING (TACTICAL LAB) -->
-        <section id="view-training" class="view-section">
-            <div class="flex justify-between items-center mb-8">
-                <h3 class="text-2xl font-bold">Training Regimen</h3>
-                <button onclick="toggleModal('modal-drill')" class="bg-[#00d1ff] text-black px-8 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-blue-500/20">+ CREATE DRILL</button>
-            </div>
-            <div class="grid grid-cols-3 gap-6" id="drill-grid-generative">
-                <!-- Generative drill cards go here -->
-            </div>
-        </section>
-
-        <!-- 5. ANALYTICS -->
-        <section id="view-analytics" class="view-section">
-            <div class="grid grid-cols-2 gap-8">
-                <div class="card p-8">
-                    <h3 class="font-bold text-xl mb-8 text-center">Squad Attributes Radar</h3>
-                    <div class="h-96"><canvas id="radarChart"></canvas></div>
-                </div>
-                <div class="card p-8">
-                    <h3 class="font-bold text-xl mb-8 text-center">Outcome Probability</h3>
-                    <div class="h-96"><canvas id="pieChart"></canvas></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 6. SETTINGS (COACH PROFILE) -->
-        <section id="view-settings" class="view-section">
-            <div class="grid grid-cols-12 gap-8">
-                <div class="col-span-4">
-                    <div class="card p-8 text-center">
-                        <div class="relative w-32 h-32 mx-auto mb-6">
-                            <img id="profile-img" src="https://i.pravatar.cc/150?u=coach" class="w-full h-full rounded-3xl object-cover border-4 border-blue-500/20">
-                            <label for="avatar-upload" class="absolute -bottom-2 -right-2 bg-[#00d1ff] text-black w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer shadow-lg">
-                                <i class="fa-solid fa-camera"></i>
-                            </label>
-                            <input type="file" id="avatar-upload" class="hidden" onchange="handleAvatar(this)">
-                        </div>
-                        <h4 class="text-2xl font-bold" id="prof-name">Coach Alex</h4>
-                        <p class="text-blue-400 font-bold text-xs uppercase mt-1 tracking-widest" id="prof-role">Head Coach</p>
-                        <div class="mt-8 space-y-3">
-                            <div class="flex justify-between text-xs border-b border-white/5 pb-2">
-                                <span class="text-gray-500">License</span><span class="font-bold">UEFA PRO</span>
-                            </div>
-                            <div class="flex justify-between text-xs border-b border-white/5 pb-2">
-                                <span class="text-gray-500">Club</span><span class="font-bold">Titan Elite FC</span>
-                            </div>
-                        </div>
+                <div id="security-tab" class="settings-tab-panel card p-6 space-y-6 hidden">
+                    <div><h3 class="text-base font-bold text-slate-200">Security</h3></div>
+                    <div class="border-t border-slate-800/80"></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">New Password</label><input type="password" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-800 px-4 py-2.5 rounded-xl text-slate-100 text-sm"></div>
+                        <div><label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Confirm</label><input type="password" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-800 px-4 py-2.5 rounded-xl text-slate-100 text-sm"></div>
                     </div>
+                    <div class="flex justify-end"><button onclick="showToast('Password updated!','success')" class="bg-slate-700 text-slate-200 px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-slate-600 transition">Update Password</button></div>
                 </div>
-                <div class="col-span-8 card p-10">
-                    <h3 class="text-xl font-bold mb-8">Identity Management</h3>
-                    <div class="grid grid-cols-2 gap-6 mb-8">
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-gray-500 block mb-2">Legal Name</label>
-                            <input id="set-name" type="text" value="Alex Rodriguez" class="w-full bg-black/40 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#00d1ff] transition">
-                        </div>
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-gray-500 block mb-2">Club Role</label>
-                            <input id="set-role" type="text" value="Head Coach" class="w-full bg-black/40 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#00d1ff] transition">
-                        </div>
-                    </div>
-                    <div class="mb-8">
-                        <label class="text-[10px] uppercase font-bold text-gray-500 block mb-2">Club Philosophy</label>
-                        <textarea id="set-bio" class="w-full bg-black/40 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#00d1ff] transition h-32">Fast-paced, possession-based football with a focus on high-pressing and quick transitions.</textarea>
-                    </div>
-                    <button onclick="saveProfile()" class="bg-[#00d1ff] text-black px-10 py-4 rounded-2xl font-bold text-sm tracking-widest shadow-lg shadow-blue-500/30 hover:scale-105 transition">SYNC PROFILE</button>
+                <div id="notifications-tab" class="settings-tab-panel card p-6 space-y-4 hidden">
+                    <div><h3 class="text-base font-bold text-slate-200">Notifications</h3></div>
+                    <div class="border-t border-slate-800/80"></div>
+                    <label class="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800/60 cursor-pointer"><div><p class="text-xs font-bold text-slate-300">Ticket Sale Alerts</p><p class="text-[11px] text-slate-500">Real-time sale notifications.</p></div><input type="checkbox" checked class="accent-red-500 w-4 h-4"></label>
+                    <label class="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800/60 cursor-pointer"><div><p class="text-xs font-bold text-slate-300">Capacity Warnings</p><p class="text-[11px] text-slate-500">Alert at 90% occupancy.</p></div><input type="checkbox" checked class="accent-red-500 w-4 h-4"></label>
                 </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- MODALS -->
-    <!-- Player Modal -->
-    <div id="modal-player" class="modal">
-        <div class="card w-[450px] p-8 shadow-2xl">
-            <h3 class="text-2xl font-bold mb-6">Register Athlete</h3>
-            <div class="space-y-5">
-                <input id="p-name" type="text" placeholder="Full Name" class="w-full bg-black border border-white/5 p-4 rounded-2xl outline-none">
-                <div class="grid grid-cols-2 gap-4">
-                    <select id="p-pos" class="w-full bg-black border border-white/5 p-4 rounded-2xl outline-none">
-                        <option>Forward</option><option>Midfielder</option><option>Defender</option><option>Goalkeeper</option>
-                    </select>
-                    <input id="p-fit" type="number" placeholder="Fitness %" class="w-full bg-black border border-white/5 p-4 rounded-2xl outline-none">
-                </div>
-                <button onclick="savePlayer()" class="w-full bg-[#00d1ff] text-black py-4 rounded-2xl font-bold text-sm mt-4">CONFIRM REGISTRATION</button>
-                <button onclick="toggleModal('modal-player')" class="w-full text-gray-500 font-bold text-xs mt-2 uppercase">Cancel</button>
             </div>
         </div>
-    </div>
+    </section>
+</main>
 
-    <!-- Match Modal -->
-    <div id="modal-match" class="modal">
-        <div class="card w-[450px] p-8 shadow-2xl">
-            <h3 class="text-2xl font-bold mb-6">Schedule Match</h3>
-            <div class="space-y-5">
-                <input id="m-opp" type="text" placeholder="Opponent Name" class="w-full bg-black border border-white/5 p-4 rounded-2xl outline-none">
-                <div class="grid grid-cols-2 gap-4">
-                    <input id="m-date" type="text" placeholder="Date (e.g. May 28)" class="w-full bg-black border border-white/5 p-4 rounded-2xl outline-none">
-                    <input id="m-venue" type="text" placeholder="Venue" class="w-full bg-black border border-white/5 p-4 rounded-2xl outline-none">
-                </div>
-                <button onclick="saveMatch()" class="w-full bg-[#00d1ff] text-black py-4 rounded-2xl font-bold text-sm mt-4">ADD TO CALENDAR</button>
-                <button onclick="toggleModal('modal-match')" class="w-full text-gray-500 font-bold text-xs mt-2 uppercase">Cancel</button>
+<!-- Add Modal -->
+<div id="addModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md">
+    <div class="card w-[420px] p-6 relative animate-fade-in max-h-[90vh] overflow-y-auto seating-scroll">
+        <h2 id="modalTitle" class="text-lg font-bold mb-4 text-slate-200">Add New</h2>
+        <form id="addForm" class="space-y-4">
+            <div id="formFields" class="space-y-3"></div>
+            <button type="submit" class="w-full py-3 bg-red-500 rounded-xl font-bold text-sm hover:bg-red-600 transition mt-2">Save</button>
+            <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="w-full py-2 text-slate-400 text-sm font-semibold hover:text-slate-200">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profileModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md">
+    <div class="card w-96 p-6 relative animate-fade-in">
+        <button onclick="document.getElementById('profileModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <div class="text-center mt-2">
+            <div id="modalAvatarWrap" class="w-16 h-16 rounded-2xl border border-red-500/20 bg-red-500/10 text-red-400 flex items-center justify-center text-xl mx-auto mb-3 font-bold overflow-hidden"><span id="modalUserInitial">PA</span></div>
+            <h2 id="modalUserName" class="text-lg font-bold text-slate-100">Promoter Admin</h2>
+            <p class="text-xs text-slate-400">Pro Promoter</p>
+        </div>
+        <div class="grid grid-cols-3 gap-3 my-5">
+            <div class="bg-slate-900/60 border border-slate-800/60 p-3 rounded-xl text-center"><p class="text-[10px] font-bold text-slate-500 uppercase">Events</p><p id="modalTotalEvents" class="font-bold text-lg text-slate-200 mt-0.5">—</p></div>
+            <div class="bg-slate-900/60 border border-slate-800/60 p-3 rounded-xl text-center"><p class="text-[10px] font-bold text-slate-500 uppercase">Tickets</p><p id="modalTotalTickets" class="font-bold text-lg text-slate-200 mt-0.5">—</p></div>
+            <div class="bg-slate-900/60 border border-slate-800/60 p-3 rounded-xl text-center"><p class="text-[10px] font-bold text-slate-500 uppercase">Rating</p><p class="font-bold text-lg text-amber-400 mt-0.5">4.9 ⭐</p></div>
+        </div>
+        <button onclick="showSection('settings');document.getElementById('profileModal').classList.add('hidden')" class="w-full py-3 bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white text-red-400 rounded-xl transition-all text-sm font-bold mb-2"><i class="fa-solid fa-gear mr-1.5"></i> Edit Profile</button>
+        <button onclick="document.getElementById('profileModal').classList.add('hidden')" class="w-full py-2 text-slate-500 hover:text-slate-300 text-sm font-semibold">Close</button>
+    </div>
+</div>
+
+<script>
+// ══ INITIALIZE MONTHLY DATA STRUCTURE ════════════════════════════════════════
+function initializeMonthlyData() {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+    
+    // Initialize last 6 months data
+    for (let i = 5; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        if (!monthlyTicketSales[key]) monthlyTicketSales[key] = 0;
+        if (!monthlyRevenueData[key]) monthlyRevenueData[key] = 0;
+    }
+}
+
+function getMonthlyLabels() {
+    const now = new Date();
+    const labels = [];
+    for (let i = 5; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        labels.push(date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }));
+    }
+    return labels;
+}
+
+function getMonthlyChartData() {
+    const now = new Date();
+    const data = [];
+    for (let i = 5; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        data.push(monthlyTicketSales[key] || 0);
+    }
+    return data;
+}
+
+// ══ DATA ═══════════════════════════════════════════════════════════════════
+let currentUser = JSON.parse(localStorage.getItem('sh_user_profile')) || { name:"Promoter Admin", email:"admin@sportshub.com", img:"" };
+
+const USERS = [
+    { id:1, name:"Arjun Mehta",    city:"Mumbai",    avatar:"", color:"#ef4444", bg:"rgba(239,68,68,0.15)",  tickets: 3120 },
+    { id:2, name:"Priya Sharma",   city:"Delhi",     avatar:"", color:"#3b82f6", bg:"rgba(59,130,246,0.15)", tickets: 2890 },
+    { id:3, name:"Carlos Diaz",    city:"London",    avatar:"", color:"#8b5cf6", bg:"rgba(139,92,246,0.15)", tickets: 2540 },
+    { id:4, name:"Aiko Tanaka",    city:"Tokyo",     avatar:"", color:"#f59e0b", bg:"rgba(245,158,11,0.15)", tickets: 2310 },
+    { id:5, name:"Samira Osei",    city:"Lagos",     avatar:"", color:"#10b981", bg:"rgba(16,185,129,0.15)", tickets: 2100 },
+    { id:6, name:"Liam O'Brien",   city:"Sydney",    avatar:"", color:"#e879f9", bg:"rgba(232,121,249,0.15)",tickets: 1980 },
+    { id:7, name:"Yuna Park",      city:"Seoul",     avatar:"", color:"#38bdf8", bg:"rgba(56,189,248,0.15)", tickets: 1750 },
+    { id:8, name:"Rafael Costa",   city:"São Paulo", avatar:"", color:"#f97316", bg:"rgba(249,115,22,0.15)", tickets: 1620 },
+];
+let userScores = {};
+let prevUserRankings = {};
+let rankingsSearchQuery = "";
+let rankingUpdateInterval = null;
+
+const defaultMatches = [
+    { name:"IPL Cricket - Mumbai vs Delhi",             status:"live",      venue:"Arun Jaitley Stadium",      img:"https://images.unsplash.com/photo-1540747913199-cd4628902d4a?w=500&h=300&fit=crop", views:125400, ticketsSold:8950,  ticketsLeft:1550,  revenue:4027500,  highlights:"Record attendance; 92% occupancy",        avgPrice:450 },
+    { name:"Premier League - Arsenal vs Liverpool",     status:"live",      venue:"Emirates Stadium",           img:"https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500&h=300&fit=crop", views:298500, ticketsSold:55000, ticketsLeft:5000,  revenue:12750000, highlights:"Sold out; global viewership 500M+",       avgPrice:232 },
+    { name:"ATP Tennis Open - Federer Memorial",        status:"upcoming",  venue:"Melbourne Park",             img:"https://images.unsplash.com/photo-1554224311-beee415c201f?w=500&h=300&fit=crop", views:156200, ticketsSold:1200,  ticketsLeft:13800, revenue:180000,   highlights:"",                                        avgPrice:150 },
+    { name:"NBA Finals - Lakers vs Celtics",            status:"completed", venue:"Crypto.com Arena",           img:"https://images.unsplash.com/photo-1546519638-68711109d298?w=500&h=300&fit=crop", views:542100, ticketsSold:20000, ticketsLeft:100,   revenue:9200000,  highlights:"All-time viewership; championship streak", avgPrice:460 },
+    { name:"Wimbledon Championship - Women's Finals",   status:"upcoming",  venue:"All England Club",           img:"https://images.unsplash.com/photo-1521897913338-bf52eaf58066?w=500&h=300&fit=crop", views:89600,  ticketsSold:800,   ticketsLeft:7200,  revenue:96000,    highlights:"",                                        avgPrice:120 },
+    { name:"Rugby World Cup - Grand Final",             status:"live",      venue:"Twickenham Stadium",         img:"https://images.unsplash.com/photo-1517836357463-d25ddfcbf042?w=500&h=300&fit=crop", views:234500, ticketsSold:45000, ticketsLeft:7500,  revenue:5625000,  highlights:"Historic event; multi-language coverage",  avgPrice:125 },
+    { name:"Volleyball Championship Finals",            status:"upcoming",  venue:"Jakarta Convention Center",  img:"https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=500&h=300&fit=crop", views:52300,  ticketsSold:0,     ticketsLeft:6000,  revenue:0,        highlights:"",                                        avgPrice:80  },
+    { name:"Formula 1 - Monaco Grand Prix",            status:"completed", venue:"Circuit de Monaco",          img:"https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=500&h=300&fit=crop", views:876500, ticketsSold:12000, ticketsLeft:200,   revenue:2880000,  highlights:"Legendary circuit; 3-hour showdown",      avgPrice:240 }
+];
+
+const defaultVenues = [
+    { name:"Arun Jaitley Stadium",       location:"New Delhi, India",         capacity:"66,000",  status:"Active",      lat:28.6366,  lng:77.2306  },
+    { name:"Emirates Stadium",           location:"London, England",          capacity:"60,704",  status:"Active",      lat:51.5549,  lng:-0.1084  },
+    { name:"Melbourne Park",             location:"Melbourne, Australia",     capacity:"15,000",  status:"Active",      lat:-37.8231, lng:144.9787 },
+    { name:"Crypto.com Arena",           location:"Los Angeles, USA",         capacity:"19,000",  status:"Active",      lat:34.0430,  lng:-118.2673},
+    { name:"All England Club",           location:"London, England",          capacity:"42,000",  status:"Maintenance", lat:51.4337,  lng:-0.2143  },
+    { name:"Twickenham Stadium",         location:"London, England",          capacity:"82,000",  status:"Active",      lat:51.4560,  lng:-0.3415  },
+    { name:"Jakarta Convention Center",  location:"Jakarta, Indonesia",       capacity:"7,000",   status:"Active",      lat:-6.2088,  lng:106.8456 },
+    { name:"Circuit de Monaco",          location:"Monaco",                   capacity:"35,000",  status:"Active",      lat:43.7347,  lng:7.4206   }
+];
+
+let matches = JSON.parse(localStorage.getItem('sh_matches')) || defaultMatches;
+let venues  = JSON.parse(localStorage.getItem('sh_venues'))  || defaultVenues;
+let coupons = JSON.parse(localStorage.getItem('sh_coupons')) || [
+    { title:"Grand Slam Opener",     code:"GRANDSLAM25", discount:25, valid:"2026-08-30" },
+    { title:"Championship Seekers",  code:"CHAMP15",     discount:15, valid:"2026-07-31" },
+    { title:"Fan Favorites Bundle",  code:"FAVFAN20",    discount:20, valid:"2026-08-15" },
+    { title:"Premier League Pass",   code:"PREMIER30",   discount:30, valid:"2026-09-30" },
+    { title:"Cricket Carnival",      code:"CRICKET22",   discount:22, valid:"2026-08-20" }
+];
+
+let currentModalMatchIndex = null, seatStatesArray = [], currentSearchQuery = "", acActiveIndex = -1;
+let perfChart = null, audienceChart = null, socialChart = null, salesChart = null, demoChart = null;
+let bookingIntervals = {};
+let currentPanelMode = null;
+let selectedVenueIdx = null;
+let perfData = [];
+let monthlyTicketSales = {};
+let monthlyRevenueData = {};
+let imageLoadingState = 'idle';
+
+// ══ TICKET BOOKING SIMULATION ═══════════════════════════════════════════════
+function startBookingSimulation() {
+    matches.forEach((m, idx) => {
+        if (bookingIntervals[idx]) return;
+        if ((m.status==='live'||m.status==='upcoming') && m.ticketsLeft>0) {
+            const spd = m.status==='live' ? (1500+Math.random()*2000) : (4500+Math.random()*6000);
+            bookingIntervals[idx] = setInterval(()=>simulateTicketSale(idx), spd);
+        }
+    });
+}
+
+function stopBookingSimulation(idx) {
+    if (bookingIntervals[idx]) { clearInterval(bookingIntervals[idx]); delete bookingIntervals[idx]; }
+}
+
+function simulateTicketSale(idx) {
+    const m = matches[idx];
+    if (!m || m.ticketsLeft<=0) { stopBookingSimulation(idx); return; }
+    
+    const qty = Math.min(m.status==='live' ? Math.floor(Math.random()*8)+1 : Math.floor(Math.random()*3)+1, m.ticketsLeft);
+    const price = m.avgPrice||200;
+    
+    m.ticketsSold += qty;
+    m.ticketsLeft -= qty;
+    m.revenue += qty*price;
+    m.views += Math.floor(Math.random()*40);
+    
+    // Update monthly data
+    const now = new Date();
+    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    monthlyTicketSales[monthKey] = (monthlyTicketSales[monthKey] || 0) + qty;
+    monthlyRevenueData[monthKey] = (monthlyRevenueData[monthKey] || 0) + (qty * price);
+    
+    localStorage.setItem('sh_matches', JSON.stringify(matches));
+
+    if (currentModalMatchIndex===idx && currentPanelMode==='match') {
+        updateTelemetryUIFields(m);
+        animateSeatSale(qty);
+    }
+    
+    const uid = USERS[Math.floor(Math.random()*USERS.length)].id;
+    userScores[uid] = (userScores[uid]||0) + qty;
+
+    updateDashboardKPIs();
+    updateAnalyticsPanel();
+    updateCharts();
+    updateUserRankings();
+    renderVenueBars();
+    refreshMatchCard(idx);
+
+    const total=m.ticketsSold+m.ticketsLeft, pct=Math.round((m.ticketsSold/total)*100);
+    if (pct===50||pct===75||pct===90||pct===100)
+        showToast(`🎟️ <b>${m.name}</b> is ${pct}% sold out!`, 'booking', 5000);
+}
+
+function animateSeatSale(qty) {
+    const avail = seatStatesArray.map((s,i)=>s==='available'?i:-1).filter(i=>i>=0);
+    for (let q=0; q<qty && avail.length; q++) {
+        const pick = avail.splice(Math.floor(Math.random()*avail.length),1)[0];
+        seatStatesArray[pick]='booked';
+        const cell = document.getElementById('telSeatingGridMap')?.children[pick];
+        if (cell) cell.className='w-full aspect-square rounded seat-selling bg-red-500 border border-red-600';
+    }
+}
+
+// ══ USER RANKINGS ═══════════════════════════════════════════════════════════
+function initUserRankings() {
+    USERS.forEach(u => { userScores[u.id] = u.tickets + Math.floor(Math.random()*200); });
+    updateUserRankings();
+}
+
+function updateUserRankings() {
+    let ranked = USERS.map(u=>({...u, score: userScores[u.id]||0})).sort((a,b)=>b.score-a.score);
+    const q = rankingsSearchQuery;
+    if (q) ranked = ranked.filter(u=>u.name.toLowerCase().includes(q)||u.city.toLowerCase().includes(q));
+
+    if (!ranked.length) {
+        document.getElementById('rankingsList').innerHTML = `<div class="text-center py-4 text-slate-500 text-xs">No match for "<b>${q}</b>"</div>`;
+        return;
+    }
+    
+    const html = ranked.map((u,idx)=>{
+        const initials = u.name.split(' ').map(x=>x[0]).join('').slice(0,2);
+        let medal = idx+1, posClass='';
+        if(idx===0){medal='🥇';posClass='gold';}
+        else if(idx===1){medal='🥈';posClass='silver';}
+        else if(idx===2){medal='🥉';posClass='bronze';}
+
+        const prevPos = prevUserRankings[u.id]!==undefined ? prevUserRankings[u.id] : idx;
+        let chg = '';
+        if(prevPos>idx) chg=`<span class="rank-change up">↑${prevPos-idx}</span>`;
+        else if(prevPos<idx) chg=`<span class="rank-change down">↓${idx-prevPos}</span>`;
+        else chg=`<span class="rank-change same">—</span>`;
+
+        return `<div class="rank-item">
+            <div class="rank-pos ${posClass}">${medal}</div>
+            <div class="rank-avatar" style="background:${u.bg};color:${u.color}">${initials}</div>
+            <div class="rank-info">
+                <div class="rank-name">${u.name}</div>
+                <div class="rank-sub">${u.city} ${chg}</div>
+            </div>
+            <div class="rank-score">${Number(u.score).toLocaleString()}</div>
+        </div>`;
+    }).join('');
+    
+    document.getElementById('rankingsList').innerHTML = html;
+    [...USERS].sort((a,b)=>(userScores[b.id]||0)-(userScores[a.id]||0)).forEach((u,i)=>{ prevUserRankings[u.id]=i; });
+}
+
+function filterRankings(q) { rankingsSearchQuery=q.trim().toLowerCase(); updateUserRankings(); }
+
+function startRankingUpdates() {
+    if (rankingUpdateInterval) clearInterval(rankingUpdateInterval);
+    rankingUpdateInterval = setInterval(()=>{
+        USERS.forEach(u=>{ userScores[u.id]=(userScores[u.id]||0)+Math.floor(Math.random()*30-5); });
+        updateUserRankings();
+    }, 3000);
+}
+
+// ══ DASHBOARD KPIs ══════════════════════════════════════════════════════════
+function getTotalRevenue() { return matches.reduce((s,m)=>s+(m.revenue||0),0); }
+function getTotalSold()    { return matches.reduce((s,m)=>s+(m.ticketsSold||0),0); }
+function getAvgOcc() {
+    const act = matches.filter(m=>(m.ticketsSold||0)+(m.ticketsLeft||0)>0);
+    if(!act.length) return 0;
+    return Math.round(act.reduce((s,m)=>{ const t=(m.ticketsSold||0)+(m.ticketsLeft||0); return s+(m.ticketsSold/t)*100; },0)/act.length);
+}
+
+function setStatNum(id,val) {
+    const el=document.getElementById(id); if(!el||el.textContent===val) return;
+    el.textContent=val; el.classList.remove('num-pop'); void el.offsetWidth; el.classList.add('num-pop');
+}
+
+function updateDashboardKPIs() {
+    setStatNum('kpiSold',    getTotalSold().toLocaleString());
+    setStatNum('kpiOcc',     getAvgOcc()+'%');
+    setStatNum('kpiEvents',  matches.length.toString());
+    setStatNum('kpiRevenue', '₹'+(getTotalRevenue()/10000000).toFixed(2)+'Cr');
+    const pm=document.getElementById('modalTotalTickets'); if(pm) pm.textContent=getTotalSold().toLocaleString();
+    const pe=document.getElementById('modalTotalEvents'); if(pe) pe.textContent=matches.length;
+}
+
+function updateAnalyticsPanel() {
+    const rev=getTotalRevenue(), sold=getTotalSold();
+    setStatNum('anaRevenue', '₹'+(rev/10000000).toFixed(2)+'Cr');
+    if(sold>0) setStatNum('anaAvgPrice','₹'+Math.round(rev/sold).toLocaleString());
+}
+
+function renderVenueBars() {
+    const stats={};
+    matches.forEach(m=>{ const t=(m.ticketsSold||0)+(m.ticketsLeft||0); if(!t) return; const p=Math.round((m.ticketsSold/t)*100); if(!stats[m.venue]||stats[m.venue]<p) stats[m.venue]=p; });
+    const sorted=Object.entries(stats).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    const cols=['bg-gradient-to-r from-red-500 to-pink-500','bg-blue-500','bg-amber-500'];
+    ['topVenuesBars','venuePerformanceBars'].forEach(id=>{
+        const el=document.getElementById(id); if(!el) return;
+        el.innerHTML=sorted.map(([n,p],i)=>`<div><div class="flex justify-between text-xs font-semibold mb-1.5 text-slate-300"><span>${n.split(',')[0]}</span><span>${p}%</span></div><div class="w-full bg-slate-800 h-2 rounded-full"><div class="progress-bar ${cols[i]||cols[2]} h-2 rounded-full" style="width:${p}%"></div></div></div>`).join('');
+    });
+}
+
+function updateCharts() {
+    if(!perfChart) return;
+    
+    const chartData = getMonthlyChartData();
+    perfChart.data.datasets[0].data = chartData;
+    perfChart.update('none');
+    
+    if(salesChart){
+        const b={cricket:0,football:0,tennis:0,basketball:0};
+        matches.forEach(m=>{ const n=m.name.toLowerCase(); if(n.includes('cricket'))b.cricket+=m.ticketsSold||0; else if(n.includes('football')||n.includes('premier'))b.football+=m.ticketsSold||0; else if(n.includes('tennis')||n.includes('wimbledon'))b.tennis+=m.ticketsSold||0; else if(n.includes('basketball')||n.includes('nba'))b.basketball+=m.ticketsSold||0; });
+        salesChart.data.datasets[0].data=[b.cricket,b.football,b.tennis,b.basketball];
+        salesChart.update('none');
+    }
+}
+
+// ══ TELEMETRY (match) ═══════════════════════════════════════════════════════
+function openMatchTelemetry(index) {
+    const m = matches[index]; if(!m) return;
+    currentModalMatchIndex = index; currentPanelMode='match';
+    document.getElementById('paneMatch').classList.remove('hidden');
+    document.getElementById('paneVenue').classList.add('hidden');
+
+    document.getElementById('telTitle').innerText = m.name;
+    document.getElementById('telVenue').innerHTML = `<i class="fa-solid fa-location-dot mr-1 text-slate-500"></i> ${m.venue}`;
+    
+    const badge=document.getElementById('telStatusBadge'), txt=document.getElementById('telStatusText');
+    badge.classList.remove('hidden');
+    if(m.status==='live'){txt.innerHTML='<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse inline-block"></span> LIVE — selling';txt.className='text-[10px] font-bold px-2 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-1.5 w-fit';}
+    else if(m.status==='upcoming'){txt.innerHTML='<span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse inline-block"></span> UPCOMING — pre-sale';txt.className='text-[10px] font-bold px-2 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center gap-1.5 w-fit';}
+    else{txt.innerHTML='✓ COMPLETED';txt.className='text-[10px] font-bold px-2 py-1 rounded-full bg-slate-700/50 text-slate-400 border border-slate-700 flex items-center gap-1.5 w-fit';}
+
+    const total=(m.ticketsSold||0)+(m.ticketsLeft||0);
+    const blocks=Math.max(36,Math.min(96,Math.ceil(total/1000)));
+    const soldB=Math.floor((m.ticketsSold/total)*blocks);
+    seatStatesArray=Array.from({length:blocks},(_,i)=>i<soldB?'booked':'available');
+
+    updateTelemetryUIFields(m);
+    generateSeatGrid();
+    openRightPanel();
+}
+
+function updateTelemetryUIFields(m) {
+    const total=(m.ticketsSold||0)+(m.ticketsLeft||0), pct=total>0?Math.round((m.ticketsSold/total)*100):0;
+    document.getElementById('telSold').innerText=Number(m.ticketsSold||0).toLocaleString();
+    document.getElementById('telLeft').innerText=Number(m.ticketsLeft||0).toLocaleString();
+    document.getElementById('telRevenue').innerText='₹'+Number(m.revenue||0).toLocaleString();
+    const bar=document.getElementById('telOccupancyBar'); if(bar) bar.style.width=pct+'%';
+    const pctEl=document.getElementById('telOccupancyPct'); if(pctEl) pctEl.textContent=pct+'%';
+    const h=document.getElementById('telHighlights');
+    h.innerHTML=m.highlights?`<p>${m.highlights}</p><p class="text-slate-500 mt-2">Avg price: ₹${m.avgPrice||200} · Views: ${Number(m.views||0).toLocaleString()}</p>`:'<p class="text-slate-500 italic">No highlights yet.</p>';
+}
+
+function generateSeatGrid() {
+    const g=document.getElementById('telSeatingGridMap'); if(!g) return;
+    g.innerHTML=seatStatesArray.map((s,i)=>`<div title="Block #${i+1}" class="w-full aspect-square rounded transition-colors duration-300 ${s==='booked'?'bg-red-500 border border-red-600':'bg-slate-800 border border-slate-700/60'}"></div>`).join('');
+}
+
+// ══ VENUE MAP PANEL ═════════════════════════════════════════════════════════
+function openVenueMap(idx) {
+    const v = venues[idx]; if(!v) return;
+    selectedVenueIdx = idx; currentPanelMode='venue';
+
+    document.getElementById('paneMatch').classList.add('hidden');
+    document.getElementById('paneVenue').classList.remove('hidden');
+
+    document.getElementById('vmName').textContent = v.name;
+    document.getElementById('vmLocation').innerHTML = `<i class="fa-solid fa-location-dot text-blue-500 mr-1"></i>${v.location}`;
+    const sb=document.getElementById('vmStatusBadge');
+    sb.textContent=v.status;
+    sb.className=v.status==='Active'
+        ? 'text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 w-fit'
+        : 'text-[10px] font-bold px-2 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25 w-fit';
+    document.getElementById('vmCapacity').innerHTML=`<i class="fa-solid fa-users mr-1"></i>Cap: ${v.capacity}`;
+
+    const frame=document.getElementById('vmMapFrame');
+    const loading=document.getElementById('vmMapLoading');
+    loading.style.display='flex';
+    frame.onload=()=>{ loading.style.display='none'; };
+
+    let mapSrc;
+    if (v.lat && v.lng) {
+        mapSrc = `https://maps.google.com/maps?q=${v.lat},${v.lng}&z=16&output=embed`;
+    } else {
+        const q = encodeURIComponent(v.name+', '+v.location);
+        mapSrc = `https://maps.google.com/maps?q=${q}&z=15&output=embed`;
+    }
+    frame.src = mapSrc;
+
+    const link=document.getElementById('vmMapsLink');
+    if (v.lat && v.lng) link.href=`https://www.google.com/maps?q=${v.lat},${v.lng}`;
+    else link.href=`https://www.google.com/maps/search/${encodeURIComponent(v.name+' '+v.location)}`;
+
+    const venueMatches=matches.filter(m=>m.venue.toLowerCase().includes(v.name.toLowerCase().split(' ').slice(0,2).join(' ')));
+    const ml=document.getElementById('vmMatchList');
+    if(venueMatches.length){
+        ml.innerHTML=venueMatches.map(m=>{
+            const total=(m.ticketsSold||0)+(m.ticketsLeft||0);
+            const pct=total>0?Math.round((m.ticketsSold/total)*100):0;
+            const sc={live:'text-red-400 bg-red-500/15',upcoming:'text-blue-400 bg-blue-500/15',completed:'text-slate-400 bg-slate-700/30'};
+            return `<div class="venue-stat-pill">
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full ${sc[m.status]||sc.upcoming}">${m.status.toUpperCase()}</span>
+                <span class="flex-1 text-slate-300 font-medium truncate text-[10px]">${m.name.split(' - ')[0]}</span>
+                <span class="text-[10px] font-bold text-teal-400">${pct}%</span>
+            </div>`;
+        }).join('');
+    } else {
+        ml.innerHTML='<p class="text-xs text-slate-500 italic">No events scheduled at this venue.</p>';
+    }
+
+    document.querySelectorAll('.venue-row').forEach(el=>el.classList.remove('venue-card-active'));
+    const row=document.getElementById('venue-row-'+idx);
+    if(row) row.classList.add('venue-card-active');
+
+    openRightPanel();
+}
+
+function openRightPanel() {
+    document.getElementById('rightPanel').classList.add('active');
+    document.getElementById('mainContentArea').classList.add('panel-active');
+}
+
+function closeRightPanel() {
+    document.getElementById('rightPanel').classList.remove('active');
+    document.getElementById('mainContentArea').classList.remove('panel-active');
+    currentModalMatchIndex=null; currentPanelMode=null;
+    document.querySelectorAll('.venue-row').forEach(el=>el.classList.remove('venue-card-active'));
+}
+
+// ══ RENDER ALL ══════════════════════════════════════════════════════════════
+function getSportIcon(name){
+    const n=name.toLowerCase();
+    if(n.includes('cricket')) return 'fa-cricket-bat-ball';
+    if(n.includes('football')||n.includes('soccer')||n.includes('premier')) return 'fa-futbol';
+    if(n.includes('basketball')||n.includes('nba')) return 'fa-basketball';
+    if(n.includes('tennis')||n.includes('wimbledon')||n.includes('atp')) return 'fa-table-tennis-paddle-ball';
+    if(n.includes('rugby')) return 'fa-rugby-football';
+    if(n.includes('volleyball')) return 'fa-volleyball';
+    if(n.includes('formula')||n.includes('f1')) return 'fa-car';
+    return 'fa-trophy';
+}
+
+function renderMatchCard(m, realIdx, showDelete) {
+    const icon=getSportIcon(m.name);
+    const total=(m.ticketsSold||0)+(m.ticketsLeft||0);
+    const pct=total>0?Math.round((m.ticketsSold/total)*100):0;
+    const sc={live:'bg-red-500/15 text-red-400 border-red-500/30',upcoming:'bg-blue-500/15 text-blue-400 border-blue-500/30',completed:'bg-slate-700/40 text-slate-400 border-slate-700'};
+    return `<div id="matchcard-${realIdx}" class="card p-4 flex flex-col justify-between cursor-pointer hover:shadow-lg hover:shadow-red-500/20" onclick="openMatchTelemetry(${realIdx})">
+        <div class="relative">
+            ${showDelete?`<button onclick="event.stopPropagation();deleteItem('match',${realIdx})" class="absolute top-2 right-2 text-red-400 hover:text-white z-10 bg-slate-950/60 p-1.5 rounded-xl border border-slate-800/40"><i class="fa-solid fa-trash text-xs"></i></button>`:''}
+            <div class="w-full h-40 bg-gradient-to-br from-red-600 to-pink-600 rounded-xl overflow-hidden mb-4">
+                <img src="${m.img}" alt="${m.name}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center\\'><i class=\\'fa-solid ${icon} text-4xl text-slate-400\\'></i></div>'">
             </div>
         </div>
-    </div>
-
-    <!-- Drill Modal -->
-    <div id="modal-drill" class="modal">
-        <div class="card w-[450px] p-8 shadow-2xl">
-            <h3 class="text-2xl font-bold mb-6">New Tactical Drill</h3>
-            <div class="space-y-5">
-                <input id="d-title" type="text" placeholder="Drill Title" class="w-full bg-black border border-white/5 p-4 rounded-2xl outline-none">
-                <select id="d-diff" class="w-full bg-black border border-white/5 p-4 rounded-2xl outline-none">
-                    <option>High Intensity</option><option>Medium Intensity</option><option>Recovery</option>
-                </select>
-                <textarea id="d-desc" placeholder="Instructional notes..." class="w-full bg-black border border-white/5 p-4 rounded-2xl outline-none h-24"></textarea>
-                <button onclick="saveDrill()" class="w-full bg-[#00d1ff] text-black py-4 rounded-2xl font-bold text-sm mt-4">PUBLISH DRILL</button>
-                <button onclick="toggleModal('modal-drill')" class="w-full text-gray-500 font-bold text-xs mt-2 uppercase">Cancel</button>
+        <div>
+            <div class="flex items-start justify-between gap-2 mb-1">
+                <p class="font-bold text-sm text-slate-200 flex items-center gap-1.5 flex-1 min-w-0"><i class="fa-solid ${icon} text-red-400 text-xs shrink-0"></i><span class="truncate">${m.name}</span></p>
+                <span class="shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full border ${sc[m.status]||sc.upcoming}">${m.status.toUpperCase()}</span>
             </div>
+            <p class="text-xs text-slate-400"><i class="fa-solid fa-location-dot text-slate-600 mr-1"></i>${m.venue}</p>
+            <div class="mt-3"><div class="flex justify-between text-[10px] font-semibold text-slate-400 mb-1"><span>Occupancy</span><span id="mc-pct-${realIdx}">${pct}%</span></div><div class="w-full bg-slate-800 h-1.5 rounded-full"><div id="mc-bar-${realIdx}" class="progress-bar bg-gradient-to-r from-red-500 to-pink-400 h-1.5 rounded-full" style="width:${pct}%"></div></div></div>
         </div>
-    </div>
+        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold">
+            <span class="text-slate-400"><i class="fa-solid fa-ticket text-emerald-500/80 mr-1"></i>${Number(m.ticketsSold||0).toLocaleString()} sold</span>
+            <span class="text-red-400">View →</span>
+        </div>
+    </div>`;
+}
 
-    <script>
-        // --- GLOBAL DATA STORE ---
-        let athletes = [
-            { id: 1, name: 'Marcus Vane', pos: 'Forward', fit: 92, status: 'Active' },
-            { id: 2, name: 'Lucas Sterling', pos: 'Midfielder', fit: 88, status: 'Active' },
-            { id: 3, name: 'Jordan K.', pos: 'Defender', fit: 30, status: 'Injured' }
-        ];
+function refreshMatchCard(idx) {
+    const m=matches[idx]; if(!m) return;
+    const total=(m.ticketsSold||0)+(m.ticketsLeft||0), pct=total>0?Math.round((m.ticketsSold/total)*100):0;
+    const p=document.getElementById('mc-pct-'+idx); if(p) p.textContent=pct+'%';
+    const b=document.getElementById('mc-bar-'+idx); if(b) b.style.width=pct+'%';
+}
 
-        let matches = [
-            { id: 1, opponent: 'Red Hawks FC', date: 'May 28', venue: 'Titan Arena', prob: 78 }
-        ];
+function renderAll() {
+    const cg=document.getElementById('matchGrid');
+    if(cg) cg.innerHTML=matches.map((m,i)=>renderMatchCard(m,i,true)).join('');
+    const grids={live:document.getElementById('liveGrid'),upcoming:document.getElementById('upcomingGrid'),completed:document.getElementById('completedGrid')};
+    Object.values(grids).forEach(g=>{ if(g) g.innerHTML=''; });
+    matches.forEach((m,i)=>{ if(grids[m.status]) grids[m.status].innerHTML+=renderMatchCard(m,i,false); });
 
-        let drills = [
-            { id: 1, title: 'Counter-Pressing Drill', diff: 'High Intensity', desc: 'Fast transitions and high-line recovery maneuvers.' }
-        ];
-
-        // --- NAVIGATION ENGINE ---
-        function router(page) {
-            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            document.getElementById('view-' + page).classList.add('active');
-            document.querySelector(`[data-target="${page}"]`).classList.add('active');
-            
-            document.getElementById('view-title').innerText = page.charAt(0).toUpperCase() + page.slice(1).replace('-', ' ');
-            render();
-        }
-
-        function toggleModal(id) {
-            document.getElementById(id).classList.toggle('active');
-        }
-
-        // --- GENERATIVE DATA HANDLERS ---
-
-        // Players
-        function savePlayer() {
-            const name = document.getElementById('p-name').value;
-            const pos = document.getElementById('p-pos').value;
-            const fit = document.getElementById('p-fit').value;
-            if(!name || !fit) return;
-            athletes.push({ id: Date.now(), name, pos, fit: parseInt(fit), status: fit < 40 ? 'Injured' : 'Active' });
-            render(); toggleModal('modal-player');
-        }
-
-        function deletePlayer(id) {
-            athletes = athletes.filter(a => a.id !== id);
-            render();
-        }
-
-        // Matches
-        function saveMatch() {
-            const opponent = document.getElementById('m-opp').value;
-            const date = document.getElementById('m-date').value;
-            const venue = document.getElementById('m-venue').value;
-            if(!opponent) return;
-            matches.push({ id: Date.now(), opponent, date, venue, prob: Math.floor(Math.random() * 40) + 50 });
-            render(); toggleModal('modal-match');
-        }
-
-        function deleteMatch(id) {
-            matches = matches.filter(m => m.id !== id);
-            render();
-        }
-
-        // Drills
-        function saveDrill() {
-            const title = document.getElementById('d-title').value;
-            const diff = document.getElementById('d-diff').value;
-            const desc = document.getElementById('d-desc').value;
-            if(!title) return;
-            drills.push({ id: Date.now(), title, diff, desc });
-            render(); toggleModal('modal-drill');
-        }
-
-        function deleteDrill(id) {
-            drills = drills.filter(d => d.id !== id);
-            render();
-        }
-
-        // Profile
-        function saveProfile() {
-            const name = document.getElementById('set-name').value;
-            const role = document.getElementById('set-role').value;
-            document.getElementById('nav-coach-name').innerText = name;
-            document.getElementById('prof-name').innerText = name;
-            document.getElementById('prof-role').innerText = role;
-            alert("Coach Identity Synchronized!");
-        }
-
-        function handleAvatar(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('profile-img').src = e.target.result;
-                    document.getElementById('nav-avatar').src = e.target.result;
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        // --- RENDER ENGINE ---
-        function render() {
-            // Dashboard Stats
-            document.getElementById('dash-player-count').innerText = athletes.length;
-            const avgFit = athletes.length ? Math.round(athletes.reduce((a,b) => a + b.fit, 0) / athletes.length) : 0;
-            document.getElementById('dash-fitness').innerText = avgFit + '%';
-            document.getElementById('dash-drill-count').innerText = drills.length;
-            document.getElementById('dash-match-count').innerText = matches.length;
-
-            // Roster Table
-            document.getElementById('tbody-roster').innerHTML = athletes.map(a => `
-                <tr>
-                    <td class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center font-bold text-blue-400">${a.name[0]}</div>
-                        <span class="font-bold">${a.name}</span>
-                    </td>
-                    <td class="text-gray-500 font-medium">${a.pos}</td>
-                    <td>
-                        <div class="w-32 bg-white/5 h-1.5 rounded-full overflow-hidden">
-                            <div class="${a.fit < 50 ? 'bg-red-500' : 'bg-blue-400'} h-full" style="width: ${a.fit}%"></div>
-                        </div>
-                    </td>
-                    <td><span class="status-pill ${a.status === 'Injured' ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}">${a.status}</span></td>
-                    <td><i class="fa-solid fa-trash-can text-gray-700 hover:text-red-500 cursor-pointer transition" onclick="deletePlayer(${a.id})"></i></td>
-                </tr>
-            `).join('');
-
-            // Match List
-            document.getElementById('match-list-generative').innerHTML = matches.map(m => `
-                <div class="card p-6 flex justify-between items-center group">
-                    <div class="flex items-center gap-10">
-                        <div class="text-center">
-                            <p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">${m.date.split(' ')[0]}</p>
-                            <h4 class="text-3xl font-bold">${m.date.split(' ')[1]}</h4>
-                        </div>
-                        <div>
-                            <h4 class="text-xl font-bold">${m.opponent} <span class="text-xs text-gray-600 font-normal ml-2">vs Titan Elite</span></h4>
-                            <p class="text-xs text-gray-500 mt-1">${m.venue} • Pro Stadium</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-12">
-                        <div class="w-40 text-right">
-                            <div class="flex justify-between text-[9px] font-bold mb-1"><span class="text-blue-400">WIN PROBABILITY</span><span>${m.prob}%</span></div>
-                            <div class="w-full bg-white/5 h-1 rounded-full overflow-hidden"><div class="bg-blue-400 h-full" style="width: ${m.prob}%"></div></div>
-                        </div>
-                        <i class="fa-solid fa-calendar-xmark text-gray-700 hover:text-red-500 cursor-pointer text-lg transition" onclick="deleteMatch(${m.id})"></i>
-                    </div>
+    const vg=document.getElementById('venueGrid');
+    if(vg) vg.innerHTML=venues.map((v,i)=>`
+        <div id="venue-row-${i}" class="card venue-row p-5 flex justify-between items-center cursor-pointer hover:border-blue-500/60 hover:shadow-lg hover:shadow-blue-500/10 transition-all group" onclick="openVenueMap(${i})">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition">
+                    <i class="fa-solid fa-map-location-dot text-blue-400 text-sm"></i>
                 </div>
-            `).join('');
-
-            // Drill Grid
-            document.getElementById('drill-grid-generative').innerHTML = drills.map(d => `
-                <div class="card p-8 flex flex-col h-full">
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="p-3 bg-blue-500/10 rounded-2xl text-blue-400"><i class="fa-solid fa-person-running text-xl"></i></div>
-                        <span class="text-[9px] font-bold bg-white/5 px-3 py-1 rounded-full border border-white/5 uppercase tracking-widest">${d.diff}</span>
-                    </div>
-                    <h4 class="text-xl font-bold mb-3">${d.title}</h4>
-                    <p class="text-sm text-gray-500 mb-8 leading-relaxed flex-1">${d.desc}</p>
-                    <div class="flex justify-between items-center pt-6 border-t border-white/5">
-                        <span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Tactical Lab</span>
-                        <i class="fa-solid fa-circle-xmark text-gray-800 hover:text-red-500 cursor-pointer transition" onclick="deleteDrill(${d.id})"></i>
-                    </div>
+                <div>
+                    <h4 class="font-bold text-base text-slate-200">${v.name}</h4>
+                    <p class="text-xs text-slate-400 mt-0.5"><i class="fa-solid fa-location-dot text-slate-600 mr-1"></i>${v.location}</p>
+                    <p class="text-xs text-slate-500 mt-0.5"><i class="fa-solid fa-users text-slate-600 mr-1"></i>${v.capacity} capacity</p>
                 </div>
-            `).join('');
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+                <span class="${v.status==='Active'?'text-emerald-400 border-emerald-500/20 bg-emerald-500/10':'text-amber-400 border-amber-500/20 bg-amber-500/10'} font-bold px-3 py-1 rounded-full border text-[11px]">${v.status}</span>
+                <div class="text-blue-400/60 group-hover:text-blue-400 transition text-sm"><i class="fa-solid fa-map text-xs mr-1"></i><span class="text-xs font-semibold">View Map</span></div>
+                <button onclick="event.stopPropagation();deleteItem('venue',${i})" class="text-slate-600 hover:text-rose-400 transition ml-1"><i class="fa-solid fa-trash text-sm"></i></button>
+            </div>
+        </div>`).join('');
 
-            // Dashboard Widgets
-            const nextMatch = matches[0] || { opponent: 'No Fixtures', date: 'TBD' };
-            document.getElementById('side-match-opp').innerText = nextMatch.opponent;
-            document.getElementById('dash-next-match-card').innerHTML = `
-                <div class="flex justify-between items-center">
-                    <div>
-                        <p class="text-2xl font-bold">${nextMatch.opponent}</p>
-                        <p class="text-xs text-blue-400 font-bold">${nextMatch.date} • ${nextMatch.venue || '-'}</p>
-                    </div>
-                </div>
-                <div class="pt-4 border-t border-white/10 flex gap-4">
-                    <button class="flex-1 bg-white/10 hover:bg-white/20 py-2 rounded-xl text-[10px] font-bold uppercase transition">Match Report</button>
-                    <button class="flex-1 bg-[#00d1ff] text-black py-2 rounded-xl text-[10px] font-bold uppercase transition">Tactics</button>
-                </div>`;
+    const pg=document.getElementById('couponGrid');
+    if(pg) pg.innerHTML=coupons.map((p,i)=>{
+        const today=new Date(); today.setHours(0,0,0,0);
+        const exp=new Date(p.valid); exp.setHours(0,0,0,0);
+        let sc='available',st='✓ Available',si='fa-check-circle';
+        if(exp<today){sc='expired';st='✗ Expired';si='fa-circle-xmark';}
+        else if(exp.getTime()===today.getTime()){sc='expiring';st='⚠ Expiring Today';si='fa-exclamation-circle';}
+        else{const d=Math.ceil((exp-today)/86400000);st=`✓ ${d} days left`;}
+        return `<div class="card p-5 border-l-4 border-l-pink-500 relative" data-coupon-code="${p.code}">
+            <button onclick="deleteItem('coupon',${i})" class="absolute top-3 right-3 text-slate-500 hover:text-rose-400"><i class="fa-solid fa-trash text-xs"></i></button>
+            <h4 class="font-bold text-base text-slate-200 pr-6">${p.title}</h4>
+            <p class="text-pink-400 font-bold text-2xl my-2.5">${p.discount}% OFF</p>
+            <div class="coupon-status ${sc}"><i class="fa-solid ${si}" style="margin-right:4px;font-size:9px"></i>${st}</div>
+            <div class="mt-3 border-t border-slate-800/60 pt-3 text-xs space-y-1">
+                <p class="text-slate-500">Code: <span class="bg-slate-900 px-2 py-0.5 font-mono rounded text-slate-200 border border-slate-800">${p.code}</span></p>
+                <p class="text-slate-400">Valid until: ${p.valid}</p>
+            </div>
+        </div>`;
+    }).join('');
+}
 
-            document.getElementById('dash-medical-list').innerHTML = athletes.filter(a => a.status === 'Injured').slice(0, 2).map(a => `
-                <div class="flex justify-between items-center bg-red-500/5 p-3 rounded-xl border border-red-500/10">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-500 font-bold text-xs">${a.name[0]}</div>
-                        <span class="text-xs font-bold">${a.name}</span>
-                    </div>
-                    <span class="text-[9px] font-bold text-red-500 uppercase">Recovery</span>
-                </div>
-            `).join('') || '<p class="text-xs text-gray-500">All players fit.</p>';
+// ══ MODAL ══════════════════════════════════════════════════════════════════
+function validateAndPreviewImage(url) {
+    if(!url.trim()){updateImgPreview('','empty');return;}
+    updateImgPreview(url,'loading');
+    const img=new Image();
+    img.onload=()=>{updateImgPreview(url,'success');imageLoadingState='success';};
+    img.onerror=()=>{updateImgPreview(url,'error');imageLoadingState='error';showToast('Invalid image URL','error',3000);};
+    img.src=url;
+}
+
+function updateImgPreview(url,state){
+    const p=document.getElementById('imagePreview');if(!p)return;
+    if(state==='empty') p.innerHTML='<div class="image-preview-placeholder"><i class="fa-solid fa-image text-2xl text-slate-600"></i><p>Add image URL to preview</p></div>';
+    else if(state==='loading') p.innerHTML='<div class="shimmer" style="height:140px"></div>';
+    else if(state==='success') p.innerHTML=`<img src="${url}" class="w-full block rounded-xl"><div class="image-status-badge success"><i class="fa-solid fa-check-circle"></i> Loaded</div>`;
+    else p.innerHTML='<div class="image-preview-placeholder"><i class="fa-solid fa-exclamation-circle text-2xl text-red-500"></i><p>Failed to load</p></div>';
+    p.className='image-preview-container'+(state==='success'?' has-image':'');
+}
+
+function openAddModal(type){
+    imageLoadingState='idle';
+    const inp='w-full bg-slate-900 p-2.5 text-sm rounded-xl border border-slate-800 text-slate-100 focus:outline-none focus:border-red-500 transition';
+    const forms={
+        match:`<input type="text" id="mName" placeholder="Match Name" class="${inp}" required>
+               <input type="text" id="mVenue" placeholder="Venue Name" class="${inp}" required>
+               <input type="number" id="mAvgPrice" placeholder="Avg Ticket Price (₹)" class="${inp}" required>
+               <input type="number" id="mCapacity" placeholder="Total Capacity / Tickets" class="${inp}" required>
+               <select id="mStatus" class="${inp}" required><option value="">Status</option><option value="upcoming">Upcoming</option><option value="live">Live</option><option value="completed">Completed</option></select>
+               <div><label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Image URL</label>
+               <input type="url" id="mImageUrl" placeholder="https://..." class="${inp}" oninput="validateAndPreviewImage(this.value)">
+               <div id="imagePreview" class="image-preview-container mt-3"><div class="image-preview-placeholder"><i class="fa-solid fa-image text-2xl text-slate-600"></i><p>Add image URL to preview</p></div></div></div>`,
+        venue:`<input type="text" id="vName" placeholder="Venue Name" class="${inp}" required>
+               <input type="text" id="vLoc" placeholder="Location (e.g. Delhi, India)" class="${inp}" required>
+               <input type="number" id="vCap" placeholder="Capacity" class="${inp}" required>
+               <input type="number" id="vLat" placeholder="Latitude (optional, e.g. 28.6366)" class="${inp}">
+               <input type="number" id="vLng" placeholder="Longitude (optional, e.g. 77.2306)" class="${inp}">
+               <p class="text-[11px] text-slate-500 italic">Tip: lat/lng gives a precise map pin. Leave blank for address search.</p>`,
+        coupon:`<input type="text" id="cTitle" placeholder="Title" class="${inp}" required>
+                <input type="text" id="cCode" placeholder="Code (e.g. SALE20)" class="${inp}" required>
+                <input type="number" id="cDisc" placeholder="Discount %" min="1" max="100" class="${inp}" required>
+                <input type="date" id="cValid" class="${inp}" required>`
+    };
+    document.getElementById('modalTitle').innerText='Add '+type.charAt(0).toUpperCase()+type.slice(1);
+    document.getElementById('formFields').innerHTML=forms[type];
+    document.getElementById('addForm').onsubmit=e=>{
+        e.preventDefault();
+        if(type==='match'){
+            const cap=parseInt(document.getElementById('mCapacity').value)||5000;
+            const nm={name:document.getElementById('mName').value.trim(),venue:document.getElementById('mVenue').value.trim(),status:document.getElementById('mStatus').value,avgPrice:parseInt(document.getElementById('mAvgPrice').value)||200,views:0,ticketsSold:0,ticketsLeft:cap,revenue:0,highlights:"",img:document.getElementById('mImageUrl').value.trim()||"https://images.unsplash.com/photo-1540747913199-cd4628902d4a?w=500&h=300&fit=crop"};
+            matches.push(nm); const ni=matches.length-1; localStorage.setItem('sh_matches',JSON.stringify(matches));
+            document.getElementById('addModal').classList.add('hidden');
+            showToast(`✨ "${nm.name}" added!`,'success',4000);
+            renderAll(); updateDashboardKPIs(); initUserRankings();
+            if((nm.status==='live'||nm.status==='upcoming')&&nm.ticketsLeft>0){ const spd=nm.status==='live'?(1500+Math.random()*2000):(4500+Math.random()*6000); bookingIntervals[ni]=setInterval(()=>simulateTicketSale(ni),spd); }
+            showSection('matches');
         }
-
-        // --- CHART CONFIGURATION ---
-        window.onload = () => {
-            render();
-            
-            // Performance Velocity (Line)
-            const ctx1 = document.getElementById('mainVelocityChart').getContext('2d');
-            new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: ['M1', 'M2', 'M3', 'M4', 'M5', 'M6'],
-                    datasets: [{
-                        data: [65, 85, 75, 92, 88, 98],
-                        borderColor: '#00d1ff',
-                        backgroundColor: 'rgba(0, 209, 255, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointRadius: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { display: false },
-                        x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#475569' } }
-                    }
-                }
-            });
-
-            // Attributes Radar
-            const ctx2 = document.getElementById('radarChart').getContext('2d');
-            new Chart(ctx2, {
-                type: 'radar',
-                data: {
-                    labels: ['Speed', 'Tactical', 'Strength', 'Passing', 'Mental'],
-                    datasets: [{
-                        data: [80, 90, 70, 85, 95],
-                        borderColor: '#00d1ff',
-                        backgroundColor: 'rgba(0, 209, 255, 0.2)',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        r: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            angleLines: { color: 'rgba(255,255,255,0.05)' },
-                            pointLabels: { color: '#64748b', font: { size: 10 } },
-                            ticks: { display: false }
-                        }
-                    }
-                }
-            });
-
-            // Outcome Probability (Doughnut)
-            const ctx3 = document.getElementById('pieChart').getContext('2d');
-            new Chart(ctx3, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Win', 'Draw', 'Loss'],
-                    datasets: [{
-                        data: [75, 15, 10],
-                        backgroundColor: ['#00d1ff', '#3b82f6', '#ef4444'],
-                        borderWidth: 0,
-                        hoverOffset: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '80%',
-                    plugins: { legend: { position: 'bottom', labels: { color: '#64748b', usePointStyle: true, padding: 20 } } }
-                }
-            });
+        if(type==='venue'){
+            const lat=parseFloat(document.getElementById('vLat').value)||null, lng=parseFloat(document.getElementById('vLng').value)||null;
+            venues.push({name:document.getElementById('vName').value,location:document.getElementById('vLoc').value,capacity:document.getElementById('vCap').value,status:"Active",lat,lng});
+            localStorage.setItem('sh_venues',JSON.stringify(venues));
+            showToast('Venue added!','success'); document.getElementById('addModal').classList.add('hidden'); renderAll();
         }
-    </script>
+        if(type==='coupon'){
+            coupons.push({title:document.getElementById('cTitle').value,code:document.getElementById('cCode').value,discount:parseInt(document.getElementById('cDisc').value),valid:document.getElementById('cValid').value});
+            localStorage.setItem('sh_coupons',JSON.stringify(coupons));
+            showToast('Coupon created!','success'); document.getElementById('addModal').classList.add('hidden'); renderAll();
+        }
+    };
+    document.getElementById('addModal').classList.remove('hidden');
+}
+
+function deleteItem(type,index){
+    if(type==='match'){stopBookingSimulation(index);const n=matches[index].name;matches.splice(index,1);Object.keys(bookingIntervals).forEach(k=>clearInterval(bookingIntervals[k]));bookingIntervals={};localStorage.setItem('sh_matches',JSON.stringify(matches));showToast(`"${n}" removed`,'info');startBookingSimulation();}
+    else if(type==='venue'){if(selectedVenueIdx===index){closeRightPanel();selectedVenueIdx=null;}venues.splice(index,1);localStorage.setItem('sh_venues',JSON.stringify(venues));showToast('Venue removed','info');}
+    else if(type==='coupon'){coupons.splice(index,1);localStorage.setItem('sh_coupons',JSON.stringify(coupons));showToast('Coupon removed','info');}
+    renderAll(); updateDashboardKPIs();
+}
+
+// ══ SEARCH ══════════════════════════════════════════════════════════════════
+function handleSearchMatches(query){
+    currentSearchQuery=query.trim().toLowerCase();
+    buildAutocomplete(query);
+    if(currentSearchQuery) displaySearchResults(query);
+    else clearSearchResults();
+}
+
+function displaySearchResults(query){
+    const q=query.trim().toLowerCase();
+    const mr=matches.filter(m=>m.name.toLowerCase().includes(q)||m.venue.toLowerCase().includes(q));
+    const vr=venues.filter(v=>v.name.toLowerCase().includes(q)||v.location.toLowerCase().includes(q));
+    const cr=coupons.filter(c=>c.title.toLowerCase().includes(q)||c.code.toLowerCase().includes(q));
+    const has=mr.length||vr.length||cr.length;
+    document.getElementById('searchResultsSection').classList.toggle('hidden-section',!has);
+    document.getElementById('dashboardDefaultContent').classList.toggle('hidden-section',!!has);
+    document.getElementById('noResultsMessage').classList.toggle('hidden-section',!!has);
+    document.getElementById('searchQueryDisplay').textContent=query.trim();
+    document.getElementById('matchesResultsContainer').classList.toggle('hidden-section',!mr.length);
+    document.getElementById('matchesResultCount').textContent=mr.length;
+    document.getElementById('matchesResultsGrid').innerHTML=mr.map(m=>`<div onclick="openMatchTelemetry(${matches.indexOf(m)})" class="card p-4 cursor-pointer"><div class="w-full h-36 bg-gradient-to-br from-red-600 to-pink-600 rounded-xl overflow-hidden mb-3"><img src="${m.img}" class="w-full h-full object-cover"></div><p class="font-bold text-sm text-slate-200 truncate">${m.name}</p><p class="text-xs text-slate-400 mt-1">${m.venue}</p></div>`).join('');
+    document.getElementById('venuesResultsContainer').classList.toggle('hidden-section',!vr.length);
+    document.getElementById('venuesResultCount').textContent=vr.length;
+    document.getElementById('venuesResultsGrid').innerHTML=vr.map(v=>`<div onclick="openVenueMap(${venues.indexOf(v)})" class="card p-5 flex justify-between items-center cursor-pointer hover:border-blue-500/50"><div><h4 class="font-bold text-base text-slate-200">${v.name}</h4><p class="text-xs text-slate-400 mt-1">${v.location}</p></div><span class="text-emerald-400 font-bold px-3 py-1 rounded-full border border-emerald-500/20 text-[11px]">${v.status}</span></div>`).join('');
+    document.getElementById('couponsResultsContainer').classList.toggle('hidden-section',!cr.length);
+    document.getElementById('couponsResultCount').textContent=cr.length;
+    document.getElementById('couponsResultsGrid').innerHTML=cr.map(p=>`<div class="card p-5 border-l-4 border-l-pink-500"><h4 class="font-bold text-base text-slate-200">${p.title}</h4><p class="text-pink-400 font-bold text-2xl my-2">${p.discount}% OFF</p><p class="text-xs text-slate-400">Code: ${p.code}</p></div>`).join('');
+}
+
+function clearSearchResults(){currentSearchQuery='';document.getElementById('globalSearchInput').value='';document.getElementById('searchResultsSection').classList.add('hidden-section');document.getElementById('dashboardDefaultContent').classList.remove('hidden-section');closeAutocomplete();}
+
+function buildAutocomplete(query){
+    const dd=document.getElementById('autocompleteDropdown');if(!dd)return;
+    const q=query.trim().toLowerCase();if(!q){dd.innerHTML='';acActiveIndex=-1;return;}
+    const mc=matches.filter(m=>m.name.toLowerCase().includes(q)||m.venue.toLowerCase().includes(q));
+    const mv=venues.filter(v=>v.name.toLowerCase().includes(q)||v.location.toLowerCase().includes(q));
+    const cp=coupons.filter(c=>c.title.toLowerCase().includes(q)||c.code.toLowerCase().includes(q));
+    let html='';
+    if(mc.length){html+='<div class="ac-section-header"><i class="fa-solid fa-calendar-alt mr-1"></i> Matches</div>';mc.forEach(m=>{html+=`<div class="ac-item" onclick="acNavigateMatch(${matches.indexOf(m)})" data-type="match"><div class="ac-icon" style="background:#ef444420;color:#ef4444"><i class="fa-solid fa-calendar-alt"></i></div><span class="ac-label">${m.name}</span><span class="ac-sub">${m.status}</span></div>`;})}
+    if(mv.length){html+='<div class="ac-section-header"><i class="fa-solid fa-building mr-1"></i> Venues</div>';mv.forEach(v=>{html+=`<div class="ac-item" onclick="acNavigateVenue(${venues.indexOf(v)})" data-type="venue"><div class="ac-icon" style="background:#3b82f620;color:#60a5fa"><i class="fa-solid fa-map-location-dot"></i></div><span class="ac-label">${v.name}</span><span class="ac-sub">${v.location}</span></div>`;})}
+    if(cp.length){html+='<div class="ac-section-header"><i class="fa-solid fa-tag mr-1"></i> Coupons</div>';cp.forEach(c=>{html+=`<div class="ac-item" onclick="acNavigateCoupon('${c.code}')" data-type="coupon"><div class="ac-icon" style="background:#ec489920;color:#ec4899"><i class="fa-solid fa-tag"></i></div><span class="ac-label">${c.title} <b style="color:#ef4444">${c.discount}%</b></span><span class="ac-sub">${c.code}</span></div>`;})}
+    if(!html) html='<div class="ac-item"><span class="ac-label" style="color:#475569;font-style:italic">No results</span></div>';
+    dd.innerHTML=html;acActiveIndex=-1;
+}
+
+function acNavigateMatch(idx){closeAutocomplete();showSection('matches');renderAll();setTimeout(()=>openMatchTelemetry(idx),80);}
+function acNavigateVenue(idx){closeAutocomplete();showSection('venues');renderAll();setTimeout(()=>openVenueMap(idx),80);}
+function acNavigateCoupon(code){closeAutocomplete();showSection('coupons');renderAll();setTimeout(()=>{const el=document.querySelector(`[data-coupon-code="${code}"]`);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('highlight-coupon');setTimeout(()=>el.classList.remove('highlight-coupon'),2000);}},200);}
+function closeAutocomplete(){const d=document.getElementById('autocompleteDropdown');if(d)d.innerHTML='';acActiveIndex=-1;}
+function handleSearchKeydown(e){const d=document.getElementById('autocompleteDropdown');const items=d?d.querySelectorAll('.ac-item[data-type]'):[];if(!items.length)return;if(e.key==='ArrowDown'){e.preventDefault();acActiveIndex=Math.min(acActiveIndex+1,items.length-1);items.forEach((el,i)=>el.classList.toggle('ac-active',i===acActiveIndex));}else if(e.key==='ArrowUp'){e.preventDefault();acActiveIndex=Math.max(acActiveIndex-1,0);items.forEach((el,i)=>el.classList.toggle('ac-active',i===acActiveIndex));}else if(e.key==='Enter'){e.preventDefault();if(acActiveIndex>=0&&items[acActiveIndex])items[acActiveIndex].click();}else if(e.key==='Escape')closeAutocomplete();}
+
+// ══ PROFILE ══════════════════════════════════════════════════════════════════
+function handleProfileImageUpload(input){const f=input.files[0];if(!f)return;if(f.size>5*1024*1024){showToast('Max 5MB','error');return;}const r=new FileReader();r.onload=e=>{currentUser.img=e.target.result;localStorage.setItem('sh_user_profile',JSON.stringify(currentUser));syncProfileToUI();showToast('Photo updated!','success');};r.readAsDataURL(f);}
+function removeProfileImage(){currentUser.img='';localStorage.setItem('sh_user_profile',JSON.stringify(currentUser));syncProfileToUI();showToast('Photo removed','info');}
+function syncProfileToUI(){
+    const initials=currentUser.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('headerGreeting').innerText=`Welcome back, ${currentUser.name}! 👋`;
+    document.getElementById('sbUserName').innerText=currentUser.name;
+    document.getElementById('modalUserName').innerText=currentUser.name;
+    document.getElementById('profInputName').value=currentUser.name;
+    document.getElementById('profInputEmail').value=currentUser.email;
+    ['sbAvatarWrap','modalAvatarWrap','settingsAvatarWrap'].forEach(id=>{
+        const w=document.getElementById(id);if(!w)return;
+        w.innerHTML=currentUser.img?`<img src="${currentUser.img}" class="${id==='settingsAvatarWrap'?'profile-avatar-lg':'profile-avatar'}" alt="Profile">`:`<span>${initials}</span>`;
+    });
+}
+function updateProfile(){const n=document.getElementById('profInputName').value.trim(),e=document.getElementById('profInputEmail').value.trim();if(!n||!e){showToast('Fill all fields','error');return;}currentUser.name=n;currentUser.email=e;localStorage.setItem('sh_user_profile',JSON.stringify(currentUser));syncProfileToUI();showToast('Profile saved!','success');}
+
+// ══ NAVIGATION ══════════════════════════════════════════════════════════════
+function showSection(id){
+    document.querySelectorAll('.content-section').forEach(s=>s.classList.add('hidden-section'));
+    document.getElementById(id).classList.remove('hidden-section');
+    document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active-nav'));
+    const t=document.getElementById('nav-'+id);if(t)t.classList.add('active-nav');
+    if(id!=='venues' && currentPanelMode==='venue') closeRightPanel();
+}
+function switchSettingsTab(tabId,btn){document.querySelectorAll('.settings-tab-panel').forEach(p=>p.classList.add('hidden'));document.getElementById(tabId).classList.remove('hidden');document.querySelectorAll('.settings-tab-btn').forEach(b=>{b.classList.remove('text-slate-200','bg-slate-800/80');b.classList.add('text-slate-400');});if(btn){btn.classList.add('text-slate-200','bg-slate-800/80');btn.classList.remove('text-slate-400');}}
+function handleClearSplashOverlay(){const s=document.getElementById('splashScreen');if(s){s.classList.add('opacity-0','pointer-events-none');setTimeout(()=>s.remove(),700);}}
+
+// ══ TOAST ════════════════════════════════════════════════════════════════════
+function showToast(msg,type='success',dur=4000){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className=`toast ${type} animate-toast-in`;const icons={success:'fa-check-circle',error:'fa-exclamation-circle',info:'fa-info-circle',booking:'fa-ticket'};t.innerHTML=`<div style="flex-shrink:0;font-size:1.1rem"><i class="fa-solid ${icons[type]||icons.success}"></i></div><div style="flex:1">${msg}</div><div style="cursor:pointer;color:#64748b" onclick="this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></div>`;c.appendChild(t);setTimeout(()=>{t.classList.replace('animate-toast-in','animate-toast-out');setTimeout(()=>t.remove(),300);},dur);}
+
+// ══ INIT ═════════════════════════════════════════════════════════════════════
+function init(){
+    initializeMonthlyData();
+    
+    const de=document.getElementById('currentDate');if(de) de.innerHTML=`<i class="fa-regular fa-calendar-check text-slate-500"></i> ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`;
+    syncProfileToUI(); renderAll(); initUserRankings(); startRankingUpdates();
+    updateDashboardKPIs(); renderVenueBars(); updateAnalyticsPanel(); startBookingSimulation();
+
+    Chart.defaults.color='#94a3b8'; Chart.defaults.borderColor='#1e293b';
+    
+    const labels = getMonthlyLabels();
+    const data = getMonthlyChartData();
+    
+    perfChart=new Chart(document.getElementById('perfChart'),{
+        type:'line',
+        data:{
+            labels: labels,
+            datasets:[{
+                data: data,
+                borderColor:'#ef4444',
+                backgroundColor:'rgba(239,68,68,0.04)',
+                fill:true,
+                tension:0.4,
+                borderWidth:2
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{legend:{display:false}},
+            scales:{y:{grid:{color:'#1e293b'}},x:{grid:{display:false}}}
+        }
+    });
+    
+    audienceChart=new Chart(document.getElementById('audienceChart'),{type:'doughnut',data:{labels:['18-24','25-34','35-45','45+'],datasets:[{data:[40,30,20,10],backgroundColor:['#ef4444','#f43f5e','#b91c1c','#7f1d1d'],borderWidth:0}]},options:{plugins:{legend:{position:'right'}},responsive:true,maintainAspectRatio:false}});
+    socialChart=new Chart(document.getElementById('socialChart'),{type:'bar',data:{labels:['Website','App','Social','Direct'],datasets:[{data:[1.2,0.8,2.8,0.5],backgroundColor:'rgba(239,68,68,0.85)',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true},x:{grid:{display:false}}}}});
+    salesChart=new Chart(document.getElementById('salesChart'),{type:'bar',data:{labels:['Cricket','Football','Tennis','Basketball'],datasets:[{data:[0,0,0,0],backgroundColor:'rgba(239,68,68,0.85)',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1e293b'}},x:{grid:{display:false}}}}});
+    demoChart=new Chart(document.getElementById('demographicsChart'),{type:'pie',data:{labels:['18-25','26-35','36-50'],datasets:[{data:[50,30,20],backgroundColor:['#ef4444','#f59e0b','#3b82f6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+    updateCharts();
+}
+
+document.addEventListener('click',e=>{const w=document.querySelector('.search-wrapper');if(w&&!w.contains(e.target))closeAutocomplete();});
+window.onload=init;
+</script>
 </body>
 </html>
